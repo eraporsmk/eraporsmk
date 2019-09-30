@@ -45,21 +45,18 @@
 							<?php
 							$jumlah_asal	= 0;
 							$jumlah_masuk 	= 0;
-							$query = App\Migrasi::where('nama_table', '=', $table)->first();
+							$query = App\Migrasi::where('nama_table', '=', $table['name'])->first();
 							if($query){
 								$jumlah_asal	= $query->jumlah_asal;
 								$jumlah_masuk 	= $query->jumlah_masuk;
+							} else {
+								$jumlah_asal = $table['jumlah'];
 							}
 							?>
-							<td>{{$table}}</td>
+							<td>{{$table['name']}}</td>
 							<td class="text-center">{{number_format($jumlah_asal, 0,',','.')}}</td>
 							<td class="text-center">{{number_format($jumlah_masuk, 0,',','.')}}</td>
-							<td class="text-center">{!!(number_format($jumlah_asal, 0,',','.') > number_format($jumlah_masuk, 0,',','.')) ? '<span class="label label-danger">Kurang</span>' : '<span class="label label-success">Lengkap</span>' !!}</td>
-							<?php
-							/*
-							<td class="text-center">{!!(number_format(DB::connection('erapor')->table($table)->where('sekolah_id', $sekolah->sekolah_id)->count(), 0,',','.') > number_format($jumlah_masuk, 0,',','.')) ? '<span class="label label-danger">Kurang</span>' : '<span class="label label-success">Lengkap</span>' !!}</td>
-							*/
-							?>
+							<td class="text-center">{!!($jumlah_asal > $jumlah_masuk) ? '<span class="label label-danger">Kurang</span>' : '<span class="label label-success">Lengkap</span>' !!}</td>
 						</tr>
 					@endforeach
 					</tbody>
@@ -74,7 +71,7 @@
 var BarWidth = setInterval(frame, 1000);
 var ProsesSinkronTable;
 var Proses_Sinkron = function(m) {
-	var url = '{{url('sinkronisasi/proses-erapor5/')}}/'+m.table;
+	var url = '{{url('sinkronisasi/proses-erapor4/')}}/'+m.table;
 	$.get(url).done(function(response) {
 		if(response){
 			var data = $.parseJSON(response);
@@ -89,7 +86,7 @@ var Proses_Sinkron = function(m) {
 				$('.progress-bar').css('width','100%');
 				$('.status').text('Proses migrasi data selesai');
 				swal({title: 'Selesai', icon: 'success', closeOnClickOutside: false}).then((result) => {
-					window.location.replace('{{url('sinkronisasi/erapor5')}}');
+					window.location.replace('{{url('sinkronisasi/erapor4')}}');
 				});
 			}
 		}

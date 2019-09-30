@@ -32,7 +32,7 @@ Route::get('/users/delete/{id}', ['as' => 'users.delete', 'uses' => 'UsersContro
 Route::put('/users/update/{id}', array('as' => 'user.update', 'uses' => 'UsersController@update'));
 Route::get('/users/profile', array('as' => 'user.profile', 'uses' => 'UsersController@profile'));
 Route::get('/users/reset-password/{id}', ['as' => 'user.reset_password', 'uses' => 'UsersController@reset_password']);
-Route::post('/users/update_profile/{id}', array('as' => 'user.update_profile', 'uses' => 'UsersController@update_profile'));
+Route::post('/users/update-profile/{id}', array('as' => 'update_profile', 'uses' => 'UsersController@update_profile'));
 Route::get('/users/generate', 'UsersController@generate')->name('generate');
 Route::get('/role', 'RolesController@index')->name('role');
 Route::get('/role/list_role', 'UsersController@list_role')->name('list_role');
@@ -60,8 +60,8 @@ Route::delete('/hapus_pengguna/{id}', array('as' => 'users.destroy', 'uses' => '
 Route::get('/sinkronisasi/dapodik', 'SinkronisasiController@index')->name('ambil_dapodik');
 Route::get('/sinkronisasi/erapor', 'SinkronisasiController@kirim_data')->name('kirim_data');
 Route::get('/sinkronisasi/erapor4', 'SinkronisasiController@erapor_lama')->name('erapor_lama');
-//Route::get('/sinkronisasi/proses-erapor5', 'SinkronisasiController@proses_erapor_lama')->name('proses_erapor_lama');
-Route::get('/sinkronisasi/proses-erapor5/{tabel}', array('as' => 'sinkronisasi.proses_erapor_lama', 'uses' => 'SinkronisasiController@proses_erapor_lama'));
+Route::get('/sinkronisasi/proses-erapor4/{tabel}', array('as' => 'sinkronisasi.proses_erapor_lama', 'uses' => 'SinkronisasiController@proses_erapor_lama'));
+Route::get('/sinkronisasi/proses-kirim-nilai/{tingkat}/{sekolah_id}', 'SinkronisasiController@proses_kirim_nilai')->name('proses_kirim_nilai');
 Route::get('/sinkronisasi/proses-ambil-data', 'SinkronisasiController@ambil_data')->name('ambil_data');
 Route::get('/sinkronisasi/sekolah', 'SinkronisasiController@sekolah')->name('sekolah');
 Route::get('/sinkronisasi/guru', 'SinkronisasiController@guru')->name('sinkronisasi_guru');;

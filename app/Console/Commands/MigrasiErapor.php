@@ -35,6 +35,8 @@ use App\Kd_nilai;
 use App\Kompetensi_dasar;
 use App\Kd;
 use App\Nilai;
+use App\Nilai_akhir;
+use App\Nilai_rapor;
 use App\Bobot_keterampilan;
 use App\Absensi;
 use App\Catatan_ppk;
@@ -114,13 +116,13 @@ class MigrasiErapor extends Command
 	public function start_migrasi(){
 		$result['status'] = 1;
 		$result['progress'] = 0;
-		$result['table']	= 'ref_sikap';
+		$result['table']	= 'jurusan_sp';
 		echo json_encode($result);
 	}
 	public function jurusan_sp($sekolah_id){
 		$i=0;
 		$percent = intval(1/ 26 * 100);
-        $erapor = DB::connection('erapor')->table('jurusan_sp')->where('sekolah_id', $sekolah_id)->get();
+        $erapor = DB::connection('erapor4')->table('jurusan_sp')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'jurusan_sp';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -155,7 +157,7 @@ class MigrasiErapor extends Command
 	public function ref_guru($sekolah_id){
 		$i=0;
 		$percent = intval(2/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('ref_guru')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('ref_guru')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'ref_guru';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -226,13 +228,13 @@ class MigrasiErapor extends Command
 	public function rombongan_belajar($sekolah_id){
 		$i=0;
 		$percent = intval(3/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('rombongan_belajar')->where('sekolah_id', $sekolah_id)->where('jenis_rombel', 1)->get();
+		$erapor = DB::connection('erapor4')->table('rombongan_belajar')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'rombongan_belajar';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		foreach($erapor as $rombel){
-			$semester = DB::connection('erapor')->table('ref_semester')->find($rombel->semester_id);
+			$semester = DB::connection('erapor4')->table('ref_semester')->find($rombel->semester_id);
 			$tahun = substr($semester->tahun, 0,4); // returns "d"
 			$semester_id = $tahun.$semester->semester;
 			$get_jurusan_id = Jurusan_sp::where('jurusan_id', '=', $rombel->jurusan_id)->first();
@@ -280,11 +282,10 @@ class MigrasiErapor extends Command
 	public function ekskul($sekolah_id){
 		$i=0;
 		$percent = intval(4/ 26 * 100);
-		$query = DB::connection('erapor')->table('ekstrakurikuler')->where('ekstrakurikuler.sekolah_id', $sekolah_id);
-		$query->join('rombongan_belajar', 'rombongan_belajar.rombongan_belajar_id', '=', 'ekstrakurikuler.rombongan_belajar_id');
+		$query = DB::connection('erapor4')->table('ekstrakurikuler')->where('ekstrakurikuler.sekolah_id', $sekolah_id);
 		$query->join('ref_guru', 'ref_guru.guru_id', '=', 'ekstrakurikuler.guru_id');
 		$query->join('ref_semester', 'ref_semester.id', '=', 'ekstrakurikuler.semester_id');
-		$query->select(['rombongan_belajar.kurikulum_id', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.alamat_ekskul', 'ekstrakurikuler.id_kelas_ekskul', 'ref_guru.guru_id_dapodik', 'rombongan_belajar.tingkat', 'rombongan_belajar.rombel_id_dapodik', 'rombongan_belajar.jenis_rombel', 'ref_semester.tahun', 'ref_semester.semester']);
+		$query->select(['ekstrakurikuler.rombongan_belajar_id', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.alamat_ekskul', 'ekstrakurikuler.id_kelas_ekskul', 'ref_guru.guru_id_dapodik', 'ref_semester.tahun', 'ref_semester.semester']);
 		$erapor = $query->get();
 		$record['table'] = 'ekskul';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
@@ -298,16 +299,16 @@ class MigrasiErapor extends Command
 				$get_user = User::where('guru_id', '=', $get_wali->guru_id)->first();
 				$insert_rombel = array(
 					'sekolah_id' 			=> $sekolah_id,
-					'kurikulum_id' 			=> $data->kurikulum_id,
 					'nama' 					=> $data->nama_ekskul,
+					'kurikulum_id'			=> 99,
 					'guru_id' 				=> $get_wali->guru_id,
-					'tingkat' 				=> $data->tingkat,
+					'tingkat' 				=> 0,
 					'ptk_id' 				=> $data->guru_id_dapodik,
-					'jenis_rombel'			=> $data->jenis_rombel,
+					'jenis_rombel'			=> 51,
 					'last_sync'				=> date('Y-m-d H:i:s'),
 				);
 				$create_rombel = Rombongan_belajar::updateOrCreate(
-					['rombel_id_dapodik' => $data->rombel_id_dapodik, 'semester_id' => $semester_id],
+					['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => $semester_id],
 					$insert_rombel
 				);
 				$insert_ekskul = array(
@@ -361,13 +362,13 @@ class MigrasiErapor extends Command
 	public function pembelajaran($sekolah_id){
 		$i=0;
 		$percent = intval(5/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('pembelajaran')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('pembelajaran')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'pembelajaran';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		foreach($erapor as $data){
-			$semester = DB::connection('erapor')->table('ref_semester')->find($data->semester_id);
+			$semester = DB::connection('erapor4')->table('ref_semester')->find($data->semester_id);
 			$tahun = substr($semester->tahun, 0,4); // returns "d"
 			$semester_id = $tahun.$semester->semester;
 			$rombongan_belajar = Rombongan_belajar::where('rombongan_belajar_id_migrasi', '=', $data->rombongan_belajar_id)->first();
@@ -378,6 +379,8 @@ class MigrasiErapor extends Command
 				'guru_id'					=> $get_guru->guru_id,
 				'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
 				'nama_mata_pelajaran'		=> $data->nama_mata_pelajaran,
+				'kelompok_id'				=> $data->kelompok_id,
+				'no_urut'					=> $data->no_urut,
 				'kkm'						=> $data->kkm,
 				'is_dapodik'				=> $data->is_dapodik,
 				'last_sync'					=> date('Y-m-d H:i:s'),
@@ -407,7 +410,7 @@ class MigrasiErapor extends Command
 	public function ref_siswa($sekolah_id){
 		$i=0;
 		$percent = intval(6/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('ref_siswa')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('ref_siswa')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'ref_siswa';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -490,15 +493,20 @@ class MigrasiErapor extends Command
 	public function anggota_rombel($sekolah_id){
 		$i=0;
 		$percent = intval(7/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('anggota_rombel')->where('sekolah_id', $sekolah_id)->get();
+		//$erapor = DB::connection('erapor4')->table('anggota_rombel')->where('sekolah_id', $sekolah_id)->get();
+		$query = DB::connection('erapor4')->table('anggota_rombel')->where('anggota_rombel.sekolah_id', $sekolah_id);
+		$query->join('rombongan_belajar', 'rombongan_belajar.rombongan_belajar_id', '=', 'anggota_rombel.rombongan_belajar_id');
+		$query->join('ref_semester', 'ref_semester.id', '=', 'anggota_rombel.semester_id');
+		//$query->join('ref_semester', 'ref_semester.id', '=', 'ekstrakurikuler.semester_id');
+		//$query->select(['ekstrakurikuler.rombongan_belajar_id', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.alamat_ekskul', 'ekstrakurikuler.id_kelas_ekskul', 'ref_guru.guru_id_dapodik', 'ref_semester.tahun', 'ref_semester.semester']);
+		$erapor = $query->get();
 		$record['table'] = 'anggota_rombel';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		foreach($erapor as $data){
-			$semester = DB::connection('erapor')->table('ref_semester')->find($data->semester_id);
-			$tahun = substr($semester->tahun, 0,4); // returns "d"
-			$semester_id = $tahun.$semester->semester;
+			$tahun = substr($data->tahun, 0,4); // returns "d"
+			$semester_id = $tahun.$data->semester;
 			$find_rombel = Rombongan_belajar::where('rombongan_belajar_id_migrasi', '=', $data->rombongan_belajar_id)->first();
 			$find_siswa = Siswa::where('peserta_didik_id_migrasi', '=', $data->siswa_id)->first();
 			if($find_rombel){
@@ -506,6 +514,7 @@ class MigrasiErapor extends Command
 					'sekolah_id'				=> $sekolah_id,
 					'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 					'peserta_didik_id' 			=> $find_siswa->peserta_didik_id,
+					'anggota_rombel_id_migrasi'	=> $data->anggota_rombel_id,
 					'last_sync'					=> date('Y-m-d H:i:s'),
 				);
 				$create_anggota_rombel = Anggota_rombel::updateOrCreate(
@@ -546,13 +555,13 @@ class MigrasiErapor extends Command
 		);
 		$result['status'] = 1;
 		$result['progress'] = $percent;
-		$result['table']	= 'dudi';
+		$result['table']	= 'teknik_penilaian';
 		echo json_encode($result);
 	}
-	public function dudi($sekolah_id){
+	/*public function dudi($sekolah_id){
 		$i=0;
 		$percent = intval(8/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('dudi')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('dudi')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'dudi';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -602,7 +611,7 @@ class MigrasiErapor extends Command
 	public function mou($sekolah_id){
 		$i=0;
 		$percent = intval(9/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('mou')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('mou')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'mou';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -647,7 +656,7 @@ class MigrasiErapor extends Command
 		$result['progress'] = $percent;
 		$result['table']	= 'teknik_penilaian';
 		echo json_encode($result);
-	}
+	}*/
 	public function teknik_penilaian($sekolah_id){
 		$query = Teknik_penilaian::where('sekolah_id', '=', $sekolah_id);
 		if(!$query->count()){
@@ -694,8 +703,8 @@ class MigrasiErapor extends Command
 			}
 		}
 		$i=0;
-		$percent = intval(10/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('teknik_penilaian')->get();
+		$percent = intval(8/ 26 * 100);
+		$erapor = DB::connection('erapor4')->table('teknik_penilaian')->get();
 		$record['table'] = 'teknik_penilaian';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -729,8 +738,8 @@ class MigrasiErapor extends Command
 	}
 	public function bobot_keterampilan($sekolah_id){
 		$i=0;
-		$percent = intval(11/ 26 * 100);
-		$query = DB::connection('erapor')->table('bobot_keterampilan')->where('bobot_keterampilan.sekolah_id', $sekolah_id);
+		$percent = intval(9/ 26 * 100);
+		$query = DB::connection('erapor4')->table('bobot_keterampilan')->where('bobot_keterampilan.sekolah_id', $sekolah_id);
 		$query->join('pembelajaran', function ($join) {
             $join->on('pembelajaran.semester_id', '=', 'bobot_keterampilan.semester_id');
 			$join->on('pembelajaran.mata_pelajaran_id', '=', 'bobot_keterampilan.mata_pelajaran_id');
@@ -776,8 +785,8 @@ class MigrasiErapor extends Command
 	}
 	public function rencana_penilaian($sekolah_id){
 		$i=0;
-		$percent = intval(12/ 26 * 100);
-		$query = DB::connection('erapor')->table('rencana_penilaian')->where('rencana_penilaian.sekolah_id', $sekolah_id);
+		$percent = intval(10/ 26 * 100);
+		$query = DB::connection('erapor4')->table('rencana_penilaian')->where('rencana_penilaian.sekolah_id', $sekolah_id);
 		$query->join('ref_semester', 'ref_semester.id', '=', 'rencana_penilaian.semester_id');
 		$query->join('pembelajaran', function ($join) {
             $join->on('pembelajaran.semester_id', '=', 'rencana_penilaian.semester_id');
@@ -828,10 +837,10 @@ class MigrasiErapor extends Command
 	}
 	public function kd_nilai($sekolah_id){
 		$i=0;
-		$percent = intval(13/ 26 * 100);
+		$percent = intval(11/ 26 * 100);
 		$limit = 10000;
-		//$count = DB::connection('erapor')->table('kd_nilai')->where('sekolah_id', $sekolah_id)->count();
-		$query = DB::connection('erapor')->table('kd_nilai')->where('kd_nilai.sekolah_id', $sekolah_id);
+		//$count = DB::connection('erapor4')->table('kd_nilai')->where('sekolah_id', $sekolah_id)->count();
+		$query = DB::connection('erapor4')->table('kd_nilai')->where('kd_nilai.sekolah_id', $sekolah_id);
 		$query->join('ref_kompetensi_dasar', 'ref_kompetensi_dasar.id', '=', 'kd_nilai.kd_id');
 		$count = $query->count();
 		$record['table'] = 'kd_nilai';
@@ -839,7 +848,7 @@ class MigrasiErapor extends Command
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		for ($counter = 0; $counter <= $count; $counter += $limit) {
-			$query = DB::connection('erapor')->table('kd_nilai')->where('kd_nilai.sekolah_id', $sekolah_id);
+			$query = DB::connection('erapor4')->table('kd_nilai')->where('kd_nilai.sekolah_id', $sekolah_id);
 			$query->join('ref_kompetensi_dasar', 'ref_kompetensi_dasar.id', '=', 'kd_nilai.kd_id');
 			$query->offset($counter);
 			$query->limit($limit);
@@ -887,18 +896,18 @@ class MigrasiErapor extends Command
 						}
 					} else {
 						$insert_kd = array(
-							'id_kompetensi' 			=> $find_kd_erapor->id_kompetensi,
-							'kompetensi_id'				=> ($find_kd_erapor->aspek == 'P') ? 1 : 2,
-							'mata_pelajaran_id'			=> $find_kd_erapor->mata_pelajaran_id,
-							'kelas_10'					=> ($find_kd_erapor->kelas == 10) ? 1 : 0,
-							'kelas_11'					=> ($find_kd_erapor->kelas == 11) ? 1 : 0,
-							'kelas_12'					=> ($find_kd_erapor->kelas == 12) ? 1 : 0,
-							'kelas_13'					=> ($find_kd_erapor->kelas == 13) ? 1 : 0,
-							'id_kompetensi_nas'			=> $find_kd_erapor->id_kompetensi_nas,
-							'kompetensi_dasar'			=> $find_kd_erapor->kompetensi_dasar,
-							'kompetensi_dasar_alias'	=> $find_kd_erapor->kompetensi_dasar_alias,
+							'id_kompetensi' 			=> $data->id_kompetensi,
+							'kompetensi_id'				=> ($data->aspek == 'P') ? 1 : 2,
+							'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
+							'kelas_10'					=> ($data->kelas == 10) ? 1 : 0,
+							'kelas_11'					=> ($data->kelas == 11) ? 1 : 0,
+							'kelas_12'					=> ($data->kelas == 12) ? 1 : 0,
+							'kelas_13'					=> ($data->kelas == 13) ? 1 : 0,
+							'id_kompetensi_nas'			=> $data->id_kompetensi_nas,
+							'kompetensi_dasar'			=> $data->kompetensi_dasar,
+							'kompetensi_dasar_alias'	=> $data->kompetensi_dasar_alias,
 							'user_id'					=> $sekolah_id,
-							'aktif'						=> $find_kd_erapor->aktif,
+							'aktif'						=> $data->aktif,
 							'kurikulum'					=> $kurikulum,
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
@@ -937,23 +946,21 @@ class MigrasiErapor extends Command
 	}
 	public function nilai($sekolah_id){
 		$i=0;
-		$percent = intval(14/ 26 * 100);
+		$percent = intval(12/ 26 * 100);
 		$limit = 10000;
-		//$count = DB::connection('erapor')->table('nilai')->where('sekolah_id', $sekolah_id)->count();
-		$query = DB::connection('erapor')->table('nilai')->where('nilai.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('nilai')->where('nilai.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'nilai.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'nilai.siswa_id');
 			$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai.rombongan_belajar_id');
 		});
 		$count = $query->count();
-		dd($count);
 		$record['table'] = 'nilai';
 		$record['jumlah'] = number_format($count,0,',','.');
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		for ($counter = 0; $counter <= $count; $counter += $limit) {
-			$query = DB::connection('erapor')->table('nilai')->where('nilai.sekolah_id', $sekolah_id);
+			$query = DB::connection('erapor4')->table('nilai')->where('nilai.sekolah_id', $sekolah_id);
 			$query->join('anggota_rombel', function ($join) {
 				$join->on('anggota_rombel.semester_id', '=', 'nilai.semester_id');
 				$join->on('anggota_rombel.siswa_id', '=', 'nilai.siswa_id');
@@ -973,7 +980,6 @@ class MigrasiErapor extends Command
 							'nilai'				=> $data->nilai,
 							'rerata'			=> $data->rerata_jadi,
 							'last_sync'			=> date('Y-m-d H:i:s'),
-//							'kd_nilai_id' => $find_kd_nilai->kd_nilai_id, 'anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id, 'kompetensi_id' => $data->kompetensi_id
 						);
 						$create_data = Nilai::updateOrCreate(
 							['kd_nilai_id' => $find_kd_nilai->kd_nilai_id, 'anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id, 'kompetensi_id' => $data->kompetensi_id],
@@ -995,13 +1001,115 @@ class MigrasiErapor extends Command
 		);
 		$result['status'] = 1;
 		$result['progress'] = $percent;
+		$result['table']	= 'nilai_akhir';
+		echo json_encode($result);
+	}
+	public function nilai_akhir($sekolah_id){
+		$i=0;
+		$percent = intval(13/ 26 * 100);
+		$limit = 10000;
+		$erapor = DB::connection('erapor4')->table('nilai_akhir')->where('nilai_akhir.sekolah_id', $sekolah_id)
+		->join('anggota_rombel', function ($join) {
+			$join->on('anggota_rombel.semester_id', '=', 'nilai_akhir.semester_id');
+			$join->on('anggota_rombel.siswa_id', '=', 'nilai_akhir.siswa_id');
+			$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai_akhir.rombongan_belajar_id');
+		})
+		->join('pembelajaran', function ($join) {
+			$join->on('pembelajaran.rombongan_belajar_id', '=', 'nilai_akhir.rombongan_belajar_id');
+			$join->on('pembelajaran.mata_pelajaran_id', '=', 'nilai_akhir.mata_pelajaran_id');
+		})->get();
+		$count = $erapor->count();
+		$record['table'] = 'nilai_akhir';
+		$record['jumlah'] = number_format($count,0,',','.');
+		$record['inserted'] = $i;
+		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+		foreach($erapor as $data){
+			$find_anggota_rombel = Anggota_rombel::where('anggota_rombel_id_migrasi', '=', $data->anggota_rombel_id)->first();
+			$find_pembelajaran = Pembelajaran::where('pembelajaran_id_migrasi', '=', $data->pembelajaran_id)->first();
+			if($find_anggota_rombel && $find_pembelajaran){
+				$insert_nilai_akhir = array(
+					'sekolah_id'		=> $sekolah_id,
+					'nilai'				=> $data->nilai,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_data = Nilai_akhir::updateOrCreate(
+					['pembelajaran_id' => $find_pembelajaran->pembelajaran_id, 'anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id, 'kompetensi_id' => $data->kompetensi_id],
+					$insert_nilai_akhir
+				);
+				if($create_data){
+					$record['progress'] = $percent + (intval($i/ $count * 100) / 100);
+					$record['inserted'] = number_format($i,0,',','.');
+					Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+					$i++;
+				}
+			}
+		}
+		Migrasi::updateOrCreate(
+			['nama_table' => 'nilai_akhir'],
+			['jumlah_asal'	=> $count, 'jumlah_masuk' => Nilai_akhir::count()]
+		);
+		$result['status'] = 1;
+		$result['progress'] = $percent;
+		$result['table']	= 'nilai_rapor';
+		echo json_encode($result);
+	}
+	public function nilai_rapor($sekolah_id){
+		$i=0;
+		$percent = intval(14/ 26 * 100);
+		$limit = 10000;
+		$erapor = DB::connection('erapor4')->table('nilai_rapor')->where('nilai_rapor.sekolah_id', $sekolah_id)
+		->join('anggota_rombel', function ($join) {
+			$join->on('anggota_rombel.semester_id', '=', 'nilai_rapor.semester_id');
+			$join->on('anggota_rombel.siswa_id', '=', 'nilai_rapor.siswa_id');
+			$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai_rapor.rombongan_belajar_id');
+		})
+		->join('pembelajaran', function ($join) {
+			$join->on('pembelajaran.rombongan_belajar_id', '=', 'nilai_rapor.rombongan_belajar_id');
+			$join->on('pembelajaran.mata_pelajaran_id', '=', 'nilai_rapor.mata_pelajaran_id');
+		})->get();
+		$count = $erapor->count();
+		$record['table'] = 'nilai_rapor';
+		$record['jumlah'] = number_format($count,0,',','.');
+		$record['inserted'] = $i;
+		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+		foreach($erapor as $data){
+			$find_anggota_rombel = Anggota_rombel::where('anggota_rombel_id_migrasi', '=', $data->anggota_rombel_id)->first();
+			$find_pembelajaran = Pembelajaran::where('pembelajaran_id_migrasi', '=', $data->pembelajaran_id)->first();
+			if($find_anggota_rombel && $find_pembelajaran){
+				$insert_nilai_rapor = array(
+					'sekolah_id'		=> $sekolah_id,
+					'nilai_p'			=> $data->nilai_p,
+					'nilai_k'			=> $data->nilai_k,
+					'rasio_p'			=> $data->rasio_p,
+					'rasio_k'			=> $data->rasio_k,
+					'total_nilai'		=> ($data->nilai_p + $data->nilai_k),
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_data = Nilai_rapor::updateOrCreate(
+					['pembelajaran_id' => $find_pembelajaran->pembelajaran_id, 'anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id],
+					$insert_nilai_rapor
+				);
+				if($create_data){
+					$record['progress'] = $percent + (intval($i/ $count * 100) / 100);
+					$record['inserted'] = number_format($i,0,',','.');
+					Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+					$i++;
+				}
+			}
+		}
+		Migrasi::updateOrCreate(
+			['nama_table' => 'nilai_rapor'],
+			['jumlah_asal'	=> $count, 'jumlah_masuk' => Nilai_rapor::count()]
+		);
+		$result['status'] = 1;
+		$result['progress'] = $percent;
 		$result['table']	= 'absen';
 		echo json_encode($result);
 	}
 	public function absen($sekolah_id){
 		$i=0;
 		$percent = intval(15/ 26 * 100);
-		$query = DB::connection('erapor')->table('absen')->where('absen.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('absen')->where('absen.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'absen.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'absen.siswa_id');
@@ -1046,26 +1154,13 @@ class MigrasiErapor extends Command
 	public function catatan_ppk($sekolah_id){
 		$i=0;
 		$percent = intval(16/ 26 * 100);
-		try {
-			$query = DB::connection('erapor')->table('catatan_ppk')->where('catatan_ppk.sekolah_id', $sekolah_id);
-			$query->join('anggota_rombel', function ($join) {
-				$join->on('anggota_rombel.semester_id', '=', 'catatan_ppk.semester_id');
-				$join->on('anggota_rombel.siswa_id', '=', 'catatan_ppk.siswa_id');
-			});
-			$erapor = $query->get();
-			$count = $erapor->count();
-		} catch (\Exception $e) {
-			$response = Curl::to('http://localhost/erapor_5.0/test/get_catatan_ppk/'.$sekolah_id)->get();
-			$erapor = json_decode($response);
-			$count = count($erapor);
-			if(!$count){
-				$result['status'] = 1;
-				$result['progress'] = $percent;
-				$result['table']	= 'catatan_wali';
-				echo json_encode($result);
-				exit;
-			}
-		}
+		$query = DB::connection('erapor4')->table('catatan_ppk')->where('catatan_ppk.sekolah_id', $sekolah_id);
+		$query->join('anggota_rombel', function ($join) {
+			$join->on('anggota_rombel.semester_id', '=', 'catatan_ppk.semester_id');
+			$join->on('anggota_rombel.siswa_id', '=', 'catatan_ppk.siswa_id');
+		});
+		$erapor = $query->get();
+		$count = $erapor->count();
 		$record['table'] = 'catatan_ppk';
 		$record['jumlah'] = number_format($count,0,',','.');
 		$record['inserted'] = $i;
@@ -1106,7 +1201,7 @@ class MigrasiErapor extends Command
 	public function catatan_wali($sekolah_id){
 		$i=0;
 		$percent = intval(17/ 26 * 100);
-		$query = DB::connection('erapor')->table('catatan_wali')->where('catatan_wali.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('catatan_wali')->where('catatan_wali.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'catatan_wali.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'catatan_wali.siswa_id');
@@ -1149,7 +1244,7 @@ class MigrasiErapor extends Command
 	public function deskripsi_mata_pelajaran($sekolah_id){
 		$i=0;
 		$percent = intval(18/ 26 * 100);
-		$query = DB::connection('erapor')->table('deskripsi_mata_pelajaran')->where('deskripsi_mata_pelajaran.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('deskripsi_mata_pelajaran')->where('deskripsi_mata_pelajaran.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'deskripsi_mata_pelajaran.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'deskripsi_mata_pelajaran.siswa_id');
@@ -1201,7 +1296,7 @@ class MigrasiErapor extends Command
 	public function deskripsi_sikap($sekolah_id){
 		$i=0;
 		$percent = intval(19/ 26 * 100);
-		$query = DB::connection('erapor')->table('deskripsi_sikap')->where('deskripsi_sikap.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('deskripsi_sikap')->where('deskripsi_sikap.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'deskripsi_sikap.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'deskripsi_sikap.siswa_id');
@@ -1247,7 +1342,7 @@ class MigrasiErapor extends Command
 	public function kenaikan_kelas($sekolah_id){
 		$i=0;
 		$percent = intval(20/ 26 * 100);
-		$query = DB::connection('erapor')->table('kenaikan_kelas')->where('kenaikan_kelas.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('kenaikan_kelas')->where('kenaikan_kelas.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', 'anggota_rombel.anggota_rombel_id', '=', 'kenaikan_kelas.anggota_rombel_id');
 		$erapor = $query->get();
 		$record['table'] = 'kenaikan_kelas';
@@ -1260,24 +1355,22 @@ class MigrasiErapor extends Command
 				if($data->ke_kelas){
 					$find_rombongan_belajar = Rombongan_belajar::where('rombongan_belajar_id_migrasi', '=', $data->ke_kelas)->first();
 					$rombongan_belajar_id = $find_rombongan_belajar->rombongan_belajar_id;
-				} else {
-					$rombongan_belajar_id = NULL;
-				}
-				$insert_kenaikan_kelas = array(
-					'sekolah_id'			=> $sekolah_id,
-					'rombongan_belajar_id'	=> $rombongan_belajar_id,
-					'status'				=> $data->status,
-					'last_sync'				=> date('Y-m-d H:i:s'),
-				);
-				$create_data = Kenaikan_kelas::updateOrCreate(
-					['anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id],
-					$insert_kenaikan_kelas
-				);
-				if($create_data){
-					$record['progress'] = $percent + (intval($i/ $erapor->count() * 100) / 100);
-					$record['inserted'] = number_format($i,0,',','.');
-					Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
-					$i++;
+					$insert_kenaikan_kelas = array(
+						'sekolah_id'			=> $sekolah_id,
+						'rombongan_belajar_id'	=> $rombongan_belajar_id,
+						'status'				=> $data->status,
+						'last_sync'				=> date('Y-m-d H:i:s'),
+					);
+					$create_data = Kenaikan_kelas::updateOrCreate(
+						['anggota_rombel_id' => $find_anggota_rombel->anggota_rombel_id],
+						$insert_kenaikan_kelas
+					);
+					if($create_data){
+						$record['progress'] = $percent + (intval($i/ $erapor->count() * 100) / 100);
+						$record['inserted'] = number_format($i,0,',','.');
+						Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+						$i++;
+					}
 				}
 			}
 		}
@@ -1293,20 +1386,14 @@ class MigrasiErapor extends Command
 	public function nilai_ekstrakurikuler($sekolah_id){
 		$i=0;
 		$percent = intval(21/ 26 * 100);
-		$count = DB::connection('erapor')->table('nilai_ekstrakurikuler')->where('sekolah_id', $sekolah_id)->count();
-		/*$query = DB::connection('erapor')->table('nilai_ekstrakurikuler')->where('nilai_ekstrakurikuler.sekolah_id', $sekolah_id);
-		$query->join('anggota_rombel', 'anggota_rombel.siswa_id', '=', 'nilai_ekstrakurikuler.siswa_id');
-		$query->join('ekstrakurikuler', 'ekstrakurikuler.ekstrakurikuler_id', '=', 'nilai_ekstrakurikuler.ekstrakurikuler_id');
-		$query->select(['nilai_ekstrakurikuler.*', 'anggota_rombel.anggota_rombel_id_dapodik', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.id_kelas_ekskul']);
-		$erapor = $query->get();*/
-		$query = DB::connection('erapor')->table('nilai_ekstrakurikuler')->where('nilai_ekstrakurikuler.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('nilai_ekstrakurikuler')->where('nilai_ekstrakurikuler.sekolah_id', $sekolah_id);
 		$query->join('ekstrakurikuler', 'ekstrakurikuler.ekstrakurikuler_id', '=', 'nilai_ekstrakurikuler.ekstrakurikuler_id');
 		$query->join('rombongan_belajar', 'ekstrakurikuler.rombongan_belajar_id', '=', 'rombongan_belajar.rombongan_belajar_id');
 		$query->join('anggota_rombel', 'rombongan_belajar.rombongan_belajar_id', '=', 'anggota_rombel.rombongan_belajar_id');
 		$query->select(['nilai_ekstrakurikuler.nilai', 'nilai_ekstrakurikuler.deskripsi_ekskul', 'anggota_rombel.rombongan_belajar_id', 'anggota_rombel.anggota_rombel_id', 'anggota_rombel.anggota_rombel_id_dapodik', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.id_kelas_ekskul']);
         $erapor = $query->get();
 		$record['table'] = 'nilai_ekstrakurikuler';
-		$record['jumlah'] = number_format($count,0,',','.');
+		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		foreach($erapor as $data){
@@ -1318,20 +1405,8 @@ class MigrasiErapor extends Command
 					'sekolah_id'			=> $sekolah_id,
 					'nilai'					=> ($data->nilai) ? $data->nilai : NULL,
 					'deskripsi_ekskul'		=> ($data->deskripsi_ekskul) ? $data->deskripsi_ekskul : NULL,
-					//'anggota_rombel_id' 	=> $find_ekskul->anggota_rombel_satuan->anggota_rombel_id,
-					//'ekstrakurikuler_id' 	=> $find_ekskul->ekstrakurikuler_id,
 					'last_sync'				=> date('Y-m-d H:i:s'),
 				);
-				/*$find_nilai_ekskul = Nilai_ekstrakurikuler::where('anggota_rombel_id', '=', $find_ekskul->anggota_rombel_satuan->anggota_rombel_id)->where('ekstrakurikuler_id', '=', $find_ekskul->ekstrakurikuler_id)->first();
-				if($find_nilai_ekskul){
-					Nilai_ekstrakurikuler::find($find_nilai_ekskul->nilai_ekstrakurikuler_id)->update($insert_nilai_ekstrakurikuler);
-				} else {
-					$record['progress'] = $percent + (intval($i/ $count * 100) / 100);
-					$record['inserted'] = number_format($i,0,',','.');
-					Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
-					Nilai_ekstrakurikuler::create($insert_nilai_ekstrakurikuler);
-					$i++;
-				}*/
 				$create_data = Nilai_ekstrakurikuler::updateOrCreate(
 					['anggota_rombel_id' => $find_ekskul->anggota_rombel_satuan->anggota_rombel_id, 'ekstrakurikuler_id' => $find_ekskul->ekstrakurikuler_id],
 					$insert_nilai_ekstrakurikuler
@@ -1346,7 +1421,7 @@ class MigrasiErapor extends Command
 		}
 		Migrasi::updateOrCreate(
 			['nama_table' => 'nilai_ekstrakurikuler'],
-			['jumlah_asal'	=> $count, 'jumlah_masuk' => Nilai_ekstrakurikuler::count()]
+			['jumlah_asal'	=> $erapor->count(), 'jumlah_masuk' => Nilai_ekstrakurikuler::count()]
 		);
 		$result['status'] = 1;
 		$result['progress'] = $percent;
@@ -1356,7 +1431,7 @@ class MigrasiErapor extends Command
 	public function ref_sikap($sekolah_id){
 		$i=0;
 		$percent = intval(22/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('ref_sikap')->get();
+		$erapor = DB::connection('erapor4')->table('ref_sikap')->get();
 		$record['table'] = 'ref_sikap';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -1389,7 +1464,7 @@ class MigrasiErapor extends Command
 	public function nilai_karakter($sekolah_id){
 		$i=0;
 		$percent = intval(23/ 26 * 100);
-		$erapor = DB::connection('erapor')->table('nilai_karakter')->where('sekolah_id', $sekolah_id)->get();
+		$erapor = DB::connection('erapor4')->table('nilai_karakter')->where('sekolah_id', $sekolah_id)->get();
 		$record['table'] = 'nilai_karakter';
 		$record['jumlah'] = number_format($erapor->count(),0,',','.');
 		$record['inserted'] = $i;
@@ -1429,7 +1504,7 @@ class MigrasiErapor extends Command
 	public function nilai_sikap($sekolah_id){
 		$i=0;
 		$percent = intval(24/ 26 * 100);
-		$query = DB::connection('erapor')->table('nilai_sikap')->where('nilai_sikap.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('nilai_sikap')->where('nilai_sikap.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'nilai_sikap.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'nilai_sikap.siswa_id');
@@ -1481,7 +1556,7 @@ class MigrasiErapor extends Command
 	public function prakerin($sekolah_id){
 		$i=0;
 		$percent = intval(25/ 26 * 100);
-		$query = DB::connection('erapor')->table('prakerin')->where('prakerin.sekolah_id', $sekolah_id);
+		$query = DB::connection('erapor4')->table('prakerin')->where('prakerin.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'prakerin.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'prakerin.siswa_id');
@@ -1527,8 +1602,8 @@ class MigrasiErapor extends Command
 	public function prestasi($sekolah_id){
 		$i=0;
 		$percent = intval(26/ 26 * 100);
-		//$erapor = DB::connection('erapor')->table('prestasi')->where('sekolah_id', $sekolah_id)->get();
-		$query = DB::connection('erapor')->table('prestasi')->where('prestasi.sekolah_id', $sekolah_id);
+		//$erapor = DB::connection('erapor4')->table('prestasi')->where('sekolah_id', $sekolah_id)->get();
+		$query = DB::connection('erapor4')->table('prestasi')->where('prestasi.sekolah_id', $sekolah_id);
 		$query->join('anggota_rombel', function ($join) {
 			$join->on('anggota_rombel.semester_id', '=', 'prestasi.semester_id');
 			$join->on('anggota_rombel.siswa_id', '=', 'prestasi.siswa_id');

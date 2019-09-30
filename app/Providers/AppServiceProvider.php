@@ -39,20 +39,20 @@ class AppServiceProvider extends ServiceProvider
 				'icon'  => 'dashboard',
 				'active' => ['/', 'home'],
 			]);
-			if($url['host'] == 'localhost'){
+			if($url['host'] == 'localhost' || $url['port'] == 8002){
 				$event->menu->add([
 					'text'        => 'Sinkronisasi',
 					'url'         => '#',
 					'icon'        => 'refresh',
 					'permission'  		=> 'admin',
 					'submenu' => [
-						/*[
+						[
 							'text' => 'eRapor 4.x.x',
 							'url'  => 'sinkronisasi/erapor4',
 							'icon' => 'refresh',
 							'label'       => 'Offline',
 							'label_color' => 'danger',
-						],*/
+						],
 						[
 							'text' => 'Ambil Data Dapodik',
 							'url'  => 'sinkronisasi/dapodik',
@@ -85,14 +85,7 @@ class AppServiceProvider extends ServiceProvider
 					'permission'  		=> 'admin',
 					'submenu' => [
 						[
-							'text' => 'eRapor 5.x.x',
-							'url'  => 'sinkronisasi/erapor5',
-							'icon' => 'refresh',
-							'label'       => 'Offline',
-							'label_color' => 'danger',
-						],
-						[
-							'text' => 'Dapodik',
+							'text' => 'Ambil Data Dapodik',
 							'url'  => 'sinkronisasi/dapodik',
 							'icon' => 'download',
 							'label'       => 'Online',
@@ -100,7 +93,7 @@ class AppServiceProvider extends ServiceProvider
 							'active' => ['sinkronisasi/dapodik', 'sinkronisasi/guru', 'sinkronisasi/rombongan-belajar', 'sinkronisasi/ref-kd'],
 						],
 						[
-							'text' => 'eRapor',
+							'text' => 'Kirim Data eRapor',
 							'url'  => 'sinkronisasi/erapor',
 							'icon' => 'upload',
 							'label'       => 'Online',

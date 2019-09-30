@@ -33,6 +33,8 @@ use App\Dudi;
 use App\Rombongan_belajar;
 use App\Pembelajaran;
 use App\Ekstrakurikuler;
+use App\Nilai_akhir;
+use App\Nilai_rapor_dapodik;
 class SinkronisasiController extends Controller
 {
     public function __construct()
@@ -81,8 +83,6 @@ class SinkronisasiController extends Controller
         ->withData($data_sync)
         ->post();
 		$response = json_decode($curl->content);
-		//echo $host_server_direktorat;
-		//dd($curl);
 		if($curl->status == 200){
 			$response = $response;
 		} elseif($curl->status == 403 || $curl->status == 401) {
@@ -206,8 +206,161 @@ class SinkronisasiController extends Controller
 			'user' 		=> $user,
 			'sekolah' 	=> $sekolah,
 			'semester' 	=> $semester,
+			'rombongan_belajar' => [
+				[
+					'tingkat' => 10,
+					'jumlah'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 10);
+						$query->where('jenis_rombel', 1);
+					})->count(),
+					'terbuka'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 10);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 0);
+					})->count(), 
+					'terkunci' => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('tingkat', 10);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'nilai' => Nilai_akhir::whereHas('pembelajaran.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 10);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'terkirim' => Nilai_rapor_dapodik::whereHas('matev_rapor.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat_pendidikan_id', 10);
+						$query->where('jenis_rombel', 1);
+						$query->where('soft_delete', 0);
+					})->count(),
+				],
+				[
+					'tingkat' => 11,
+					'jumlah'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 11);
+						$query->where('jenis_rombel', 1);
+					})->count(), 
+					'terbuka'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 11);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 0);
+					})->count(), 
+					'terkunci' => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 11);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'nilai' => Nilai_akhir::whereHas('pembelajaran.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 11);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'terkirim' => Nilai_rapor_dapodik::whereHas('matev_rapor.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat_pendidikan_id', 11);
+						$query->where('jenis_rombel', 1);
+						$query->where('soft_delete', 0);
+					})->count(),
+				],
+				[
+					'tingkat' => 12,
+					'jumlah'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 12);
+						$query->where('jenis_rombel', 1);
+					})->count(), 
+					'terbuka'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 12);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 0);
+					})->count(), 
+					'terkunci' => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 10);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'nilai' => Nilai_akhir::whereHas('pembelajaran.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 12);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'terkirim' => Nilai_rapor_dapodik::whereHas('matev_rapor.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat_pendidikan_id', 12);
+						$query->where('jenis_rombel', 1);
+						$query->where('soft_delete', 0);
+					})->count(),
+				],
+				[
+					'tingkat' => 13,
+					'jumlah'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 13);
+						$query->where('jenis_rombel', 1);
+					})->count(), 
+					'terbuka'  => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 13);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 0);
+					})->count(), 
+					'terkunci' => Rombongan_belajar::where(function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 13);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'nilai' => Nilai_akhir::whereHas('pembelajaran.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat', 13);
+						$query->where('jenis_rombel', 1);
+						$query->where('kunci_nilai', 1);
+					})->count(),
+					'terkirim' => Nilai_rapor_dapodik::whereHas('matev_rapor.rombongan_belajar', function($query) use ($sekolah, $semester){
+						$query->where('sekolah_id', $sekolah->sekolah_id);
+						$query->where('semester_id', $semester->semester_id);
+						$query->where('tingkat_pendidikan_id', 13);
+						$query->where('jenis_rombel', 1);
+						$query->where('soft_delete', 0);
+					})->count(),
+				],
+			],
 		);
 		return view('sinkronisasi.kirim_nilai')->with($param);
+	}
+	public function proses_kirim_nilai($tingkat, $sekolah_id){
+		Artisan::call('kirim:nilai', ['tingkat' => $tingkat, 'sekolah_id' => $sekolah_id]);
 	}
 	public function proses_sync(){
 		$session_id = session()->getId();
@@ -474,13 +627,205 @@ class SinkronisasiController extends Controller
 		$semester = CustomHelper::get_ta();
 		Storage::disk('public')->delete('proses_migrasi.json');
 		try {
-        	DB::connection('erapor')->getPdo();
+        	DB::connection('erapor4')->getPdo();
 			$param = array(
 				'status' 	=> TRUE,
 				'output'	=> 'Migrasi eRaporSMK v.4.x.x ke eRaporSMK v.5.0.0 siap dilakukan!',
 				'sekolah' => $sekolah,
-				'all_table'	=> array(
-					'jurusan_sp', 'ref_guru', 'rombongan_belajar', 'ekstrakurikuler', 'pembelajaran', 'ref_siswa', 'anggota_rombel', 'dudi', 'mou', 'teknik_penilaian', 'bobot_keterampilan', 'rencana_penilaian', 'kd_nilai', 'nilai', 'absen', 'catatan_ppk', 'catatan_wali', 'deskripsi_mata_pelajaran', 'deskripsi_sikap', 'kenaikan_kelas', 'nilai_ekstrakurikuler', 'nilai_karakter', 'nilai_sikap', 'prakerin', 'prestasi'),
+				'all_table'	=> [
+					[
+						'name' => 'jurusan_sp',
+						'jumlah' => DB::connection('erapor4')->table('jurusan_sp')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'ref_guru', 
+						'jumlah' => DB::connection('erapor4')->table('ref_guru')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'rombongan_belajar', 
+						'jumlah' => DB::connection('erapor4')->table('rombongan_belajar')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'ekstrakurikuler', 
+						'jumlah' => DB::connection('erapor4')->table('ekstrakurikuler')->where('ekstrakurikuler.sekolah_id', $sekolah->sekolah_id)
+						->join('ref_guru', 'ref_guru.guru_id', '=', 'ekstrakurikuler.guru_id')
+						->join('ref_semester', 'ref_semester.id', '=', 'ekstrakurikuler.semester_id')
+						->select(['ekstrakurikuler.rombongan_belajar_id', 'ekstrakurikuler.nama_ekskul', 'ekstrakurikuler.alamat_ekskul', 'ekstrakurikuler.id_kelas_ekskul', 'ref_guru.guru_id_dapodik', 'ref_semester.tahun', 'ref_semester.semester'])
+						->count(),
+					],
+					[
+						'name' => 'pembelajaran', 
+						'jumlah' => DB::connection('erapor4')->table('pembelajaran')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'ref_siswa', 
+						'jumlah' => DB::connection('erapor4')->table('ref_siswa')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'anggota_rombel', 
+						'jumlah' => DB::connection('erapor4')->table('anggota_rombel')->where('anggota_rombel.sekolah_id', $sekolah->sekolah_id)
+						->join('rombongan_belajar', 'rombongan_belajar.rombongan_belajar_id', '=', 'anggota_rombel.rombongan_belajar_id')
+						->join('ref_semester', 'ref_semester.id', '=', 'anggota_rombel.semester_id')->count(),
+					],
+					[
+						'name' => 'teknik_penilaian', 
+						'jumlah' => DB::connection('erapor4')->table('teknik_penilaian')->count(),
+					],
+					[
+						'name' => 'bobot_keterampilan', 
+						'jumlah' => DB::connection('erapor4')->table('bobot_keterampilan')->where('bobot_keterampilan.sekolah_id', $sekolah->sekolah_id)
+						->join('pembelajaran', function ($join) {
+							$join->on('pembelajaran.semester_id', '=', 'bobot_keterampilan.semester_id');
+							$join->on('pembelajaran.mata_pelajaran_id', '=', 'bobot_keterampilan.mata_pelajaran_id');
+							$join->on('pembelajaran.rombongan_belajar_id', '=', 'bobot_keterampilan.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'rencana_penilaian', 
+						'jumlah' => DB::connection('erapor4')->table('rencana_penilaian')->where('rencana_penilaian.sekolah_id', $sekolah->sekolah_id)
+						->join('ref_semester', 'ref_semester.id', '=', 'rencana_penilaian.semester_id')
+						->join('pembelajaran', function ($join) {
+							$join->on('pembelajaran.semester_id', '=', 'rencana_penilaian.semester_id');
+							$join->on('pembelajaran.mata_pelajaran_id', '=', 'rencana_penilaian.mata_pelajaran_id');
+							$join->on('pembelajaran.rombongan_belajar_id', '=', 'rencana_penilaian.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'kd_nilai', 
+						'jumlah' => DB::connection('erapor4')->table('kd_nilai')->where('kd_nilai.sekolah_id', $sekolah->sekolah_id)
+						->join('ref_kompetensi_dasar', 'ref_kompetensi_dasar.id', '=', 'kd_nilai.kd_id')->count(),
+					],
+					[
+						'name' => 'nilai', 
+						'jumlah' => DB::connection('erapor4')->table('nilai')->where('nilai.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'nilai.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'nilai.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'nilai_akhir', 
+						'jumlah' => DB::connection('erapor4')->table('nilai_akhir')->where('nilai_akhir.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'nilai_akhir.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'nilai_akhir.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai_akhir.rombongan_belajar_id');
+						})
+						->join('pembelajaran', function ($join) {
+							$join->on('pembelajaran.rombongan_belajar_id', '=', 'nilai_akhir.rombongan_belajar_id');
+							$join->on('pembelajaran.mata_pelajaran_id', '=', 'nilai_akhir.mata_pelajaran_id');
+						})->count(),
+					],
+					[
+						'name' => 'nilai_rapor', 
+						'jumlah' => DB::connection('erapor4')->table('nilai_rapor')->where('nilai_rapor.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'nilai_rapor.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'nilai_rapor.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai_rapor.rombongan_belajar_id');
+						})
+						->join('pembelajaran', function ($join) {
+							$join->on('pembelajaran.rombongan_belajar_id', '=', 'nilai_rapor.rombongan_belajar_id');
+							$join->on('pembelajaran.mata_pelajaran_id', '=', 'nilai_rapor.mata_pelajaran_id');
+						})->count(),
+					],
+					[
+						'name' => 'absen', 
+						'jumlah' => DB::connection('erapor4')->table('absen')->where('absen.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'absen.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'absen.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'absen.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'catatan_ppk', 
+						'jumlah' => DB::connection('erapor4')->table('catatan_ppk')->where('catatan_ppk.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'catatan_ppk.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'catatan_ppk.siswa_id');
+						})->count(),
+					],
+					[
+						'name' => 'catatan_wali', 
+						'jumlah' => DB::connection('erapor4')->table('catatan_wali')->where('catatan_wali.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'catatan_wali.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'catatan_wali.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'catatan_wali.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'deskripsi_mata_pelajaran', 
+						'jumlah' => DB::connection('erapor4')->table('deskripsi_mata_pelajaran')->where('deskripsi_mata_pelajaran.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'deskripsi_mata_pelajaran.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'deskripsi_mata_pelajaran.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'deskripsi_mata_pelajaran.rombongan_belajar_id');
+						})->join('pembelajaran', function ($join) {
+							$join->on('pembelajaran.semester_id', '=', 'deskripsi_mata_pelajaran.semester_id');
+							$join->on('pembelajaran.mata_pelajaran_id', '=', 'deskripsi_mata_pelajaran.mata_pelajaran_id');
+							$join->on('pembelajaran.rombongan_belajar_id', '=', 'deskripsi_mata_pelajaran.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'deskripsi_sikap', 
+						'jumlah' => DB::connection('erapor4')->table('deskripsi_sikap')->where('deskripsi_sikap.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'deskripsi_sikap.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'deskripsi_sikap.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'deskripsi_sikap.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'kenaikan_kelas', 
+						'jumlah' => DB::connection('erapor4')->table('kenaikan_kelas')->where('kenaikan_kelas.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', 'anggota_rombel.anggota_rombel_id', '=', 'kenaikan_kelas.anggota_rombel_id')->count(),
+					],
+					[
+						'name' => 'nilai_ekstrakurikuler', 
+						'jumlah' => DB::connection('erapor4')->table('nilai_ekstrakurikuler')->where('nilai_ekstrakurikuler.sekolah_id', $sekolah->sekolah_id)
+						->join('ekstrakurikuler', 'ekstrakurikuler.ekstrakurikuler_id', '=', 'nilai_ekstrakurikuler.ekstrakurikuler_id')
+						->join('rombongan_belajar', 'ekstrakurikuler.rombongan_belajar_id', '=', 'rombongan_belajar.rombongan_belajar_id')
+						->join('anggota_rombel', 'rombongan_belajar.rombongan_belajar_id', '=', 'anggota_rombel.rombongan_belajar_id')->count(),
+					],
+					[
+						'name' => 'ref_sikap', 
+						'jumlah' => DB::connection('erapor4')->table('ref_sikap')->count(),
+					],
+					[
+						'name' => 'nilai_karakter', 
+						'jumlah' => DB::connection('erapor4')->table('nilai_karakter')->where('sekolah_id', $sekolah->sekolah_id)->count(),
+					],
+					[
+						'name' => 'nilai_sikap', 
+						'jumlah' => DB::connection('erapor4')->table('nilai_sikap')->where('nilai_sikap.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'nilai_sikap.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'nilai_sikap.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'nilai_sikap.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'prakerin', 
+						'jumlah' => DB::connection('erapor4')->table('prakerin')->where('prakerin.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'prakerin.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'prakerin.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'prakerin.rombongan_belajar_id');
+						})->count(),
+					],
+					[
+						'name' => 'prestasi',
+						'jumlah' => DB::connection('erapor4')->table('prestasi')->where('prestasi.sekolah_id', $sekolah->sekolah_id)
+						->join('anggota_rombel', function ($join) {
+							$join->on('anggota_rombel.semester_id', '=', 'prestasi.semester_id');
+							$join->on('anggota_rombel.siswa_id', '=', 'prestasi.siswa_id');
+							$join->on('anggota_rombel.rombongan_belajar_id', '=', 'prestasi.rombongan_belajar_id');
+						})->count(),
+					],
+				],
 			);
     	} catch (\Exception $e) {
         	//die("Could not connect to the database. Please check your configuration. error:" . $e );

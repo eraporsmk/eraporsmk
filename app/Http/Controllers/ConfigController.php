@@ -20,49 +20,6 @@ class ConfigController extends Controller
     }
 
     public function index(){
-		$find_19_20 = Tahun_ajaran::find(2019);
-		if(!$find_19_20){
-			Tahun_ajaran::create([
-				'tahun_ajaran_id'	=> 2019,
-				'nama'				=> '2019/2020',
-				'periode_aktif'		=> 1,
-				'tanggal_mulai'		=> '2019-07-15',
-				'tanggal_selesai'	=> '2020-06-01',
-				'created_at'		=> date('Y-m-d H:i:s'),
-				'updated_at'		=> date('Y-m-d H:i:s'),
-				'last_sync'			=> date('Y-m-d H:i:s')
-			]);
-		}
-		$find_191 = Semester::find('20191');
-		if(!$find_191){
-			Semester::create([
-				'semester_id'		=> '20191',
-				'tahun_ajaran_id'	=> 2019,
-				'nama'				=> '2019/2020 Ganjil',
-				'semester'			=> 1,
-				'periode_aktif'		=> 0,
-				'tanggal_mulai'		=> '2019-07-25',
-				'tanggal_selesai'	=> '2020-06-01',
-				'created_at'		=> date('Y-m-d H:i:s'),
-				'updated_at'		=> date('Y-m-d H:i:s'),
-				'last_sync'			=> date('Y-m-d H:i:s')
-			]);
-		}
-		$find_192 = Semester::find('20192');
-		if(!$find_192){
-			Semester::create([
-				'semester_id'		=> '20192',
-				'tahun_ajaran_id'	=> 2019,
-				'nama'				=> '2019/2020 Genap',
-				'semester'			=> 2,
-				'periode_aktif'		=> 0,
-				'tanggal_mulai'		=> '2019-07-25',
-				'tanggal_selesai'	=> '2020-06-01',
-				'created_at'		=> date('Y-m-d H:i:s'),
-				'updated_at'		=> date('Y-m-d H:i:s'),
-				'last_sync'			=> date('Y-m-d H:i:s')
-			]);
-		}
 		$user = auth()->user();
 		$jenis_gtk = CustomHelper::jenis_gtk('guru');
 		$data['all_guru']= Guru::where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();

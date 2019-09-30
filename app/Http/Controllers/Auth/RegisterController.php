@@ -45,7 +45,7 @@ class RegisterController extends Controller
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
-        try {
+		try {
 			//dd($validatedData);
             //$validatedData['password']        = bcrypt(array_get($validatedData, 'password'));
             //$validatedData['activation_code'] = str_random(30).time();

@@ -507,7 +507,7 @@ class SemesterSeeder extends Seeder
 				'tahun_ajaran_id'	=> 2018,
 				'nama' 				=> "2018/2019 Genap",
 				'semester' 			=> 2,
-				'periode_aktif'		=> 1,
+				'periode_aktif'		=> 0,
 				'tanggal_mulai'		=> "2019-01-01",
 				'tanggal_selesai'	=> "2019-07-15"
 			),
@@ -516,7 +516,7 @@ class SemesterSeeder extends Seeder
 				'tahun_ajaran_id'	=> 2019,
 				'nama' 				=> "2019/2020 Ganjil",
 				'semester' 			=> 1,
-				'periode_aktif'		=> 0,
+				'periode_aktif'		=> 1,
 				'tanggal_mulai'		=> "2019-07-01",
 				'tanggal_selesai'	=> "2019-12-31"
 			),
@@ -525,7 +525,7 @@ class SemesterSeeder extends Seeder
 				'tahun_ajaran_id'	=> 2019,
 				'nama' 				=> "2019/2020 Genap",
 				'semester' 			=> 2,
-				'periode_aktif'		=> 1,
+				'periode_aktif'		=> 0,
 				'tanggal_mulai'		=> "2020-01-01",
 				'tanggal_selesai'	=> "2020-07-15"
 			),

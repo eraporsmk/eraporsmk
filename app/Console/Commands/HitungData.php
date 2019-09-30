@@ -38,6 +38,12 @@ class HitungData extends Command
     public function handle()
     {
 		$arguments = $this->arguments();
+		if(!Storage::disk('public')->exists($arguments['file'])){
+			$record['table'] = '';
+			$record['jumlah'] = 0;
+			$record['inserted'] = 0;
+			Storage::disk('public')->put($arguments['file'], json_encode($record));
+		}
 		$json = Storage::disk('public')->get($arguments['file']);
 		echo $json;
 		/*$response = json_decode($json);

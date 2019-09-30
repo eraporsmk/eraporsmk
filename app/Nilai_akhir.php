@@ -13,4 +13,8 @@ class Nilai_akhir extends Model
 	protected $table = 'nilai_akhir';
 	protected $primaryKey = 'nilai_akhir_id';
 	protected $guarded = [];
+	public function pembelajaran(){
+		return $this->hasOne('App\Pembelajaran', 'pembelajaran_id', 'pembelajaran_id')->whereNotNull('kelompok_id');
+	}
+	
 }
