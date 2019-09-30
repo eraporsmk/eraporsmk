@@ -1,0 +1,10 @@
+body{background:#FFFFFF !important; background-color:#FFFFFF;font-family:Times; font-size:12px;}
+h3{font-size:14px;}
+table tr td,table tr th{padding:5px;}
+.table th{background-color:#FFFFCC !important}
+.strong {font-weight:bold;}
+.cetakan{
+	font-size:14px;
+	line-height:2em;
+}
+#cover_utama{width: 100%;height: 100%;border:4px double #0000FF;}

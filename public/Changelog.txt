@@ -1,0 +1,6 @@
+<div id="form">
+<legend><h3>Versi 5.0.0</h3></legend>
+<ol>
+<li><b style="color:blue">[Rilis]</b> Rilis aplikasi.</li>
+</ol>
+</div>
