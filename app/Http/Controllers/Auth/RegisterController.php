@@ -97,7 +97,12 @@ class RegisterController extends Controller
 			}
         } catch (\Exception $exception) {
             logger()->error($exception);
-			return redirect()->back()->with('error', $response->message);
+			if($response){
+				$message = $response->message;
+			} else {
+				$message = 'Server tidak merespon';
+			}
+			return redirect()->back()->withInput($request->input())->with('error', $message);
         }
         return redirect('login')->with('success', 'Registrasi berhasil.');
     }
