@@ -55,12 +55,13 @@ class AmbilData extends Command
 		if($curl->status == 200){
 			$function_name = str_replace('-', '_', $arguments['aksi']);
 			self::{$function_name}($response->dapodik, $satuan);
-		} elseif($curl->status == 403 || $curl->status == 404  || $curl->status == 401) {
+		} elseif($curl->status == 403 || $curl->status == 404  || $curl->status == 401  || $curl->status == 405) {
 			$result['status'] = 0;
 			$result['message'] = $response->error;
 			$result['icon'] = 'error';
 			echo json_encode($result);
 		} else {
+			dd($curl);
 			$result['status'] = 0;
 			$result['message'] = $host_server;//'Server tidak merespon';
 			$result['icon'] = 'error';

@@ -74,7 +74,7 @@ class ProsesData extends Command
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$query = HelperServiceProvider::array_to_object($response);
-		$data = $query->kepala_sekolah->ptk;
+		$data = $query->kepala_sekolah;
 		$random = Str::random(6);
 		$data->email = ($data->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 		$data->email = ($data->email != $user->email) ? $data->email : strtolower($random).'@erapor-smk.net';
@@ -320,7 +320,7 @@ class ProsesData extends Command
 		foreach($dapodik as $data){
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
-			$find_siswa = Siswa::where('siswa_id_dapodik', '=', $data->peserta_didik_id)->first();
+			$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->first();
 			if($find_siswa){
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $find_siswa->peserta_didik_id)->where('semester_id', '=', $semester->semester_id)->first();
 				if($find_anggota_rombel){

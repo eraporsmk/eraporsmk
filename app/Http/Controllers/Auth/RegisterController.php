@@ -46,54 +46,68 @@ class RegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 		try {
-			//dd($validatedData);
-            //$validatedData['password']        = bcrypt(array_get($validatedData, 'password'));
-            //$validatedData['activation_code'] = str_random(30).time();
-            //$user                             = 1;//app(User::class)->create($validatedData);
 			$data_sync = array(
 				'username_dapo'	=> $validatedData['email'],
 				'password_dapo'	=> $validatedData['password'],
 				'npsn'			=> $validatedData['name'],
 			);
 			$host_server_direktorat = CustomHelper::url_register();
-			$response = Curl::to($host_server_direktorat)
+			$curl = Curl::to($host_server_direktorat)
+			->returnResponseObject()
 			->withData($data_sync)
 			->post();
-			$response = json_decode($response);
+			$response = json_decode($curl->content);
 			$set_data = $response->data;
-			$data_sekolah = array(
-				'npsn' 					=> $set_data->npsn,
-				'nss' 					=> ($set_data->nss) ? $set_data->nss : 0,
-				'nama' 					=> $set_data->nama,
-				'alamat' 				=> $set_data->alamat,
-				'desa_kelurahan'		=> $set_data->desa_kelurahan,
-				'kode_wilayah'			=> $set_data->kode_wilayah,
-				'kecamatan' 			=> $set_data->kecamatan,
-				'kabupaten' 			=> $set_data->kabupaten,
-				'provinsi' 				=> $set_data->provinsi,
-				'kode_pos' 				=> $set_data->kode_pos,
-				'lintang' 				=> $set_data->lintang,
-				'bujur' 				=> $set_data->bujur,
-				'no_telp' 				=> $set_data->no_telp,
-				'no_fax' 				=> $set_data->no_fax,
-				'email' 				=> $set_data->email,
-				'website' 				=> $set_data->website,
-				'status_sekolah'		=> 0,
-				'last_sync'				=> date('Y-m-d H:i:s'),
-			);
-			$sekolah = Sekolah::updateOrCreate(
-				['sekolah_id' => $set_data->sekolah_id_dapodik],
-				$data_sekolah
-			);
-			$user = User::updateOrCreate(
-				['name' => 'Administrator','email' => $request['email']],
-				['password' => Hash::make($request['password']), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $set_data->sekolah_id_dapodik, 'password_dapo'	=> md5($request['password'])]
-			);
-			$adminRole = Role::where('name', 'admin')->first();
-			$user = User::where('email', $request['email'])->first();
-			$CheckadminRole = DB::table('role_user')->where('user_id', $user->user_id)->first();
-			if(!$CheckadminRole){
-				$user->attachRole($adminRole);
+			if($curl->status == 200){
+				$set_data = $response->data;
+				$kecamatan = '-';
+				$kabupaten = '-';
+				$provinsi = '-';
+				if($set_data->wilayah->parrent_recursive){
+					$kecamatan = $set_data->wilayah->parrent_recursive->nama;
+					if($set_data->wilayah->parrent_recursive->parrent_recursive){
+						$kabupaten = $set_data->wilayah->parrent_recursive->parrent_recursive->nama;
+						if($set_data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive){
+							$provinsi = $set_data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama;
+						}
+					}
+				}
+				$data_sekolah = array(
+					'npsn' 					=> $set_data->npsn,
+					'nss' 					=> ($set_data->nss) ? $set_data->nss : 0,
+					'nama' 					=> $set_data->nama,
+					'alamat' 				=> $set_data->alamat_jalan,
+					'desa_kelurahan'		=> $set_data->desa_kelurahan,
+					'kode_wilayah'			=> $set_data->kode_wilayah,
+					'kecamatan' 			=> $kecamatan,
+					'kabupaten' 			=> $kabupaten,
+					'provinsi' 				=> $provinsi,
+					'kode_pos' 				=> $set_data->kode_pos,
+					'lintang' 				=> $set_data->lintang,
+					'bujur' 				=> $set_data->bujur,
+					'no_telp' 				=> $set_data->nomor_telepon,
+					'no_fax' 				=> $set_data->nomor_fax,
+					'email' 				=> $set_data->email,
+					'website' 				=> $set_data->website,
+					'status_sekolah'		=> 0,
+					'last_sync'				=> date('Y-m-d H:i:s'),
+				);
+				$sekolah = Sekolah::updateOrCreate(
+					['sekolah_id' => $set_data->sekolah_id],
+					$data_sekolah
+				);
+				$user = User::updateOrCreate(
+					['name' => 'Administrator','email' => $request['email']],
+					['password' => Hash::make($request['password']), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $set_data->sekolah_id, 'password_dapo'	=> md5($request['password'])]
+				);
+				$adminRole = Role::where('name', 'admin')->first();
+				$user = User::where('email', $request['email'])->first();
+				$CheckadminRole = DB::table('role_user')->where('user_id', $user->user_id)->first();
+				if(!$CheckadminRole){
+					$user->attachRole($adminRole);
+				}
+			} else {
+				return redirect()->back()->withInput($request->input())->with('error', $response->error);
 			}
         } catch (\Exception $exception) {
             logger()->error($exception);

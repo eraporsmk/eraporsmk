@@ -35,6 +35,7 @@ use App\Pembelajaran;
 use App\Ekstrakurikuler;
 use App\Nilai_akhir;
 use App\Nilai_rapor_dapodik;
+use App\Mou;
 class SinkronisasiController extends Controller
 {
     public function __construct()
@@ -122,7 +123,7 @@ class SinkronisasiController extends Controller
 			$query->where('sekolah_id', '=', $user->sekolah_id);
 			$query->where('semester_id', '=', $semester->semester_id);
 		})->count();
-		$dudi_count = Dudi::where('sekolah_id', '=', $user->sekolah_id)->count();
+		$dudi_count = Mou::where('sekolah_id', '=', $user->sekolah_id)->count();
 		$jurusan_count = Jurusan::count();
 		$kurikulum_count = Kurikulum::count();
 		$mata_pelajaran_count = Mata_pelajaran::count();

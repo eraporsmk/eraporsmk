@@ -33,7 +33,6 @@
 					<th class="text-center">Jml Data Erapor</th>
 					<th class="text-center">Jml Data Sudah Tersinkronisasi</th>
 					<th class="text-center">Status</th>
-					<!--th class="text-center">Aksi</th-->
 	            </tr>
             </thead>
 			<tbody>
