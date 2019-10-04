@@ -50,9 +50,10 @@ class RegisterController extends Controller
 				'username_dapo'	=> $validatedData['email'],
 				'password_dapo'	=> $validatedData['password'],
 				'npsn'			=> $validatedData['name'],
+				'tahun_ajaran_id'	=> 2019,
+				'semester_id'		=> 20191,
 			);
-			$host_server_direktorat = CustomHelper::url_register();
-			$curl = Curl::to($host_server_direktorat)
+			$curl = Curl::to(CustomHelper::url_register())
 			->returnResponseObject()
 			->withData($data_sync)
 			->post();

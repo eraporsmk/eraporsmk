@@ -28,16 +28,6 @@ class GuruController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-		$check = DB::table('migrations')->where('migration', '2019_07_17_091910_ref_jenis_ptk')->first();
-		if(!$check){
-			Artisan::call('migrate');
-			Artisan::call('db:seed --class=JenisPtkSeeder');
-		}
-		$check = DB::table('migrations')->where('migration', '2019_07_17_100711_ref_status_kepegawaian')->first();
-		if(!$check){
-			Artisan::call('migrate');
-			Artisan::call('db:seed --class=StatusKepegawaianSeeder');
-		}
 		$check = Jenis_ptk::find(97);
 		if(!$check){
 			$insert_jenis_ptk = array(

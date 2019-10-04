@@ -289,4 +289,11 @@ class AmbilData extends Command
 		$result['message'] = 'Sinkron Kompetensi Dasar berhasil diproses';
 		echo json_encode($result);
 	}
+	private function anggota_ekskul_by_rombel($response){
+		$array = json_decode(json_encode($response), true);
+		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'anggota_ekskul', 'data' => $array)]);
+		$result['message'] = count($array).' Anggota Ekstrakurikuler berhasil di sinkronisasi';
+		$result['icon'] = 'success';
+		echo json_encode($result);
+	}
 }

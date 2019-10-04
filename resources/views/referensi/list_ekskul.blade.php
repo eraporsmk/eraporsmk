@@ -48,6 +48,14 @@ function turn_on_icheck(){
 			});
 		}
 	});
+	$('a.sync_anggota').bind('click',function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		$.get(url, function(response) {
+			var data = $.parseJSON(response);
+			swal(data.message, {icon: data.icon});
+		});
+	});
 }
 $(document).ready( function () {
 	var table = $('#datatable').DataTable( {

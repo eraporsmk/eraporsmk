@@ -34,8 +34,7 @@
                 {!! csrf_field() !!}
 
                 <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}{{ $errors->has('nuptk') ? 'has-error' : '' }}{{ $errors->has('nisn') ? 'has-error' : '' }}{{ $errors->has('password') ? 'has-error' : '' }}">
-                    <!--input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="Email/NUPTK/NISN"-->
-					<input type="text" name="email" class="form-control" value="{{ old('email') }}" placeholder="Email/NUPTK/NISN">
+                    <input type="text" name="email" class="form-control" value="{{ old('email') }}" placeholder="Email/NUPTK/NISN">
                     <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                     @if ($errors->has('email'))
                         <span class="help-block">

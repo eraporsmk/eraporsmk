@@ -113,7 +113,7 @@ class SinkronisasiController extends Controller
 			$query->where('sekolah_id', '=', $user->sekolah_id);
 			$query->where('semester_id', '=', $semester->semester_id);
 		})->count();
-		$pd_keluar = Anggota_rombel::whereHas('siswa')->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+		$pd_keluar = Anggota_rombel::whereHas('rombongan_belajar', function($query) use ($user, $semester){
 			$query->where('jenis_rombel', '=', 1);
 			$query->where('sekolah_id', '=', $user->sekolah_id);
 			$query->where('semester_id', '=', $semester->semester_id);
@@ -840,5 +840,32 @@ class SinkronisasiController extends Controller
 	public function proses_erapor_lama($table){
 		$user = auth()->user();
 		Artisan::call('migrasi:start', ['sekolah_id' => $user->sekolah_id, 'query' => $table]);
+	}
+	public function anggota_by_rombel($rombongan_belajar_id){
+		$server = 'erapor_server';
+		$data = 'Anggota Ekskul';
+		$aksi = 'anggota_ekskul_by_rombel';
+		$user = auth()->user();
+		$sekolah = Sekolah::find($user->sekolah_id);
+		$semester = CustomHelper::get_ta();
+		$last_sync = Setting::where('key', '=', 'last_sync')->first();
+		$last_sync = $last_sync->value;
+		$updated_at = $last_sync;
+		$host_server_direktorat = CustomHelper::url_server_direktorat($aksi);
+		$host_erapor_server = CustomHelper::url_server_erapor($aksi);
+		$data_sync = array(
+			'username_dapo'		=> $user->email,
+			'password_dapo'		=> trim($user->password_dapo),
+			'tahun_ajaran_id'	=> $semester->tahun_ajaran_id,
+			'semester_id'		=> $semester->semester_id,
+			'sekolah_id'		=> $user->sekolah_id,
+			'npsn'				=> $sekolah->npsn,
+			'server'			=> ($server == 'erapor_server') ? $host_server_direktorat : $host_erapor_server,
+			'aksi'				=> $aksi,
+			'last_sync'			=> $last_sync,
+			'updated_at'		=> $updated_at,
+			'satuan'			=> $rombongan_belajar_id
+		);
+		Artisan::call('sinkronisasi:ambildata',$data_sync);
 	}
 }

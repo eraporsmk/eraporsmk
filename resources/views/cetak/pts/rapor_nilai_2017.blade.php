@@ -35,7 +35,7 @@ body{font-size:11px !important;}
   <tr>
     <th style="vertical-align:middle;width: 2px;" align="center" rowspan="2">No</th>
     <th style="vertical-align:middle;width: 300px;" rowspan="2" align="center" class="text-center">Mata Pelajaran</th>
-    <th rowspan="2" align="center" style="width:10px;" class="text-center">KKM</th>
+    <th rowspan="2" align="center" style="width:10px;" class="text-center">SKM</th>
     <th colspan="2" align="center" class="width:150px;text-center">Nilai Murni</th>
 	<th rowspan="2" align="center" style="width:200px;" class="text-center">Keterangan</th>
   </tr>

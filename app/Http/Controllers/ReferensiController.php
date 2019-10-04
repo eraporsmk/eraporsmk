@@ -58,7 +58,7 @@ class ReferensiController extends Controller
 			return $return;
 		})
 		->addColumn('sync_anggota', function ($item) {
-			$return  = '<div class="text-center"><a href="'.url('sinkronisasi/anggota-by-rombel/'.$item->rombongan_belajar->rombel_id_dapodik).'" class="btn btn-danger btn-sm"><i class="fa fa-refresh"></i> Sinkron Anggota</a></div>';
+			$return  = '<div class="text-center"><a href="'.url('sinkronisasi/anggota-by-rombel/'.$item->rombongan_belajar->rombel_id_dapodik).'" class="sync_anggota btn btn-danger btn-sm"><i class="fa fa-refresh"></i> Sinkron Anggota</a></div>';
 			return $return;
 		})
 		 ->rawColumns(['anggota', 'sync_anggota'])
