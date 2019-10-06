@@ -177,9 +177,8 @@ $('#mapel').change(function(){
 				$('#result').html('');
 				var data = $.parseJSON(response);
 				$('#kompetensi').html('<option value="">== Pilih Kompetensi Penilaian ==</option>');
-				if($.isEmptyObject(data.result)){
-				} else {
-					$.each(data.result, function (i, item) {
+				if(!$.isEmptyObject(data.aspek_penilaian)){
+					$.each(data.aspek_penilaian, function (i, item) {
 						$('#kompetensi').append($('<option>', { 
 							value: item.value,
 							text : item.text

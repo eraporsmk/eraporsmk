@@ -16,7 +16,7 @@ class UpdateController extends Controller
     public function index(){
 		//Alert::message('Message', 'Optional Title');
 		$current_version = Setting::where('key', '=', 'app_version')->first();
-		$updater = Updater::isNewVersionAvailable('5.0.0');
+		$updater = Updater::isNewVersionAvailable('4.0.0');
 		$params = array(
 			'updater' 	=> $updater,
 		);
@@ -24,7 +24,7 @@ class UpdateController extends Controller
     }
 	private function new_version($current_version){
 		$host_server = 'http://103.40.55.226/updater/index.php';
-		$host_server = 'http://localhost/updater/index.php';
+		//$host_server = 'http://localhost/updater/index.php';
 		$response = Curl::to($host_server)->withData(array('versi' => $current_version))->get();
 		return json_decode($response);
 	}

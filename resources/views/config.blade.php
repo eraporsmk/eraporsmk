@@ -22,10 +22,10 @@
 		</div>
 	@endif
 	{{-- config('site.tanggal_rapor') --}}
-	<form action="konfigurasi/simpan" method="post">
+	<form action="konfigurasi/simpan" method="post"  enctype="multipart/form-data">
 		{{ csrf_field() }}
 		<div class="col-xs-12 no-padding">
-			<div class="form-group col-md-6">
+			<div class="form-group col-md-8">
 				<div class="form-group">
 					<label for="semester_id">Periode Aktif</label>
 					<select class="select2 form-control" name="semester_id" style="width: 100%;">
@@ -43,8 +43,6 @@
 						<input name="tanggal_rapor" value="{{ (old('tanggal_rapor')) ? old('tanggal_rapor') : date('d-m-Y', strtotime(App\Setting::ofType('tanggal_rapor'))) }}" id="tanggal_rapor" class="form-control datepicker" data-date-format="dd-mm-yyyy" type="text">
 					</div>
 				</div>
-			</div>
-			<div class="form-group col-md-6">
 				<div class="form-group">
 					<label for="description">Zona Waktu</label>
 					<select class="form-control select2" name="zona" style="width: 100%;">
@@ -62,6 +60,24 @@
 					</select>
 				</div>
 			</div>
+			<div class="form-group col-md-4 text-center">
+				<label for="logo">Logo Sekolah</label>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<?php $img = ($sekolah->logo_sekolah!= '')  ? url('storage/images/245/'.$sekolah->logo_sekolah) : url('vendor/img/logo.png'); ?><img src="<?php echo $img;?>" alt="logo_sekolah" />
+							<div class="input-group" style="margin-top:10px;">
+							<label class="input-group-btn">
+								<span class="btn btn-primary">
+									Cari berkas&hellip; <input type="file" name="logo_sekolah" style="display: none;" multiple>
+								</span>
+							</label>
+							<input type="text" class="form-control" readonly>
+						</div>
+				</div>
+			</div>
+		</div>
+			</div>
 		</div>
 		<div class="col-xs-12">
 			<div class="form-group">
@@ -78,5 +94,27 @@ $('.datepicker').datepicker({
 	autoclose: true,
 	format: "dd-mm-yyyy",
 });
+	$(document).on('change', ':file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+  });
+
+  // We can watch for our custom `fileselect` event like this
+  $(document).ready( function() {
+      $(':file').on('fileselect', function(event, numFiles, label) {
+
+          var input = $(this).parents('.input-group').find(':text'),
+              log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+          if( input.length ) {
+              input.val(log);
+          } else {
+              if( log ) alert(log);
+          }
+
+      });
+  });
 </script>
 @Stop

@@ -5,9 +5,9 @@
 @stop
 
 @section('content')
-	<div id="update_notification" class="callout callout-danger">
-		<h4>Status Pembaharuan Aplikasi</h4>
-		<p class="p1">Belum tersedia pembaharuan untuk versi aplikasi Anda</p>
+	<div id="update_notification" class="callout callout-info">
+		<h4>Memerika Pembaharuan</h4>
+		<p class="p1">Silahkan tunggu beberapa saat, aplikasi sedang memeriksa pembaharuan di server</p>
 		<p class="p2" style="display:none"><a id="check_update" href="updater.update" class="btn btn-lg btn-warning" style="text-decoration:none;">Proses Pembaharuan</a></p>
 	</div>
 	<div id="result"></div>
@@ -41,11 +41,13 @@ $(document).ready(function() {
 			console.log(response);
 			if(response != ''){
 				$('#update_notification h4').html('Pembaharuan Tersedia');
-				$('.callout-danger').switchClass( "callout-danger", "callout-success", 0, "easeInOutQuad" );
+				$('.callout-info').switchClass( "callout-info", "callout-success", 0, "easeInOutQuad" );
 				$('#update_notification .p1').html('Gunakan Tombol di bawah ini untuk memperbaharui aplikasi');
 				$('#update_notification .p2').show();
-				//$('#update_notification').append('<strong>Update Available <span class="badge badge-pill badge-info">v. '+response+'</span></strong><a role="button" href="updater.update" class="btn btn-sm btn-info pull-right">Update Now</a>');
-				//$('#update_notification').show();
+			} else {
+				$('#update_notification h4').html('Pembaharuan Belum Tersedia');
+				$('.callout-info').switchClass( "callout-info", "callout-danger", 0, "easeInOutQuad" );
+				$('#update_notification .p1').html('Belum tersedia pembaharuan untuk versi aplikasi Anda');
 			}
 		}
 	});

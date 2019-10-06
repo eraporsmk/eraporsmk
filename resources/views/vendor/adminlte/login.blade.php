@@ -81,10 +81,24 @@
 					<button type="submit" class="btn btn-primary btn-block btn-flat">Masuk</button>
 				</div>
             </form>
+			<?php
+			$sekolah = App\Sekolah::first();
+			?>
+			@if (!$sekolah)<p>- ATAU -</p>
             <div class="auth-links text-center">
-				<p>- ATAU -</p>
-                @if (config('adminlte.register_url', 'register'))
-                    <a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
+					<a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
+					<?php
+					/*<div class="row">
+						<div class="col-xs-6">
+						<a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
+						</div>
+						<div class="col-xs-6">
+						<a href="{{ url(config('adminlte.activated_url', 'activated')) }}" class="btn btn-danger btn-block btn-flat">Aktivasi</a>
+						</div>
+					</div>
+					*/
+					?>
+				@else
                 @endif
             </div>
         </div>

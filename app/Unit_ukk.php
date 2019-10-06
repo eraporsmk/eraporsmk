@@ -10,7 +10,7 @@ class Unit_ukk extends Model
     use Uuid;
     use SoftDeletes;
     public $incrementing = false;
-	protected $table = 'ref.unit_ukk';
+	protected $table = 'unit_ukk';
 	protected $primaryKey = 'unit_ukk_id';
 	protected $guarded = [];
 }

@@ -207,7 +207,6 @@ Selamat Datang {{ $user->name }}
 		{{--CustomHelper::test($all_pembelajaran)--}}
 	@endrole
 	@role('wali')
-	<div class="row">
 		@if ($message = Session::get('success'))
 		  <div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -221,10 +220,10 @@ Selamat Datang {{ $user->name }}
 			<strong>Error!</strong> {{ $message }}
 		  </div>
 		@endif
+	<div class="row">
 		<div class="col-lg-12 col-xs-12">
 			<section id="mata-pelajaran">
 			<?php 
-			//$rombongan_belajar_id = $rombongan_belajar->rombongan_belajar_id;
 			$aktifkan = ($rombongan_belajar->kunci_nilai) ? 1 : 0;
 			?>
 				<h4>Anda adalah Wali Kelas Rombongan Belajar <label class="label bg-green">{{$rombongan_belajar->nama}}</label></h4>

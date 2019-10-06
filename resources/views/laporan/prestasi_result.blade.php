@@ -54,6 +54,7 @@
 		</table>
 	</div>
 <script>
+$('.select2').select2();
 $('a.toggle-modal').bind('click',function(e) {
 	e.preventDefault();
 	var url = $(this).attr('href');

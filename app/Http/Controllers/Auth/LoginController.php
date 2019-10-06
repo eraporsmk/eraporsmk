@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Artisan;
 use App\Sekolah;
+use App\User;
 class LoginController extends Controller
 {
     /*
@@ -63,16 +64,21 @@ class LoginController extends Controller
 		if (Auth::attempt($request->only($login_type, 'password'))) {
 			return redirect()->intended($this->redirectPath());
 		}*/
+		$messages = [
+			'required' => ':attribute tidak boleh kosong.',
+			'email' => ':attribute harus email valid.',
+			'exists' => ':attribute tidak ditemukan atau pengguna tidak aktif.',
+		];
 		$email = Validator::make($request->all(), [
-			'email' => 'required|email|exists:users,email',
-		]);
+			'email' => 'required|email|exists:users,email,active,1',
+		], $messages);
 		
 		$nuptk = Validator::make($request->all(), [
-			'email' => 'required|exists:users,nuptk',
+			'email' => 'required|exists:users,nuptk,active,1',
 		]);
 		
 		$nisn = Validator::make($request->all(), [
-			'email' => 'required|exists:users,nisn',
+			'email' => 'required|exists:users,nisn,active,1',
 		]);
 		
 		$password = Validator::make($request->all(), [
@@ -85,8 +91,7 @@ class LoginController extends Controller
 				$login_type => strtolower($request->input('email'))
 			]);
 			if (Auth::attempt($request->only($login_type, 'password'))) {
-				//Artisan::call('migrate');
-				return redirect()->intended($this->redirectPath());
+            	return redirect()->intended($this->redirectPath());
 			}
 		} elseif ($nuptk->passes() && $password->passes()){
 			$login_type = 'nuptk';
@@ -107,11 +112,39 @@ class LoginController extends Controller
 		}
 		if (array_key_exists('nisn',$request->all())){
 			$login_type = 'NISN';
+			if ($nisn->fails()) {
+				return redirect()->back()->withErrors($nisn)->withInput();
+			}
 		} elseif(array_key_exists('nuptk',$request->all())){
 			$login_type = 'NUPTK';
+			if ($nuptk->fails()) {
+				return redirect()->back()->withErrors($nuptk)->withInput();
+			}
 		} else {
 			$login_type = 'email';
+			if ($email->fails()) {
+				return redirect()->back()->withErrors($email)->withInput();
+			}
 		}
 		return redirect()->back()->withInput()->withErrors([$login_type => 'Password salah untuk '.$login_type.' yang dimasukkan.',]);
+	}
+	public function activated(Request $request){
+		$messages = [
+			'required' => ':attribute tidak boleh kosong.',
+			'email' => ':attribute harus email valid.',
+			'exists' => ':attribute tidak ditemukan.',
+		];
+		$validator = Validator::make($request->all(), [
+			'email' => 'required|email|exists:users,email,active,0',
+			'kode_aktivasi' => 'required|exists:users,activation_code',
+		], $messages);
+		if ($validator->fails()) {
+			return redirect()->back()->withErrors($validator)->withInput();
+		} else {
+			$user = User::where('email', $request->email)->first();
+			$user->active = 1;
+			$user->save();
+			return redirect('login')->with('success', 'Akun berhasil diaktifkan.');
+		}
 	}
 }

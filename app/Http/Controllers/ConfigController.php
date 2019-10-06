@@ -12,11 +12,16 @@ use CustomHelper;
 use App\Exports\RekapNilaiExport;
 use App\Nilai;
 use App\Rombongan_belajar;
+use Image;
+use File;
+use Carbon\Carbon;
 class ConfigController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+		$this->path = storage_path('app/public/images');
+		$this->dimensions = ['245', '300', '500'];
     }
 
     public function index(){
@@ -25,16 +30,21 @@ class ConfigController extends Controller
 		$data['all_guru']= Guru::where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();
 		$data['all_data'] = Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'asc')->get();
 		$data['sekolah_id'] = $user->sekolah_id;
+		$data['sekolah'] = Sekolah::find($user->sekolah_id);
 		return view('config', $data);
     }
 	public function simpan(Request $request){
-		$this->validate($request,[
-           'tanggal_rapor' 	=> 'required',
-           'zona' 			=> 'required',
-		   'semester_id' 	=> 'required',
-		   //'guru_id'		=> 'required',
-		   'sekolah_id'		=> 'required',
-        ]);
+		 $messages = [
+    		'required' => ':attribute tidak boleh kosong',
+    		//'mimes' => 		':attribute hanya diperbolehkan berekstensi .jpg, .png dan .jpeg',
+  		];
+		$validated = $this->validate($request, [
+            'logo_sekolah'			=> 'image|mimes:jpg,png,jpeg',
+			'tanggal_rapor'			=> 'required',
+            'zona'					=> 'required',
+			'guru_id'				=> 'nullable',
+			'sekolah_id'			=> 'required',
+        ], $messages);
 		/*$setting = Setting::find(1);
 		$update = array(
 			'tanggal_rapor' => $request['tanggal_rapor'],
@@ -42,8 +52,9 @@ class ConfigController extends Controller
 		);*/
 		Setting::where('key', '=', 'tanggal_rapor')->update(['value' => $request['tanggal_rapor']]);
 		Setting::where('key', '=', 'zona')->update(['value' => $request['zona']]);
+		$sekolah = Sekolah::find($request['sekolah_id']);
 		if($request['guru_id']){
-			Sekolah::find($request['sekolah_id'])->update(['guru_id' => $request['guru_id']]);
+			$sekolah->guru_id = $request['guru_id'];
 		}
 		Semester::where('periode_aktif', '=', 1)->update(['periode_aktif' => 0]);
 		Semester::find($request['semester_id'])->update(['periode_aktif' => 1]);
@@ -53,6 +64,53 @@ class ConfigController extends Controller
             'display_name' => $request['name'],
             'description' => $request['description'],
         ]);*/
+		if (!File::isDirectory($this->path)) {
+            //MAKA FOLDER TERSEBUT AKAN DIBUAT
+            File::makeDirectory($this->path);
+        }
+		//MENGAMBIL FILE IMAGE DARI FORM
+        $file = $request->file('logo_sekolah');
+		if($file){
+			$image_path = "storage/images/".$sekolah->logo_sekolah;
+			if(File::exists($image_path)) {
+				File::delete($image_path);
+			} else {
+				Artisan::call('storage:link');
+			}
+			//MEMBUAT NAME FILE DARI GABUNGAN TIMESTAMP DAN UNIQID()
+			$fileName = Carbon::now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+			//UPLOAD ORIGINAN FILE (BELUM DIUBAH DIMENSINYA)
+			Image::make($file)->save($this->path . '/' . $fileName);
+			
+			//LOOPING ARRAY DIMENSI YANG DI-INGINKAN
+			//YANG TELAH DIDEFINISIKAN PADA CONSTRUCTOR
+			foreach ($this->dimensions as $row) {
+				$image_dimensions = "storage/images/".$row.'/'.$sekolah->logo_sekolah;
+				if(File::exists($image_dimensions)) {
+					File::delete($image_dimensions);
+				}
+				//MEMBUAT CANVAS IMAGE SEBESAR DIMENSI YANG ADA DI DALAM ARRAY 
+				$canvas = Image::canvas($row, $row);
+				//RESIZE IMAGE SESUAI DIMENSI YANG ADA DIDALAM ARRAY 
+				//DENGAN MEMPERTAHANKAN RATIO
+				$resizeImage  = Image::make($file)->resize($row, $row, function($constraint) {
+					$constraint->aspectRatio();
+				});
+				
+				//CEK JIKA FOLDERNYA BELUM ADA
+				if (!File::isDirectory($this->path . '/' . $row)) {
+					//MAKA BUAT FOLDER DENGAN NAMA DIMENSI
+					File::makeDirectory($this->path . '/' . $row);
+				}
+				
+				//MEMASUKAN IMAGE YANG TELAH DIRESIZE KE DALAM CANVAS
+				$canvas->insert($resizeImage, 'center');
+				//SIMPAN IMAGE KE DALAM MASING-MASING FOLDER (DIMENSI)
+				$canvas->save($this->path . '/' . $row . '/' . $fileName);
+			}
+			$sekolah->logo_sekolah = $fileName;
+		}
+		$sekolah->save();
 		return redirect()->route('konfigurasi')->with('success', "Konfigurasi berhasil disimpan");
 	}
 	public function year(){

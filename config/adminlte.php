@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'e-Rapor SMK',
+    'title' => 'e-RaporSMK',
 
     'title_prefix' => '',
 

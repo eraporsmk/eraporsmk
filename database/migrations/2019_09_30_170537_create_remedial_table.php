@@ -13,7 +13,7 @@ class CreateRemedialTable extends Migration
      */
     public function up()
     {
-        Schema::create('remedial', function (Blueprint $table) {
+        Schema::create('nilai_remedial', function (Blueprint $table) {
             $table->uuid('nilai_remedial_id');
 			$table->uuid('sekolah_id');
 			$table->uuid('anggota_rombel_id');
@@ -42,11 +42,11 @@ class CreateRemedialTable extends Migration
      */
     public function down()
     {
-        Schema::table('remedial', function (Blueprint $table) {
+        Schema::table('nilai_remedial', function (Blueprint $table) {
             $table->dropForeign(['anggota_rombel_id']);
 			$table->dropForeign(['pembelajaran_id']);
 			$table->dropForeign(['sekolah_id']);
         });
-        Schema::dropIfExists('remedial');
+        Schema::dropIfExists('nilai_remedial');
     }
 }

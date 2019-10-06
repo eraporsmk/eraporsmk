@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Blade;
-use App\Providers\HelperServiceProvider;
+use CustomHelper;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     }*/
 	public function boot(Dispatcher $events){
 		$events->listen(BuildingMenu::class, function (BuildingMenu $event) {
+			$ta = CustomHelper::get_ta();
 			$url = parse_url(url('/'));
 			$event->menu->add('periode');
 			$event->menu->add([
@@ -39,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
 				'icon'  => 'dashboard',
 				'active' => ['/', 'home'],
 			]);
-			if($url['host'] == 'localhost' || $url['port'] == 8002){
+			if($url['host'] == 'localhost' || $url['port'] != ''){
 				$event->menu->add([
 					'text'        => 'Sinkronisasi',
 					'url'         => '#',
@@ -298,67 +299,127 @@ class AppServiceProvider extends ServiceProvider
 					],
 				],
 			]);
-			$event->menu->add([
-				'text'	=> 'Laporan Hasil Belajar',
-				'url'  => '#',
-				'icon' => 'copy',
-				'permission'  => ['wali', 'waka'],
-				'submenu' => [
-					[
-						'text' => 'Catatan Akademik',
-						'url'  => 'laporan/catatan-akademik',
-						'icon' => 'hand-o-right',
+			if($ta->semester == 1){
+				$event->menu->add([
+					'text'	=> 'Laporan Hasil Belajar',
+					'url'  => '#',
+					'icon' => 'copy',
+					'permission'  => ['wali', 'waka'],
+					'submenu' => [
+						[
+							'text' => 'Catatan Akademik',
+							'url'  => 'laporan/catatan-akademik',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Nilai Karakter',
+							'url'  => 'laporan/nilai-karakter',
+							'active' => ['laporan/nilai-karakter', 'laporan/tambah-nilai-karakter'],
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Kehadiran',
+							'url'  => 'laporan/kehadiran',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Nilai Ekstrakurikuler',
+							'url'  => 'laporan/nilai-ekskul',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Praktik Kerja Lapangan',
+							'url'  => 'laporan/pkl',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Prestasi Peserta Didik',
+							'url'  => 'laporan/prestasi',
+							'icon' => 'hand-o-right',
+							'active' => ['laporan/prestasi', 'laporan/tambah-prestasi'],
+						],
+						[
+							'text' => 'Cetak Rapor PTS',
+							'url'  => 'laporan/rapor-pts',
+							'active' => ['laporan/rapor-pts', 'laporan/cetak-pts'],
+							'icon' => 'print',
+						],
+						[
+							'text' => 'Cetak Rapor Semester',
+							'url'  => 'laporan/rapor-semester',
+							'active' => ['laporan/rapor-semester', 'laporan/review-nilai/*', 'laporan/review-desc/*'],
+							'icon' => 'print',
+						],
+						[
+							'text' => 'Unduh Leger',
+							'url'  => 'laporan/leger',
+							'icon' => 'download',
+						],
 					],
-					[
-						'text' => 'Nilai Karakter',
-						'url'  => 'laporan/nilai-karakter',
-						'active' => ['laporan/nilai-karakter', 'laporan/tambah-nilai-karakter'],
-						'icon' => 'hand-o-right',
+				]);
+			} else {
+				$event->menu->add([
+					'text'	=> 'Laporan Hasil Belajar',
+					'url'  => '#',
+					'icon' => 'copy',
+					'permission'  => ['wali', 'waka'],
+					'submenu' => [
+						[
+							'text' => 'Catatan Akademik',
+							'url'  => 'laporan/catatan-akademik',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Nilai Karakter',
+							'url'  => 'laporan/nilai-karakter',
+							'active' => ['laporan/nilai-karakter', 'laporan/tambah-nilai-karakter'],
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Kehadiran',
+							'url'  => 'laporan/kehadiran',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Nilai Ekstrakurikuler',
+							'url'  => 'laporan/nilai-ekskul',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Praktik Kerja Lapangan',
+							'url'  => 'laporan/pkl',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Prestasi Peserta Didik',
+							'url'  => 'laporan/prestasi',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Kenaikan Kelas',
+							'url'  => 'laporan/kenaikan',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Cetak Rapor PTS',
+							'url'  => 'laporan/rapor-pts',
+							'active' => ['laporan/rapor-pts', 'laporan/cetak-pts'],
+							'icon' => 'print',
+						],
+						[
+							'text' => 'Cetak Rapor Semester',
+							'url'  => 'laporan/rapor-semester',
+							'active' => ['laporan/rapor-semester', 'laporan/review-nilai/*', 'laporan/review-desc/*'],
+							'icon' => 'print',
+						],
+						[
+							'text' => 'Unduh Leger',
+							'url'  => 'laporan/leger',
+							'icon' => 'download',
+						],
 					],
-					[
-						'text' => 'Kehadiran',
-						'url'  => 'laporan/kehadiran',
-						'icon' => 'hand-o-right',
-					],
-					[
-						'text' => 'Nilai Ekstrakurikuler',
-						'url'  => 'laporan/nilai-ekskul',
-						'icon' => 'hand-o-right',
-					],
-					[
-						'text' => 'Praktik Kerja Lapangan',
-						'url'  => 'laporan/pkl',
-						'icon' => 'hand-o-right',
-					],
-					[
-						'text' => 'Prestasi Peserta Didik',
-						'url'  => 'laporan/prestasi',
-						'icon' => 'hand-o-right',
-					],
-					[
-						'text' => 'Kenaikan Kelas',
-						'url'  => 'laporan/kenaikan',
-						'icon' => 'hand-o-right',
-					],
-					[
-						'text' => 'Cetak Rapor PTS',
-						'url'  => 'laporan/rapor-pts',
-						'active' => ['laporan/rapor-pts', 'laporan/cetak-pts'],
-						'icon' => 'print',
-					],
-					[
-						'text' => 'Cetak Rapor Semester',
-						'url'  => 'laporan/rapor-semester',
-						'active' => ['laporan/rapor-semester', 'laporan/review-nilai/*', 'laporan/review-desc/*'],
-						'icon' => 'print',
-					],
-					[
-						'text' => 'Unduh Leger',
-						'url'  => 'laporan/leger',
-						'icon' => 'download',
-					],
-				],
-			]);
+				]);
+			}
 			$event->menu->add([
 				'text'	=> 'Monitoring Dan Analisis',
 				'url'  => '#',

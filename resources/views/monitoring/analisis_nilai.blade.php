@@ -182,8 +182,8 @@ $('#mapel').change(function(){
 			if(result == true){
 				var data = $.parseJSON(response);
 				$('#kompetensi').html('<option value="">== Pilih Kompetensi Penilaian ==</option>');
-				if(!$.isEmptyObject(data.result)){
-					$.each(data.result, function (i, item) {
+				if(!$.isEmptyObject(data.aspek_penilaian)){
+					$.each(data.aspek_penilaian, function (i, item) {
 						$('#kompetensi').append($("<option></option>")
 						.attr("value",item.value)
 						.text(item.text)); 

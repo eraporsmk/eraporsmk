@@ -226,6 +226,7 @@ $('#mapel').change(function(){
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
+				console.log(data);
 				if(!$.isEmptyObject(data.result)){
 					$.each(data.result, function (i, item) {
 						$('#rencana').append($('<option>', { 

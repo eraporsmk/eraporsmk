@@ -49,7 +49,6 @@
 			<div class="col-sm-12">
 				<div class="form-group">
 					<?php $img = ($user->photo!= '')  ? url('storage/images/245/'.$user->photo) : url('vendor/img/avatar3.png'); ?><img src="<?php echo $img;?>" class="user-image" alt="User Image" />
-					<!--input type="file" name="image"-->
 					<div class="input-group" style="margin-top:10px;">
 						<label class="input-group-btn">
 							<span class="btn btn-primary">

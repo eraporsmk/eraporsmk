@@ -71,6 +71,7 @@ class AjaxController extends Controller
 			})
 			->where('tingkat', '=', $tingkat)
 			->where('semester_id', '=', $semester_id)
+			->where('jenis_rombel', '=', 1)
 			->orderBy('nama')
 			->orderBy('tingkat')
 			->get();
@@ -101,6 +102,7 @@ class AjaxController extends Controller
 					})
 					->where('tingkat', '=', $tingkat)
 					->where('semester_id', '=', $semester_id)
+					->where('jenis_rombel', '=', 1)
 					->orderBy('nama')
 					->orderBy('tingkat')
 					->get();
@@ -209,8 +211,9 @@ class AjaxController extends Controller
 		} else {
 			$kurikulum = 2013;
 		}
-		//$all_kd = Kompetensi_dasar::select(DB::raw('id_kompetensi, kompetensi_dasar, kompetensi_dasar_alias'))->where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->orderBy('id_kompetensi', 'ASC')->groupBy(['id_kompetensi', 'kompetensi_dasar', 'kompetensi_dasar_alias'])->get();
-		$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->get();//orderBy('id_kompetensi', 'ASC')->get();
+		//$orderByRaw = "split_part(id_kompetensi, '.', 1) ASC";
+		//$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->orderByRaw($orderByRaw)->get();
+		$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->get();
 		$bobot = '';
 		$bentuk_penilaian = '';
 		if($kompetensi_id == 1){
@@ -272,7 +275,7 @@ class AjaxController extends Controller
 			$record= array();
 			$record['value'] 	= $kompetensi['id'];
 			$record['text'] 	= $kompetensi['nama'];
-			$output['result'][] = $record;
+			$output['aspek_penilaian'][] = $record;
 		}
 		echo json_encode($output);
 	}
@@ -334,7 +337,9 @@ class AjaxController extends Controller
 			$q->with('kompetensi_dasar');
 			$q->where('rencana_penilaian.kompetensi_id', '=', $request['kompetensi_id']);
 			$q->where('kd_id', '=', $request['kd']);
-		}, 'anggota_rombel', 'anggota_rombel.siswa', 'anggota_rombel.nilai_kd_'.$nama_kompetensi => function($query) use ($request){
+		}, 'anggota_rombel' => function($query){
+			$query->where('jenis_rombel', 1);
+		}, 'anggota_rombel.siswa', 'anggota_rombel.nilai_kd_'.$nama_kompetensi => function($query) use ($request){
 			$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
 		}])->find($pembelajaran_id);
 		$params = array(
@@ -347,7 +352,6 @@ class AjaxController extends Controller
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$kompetensi_id = $request['kompetensi_id'];
 		$nama_kompetensi = ($kompetensi_id == 1) ? 'p' : 'k';
-		//$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
 		$with = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
 		$pembelajaran = Pembelajaran::with(['kd_nilai' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
@@ -506,7 +510,7 @@ class AjaxController extends Controller
 		$all_sikap = Sikap::whereHas('sikap')->with('sikap')->orderBy('sikap_id')->get();
 		$params = array(
 			'nilai_sikap' => $nilai_sikap,
-			'all_sikap' => $all_sikap,//$query = Sikap::whereNull('sikap_induk')->with('sikap')->orderBy('sikap_id')->get(),
+			'all_sikap' => $all_sikap,
 			'guru_id'	=> $guru_id,
 		);
 		return view('penilaian.penilaian_sikap')->with($params);
@@ -526,7 +530,6 @@ class AjaxController extends Controller
 			};
 			$all_anggota = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
 		} else {
-			//$all_anggota = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
 			$all_anggota = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
 		}
 		$all_bobot = Rencana_penilaian::where('pembelajaran_id', '=', $pembelajaran_id)->where('kompetensi_id', '=', $kompetensi_id)->sum('bobot');
@@ -617,7 +620,6 @@ class AjaxController extends Controller
 				foreach($all_nilai_sikap as $nilai_sikap){
 					$opsi_sikap = ($nilai_sikap->opsi_sikap == 1) ? 'positif' : 'negatif';
 					$a[$nilai_sikap->sikap_id][CustomHelper::nama_guru($nilai_sikap->guru->gelar_depan, $nilai_sikap->guru->nama, $nilai_sikap->guru->gelar_belakang)][] = $nilai_sikap->ref_sikap->butir_sikap.' = '.$nilai_sikap->uraian_sikap.' ('.$opsi_sikap.')';
-					//$a[$nilai_sikap->sikap_id][$nilai_sikap->guru->nama][] = $nilai_sikap->ref_sikap->butir_sikap.' = '.$nilai_sikap->uraian_sikap.' ('.$opsi_sikap.')';
 				}
 			} else {
 				$a= array();
@@ -631,17 +633,6 @@ class AjaxController extends Controller
 				$get_nilai_karakter = NULL;
 			}
 			$output['sikap_id_'.$sikap] = ($get_nilai_karakter) ? $get_nilai_karakter->deskripsi : '';
-			/*if($a){
-				foreach($a as $b => $c){
-					//dd($c);
-					$nama_guru = '<p>'.$b.'</p>';
-					$nama_guru .= '<ul>';
-					foreach($c as $d => $e){
-						$nama_guru .= '<li>'.$e.'</li>';
-					}
-					$nama_guru .= '</ul>';
-				}
-			}*/
 			if(isset($a[$sikap])){
 				$nama_guru = '';
 				foreach($a[$sikap] as $b=>$c){
@@ -651,7 +642,6 @@ class AjaxController extends Controller
 						$nama_guru .= '<li>'.$e.'</li>';
 					}
 					$nama_guru .= '</ul>';
-					//dd($nama_guru);
 					$output['sugesti_'.$sikap] = $nama_guru;
 				}
 			}
@@ -743,6 +733,7 @@ class AjaxController extends Controller
 		return view('laporan.waka.kenaikan_result')->with($params);
 	}
 	public function get_nilai_ekskul(Request $request){
+		$user = auth()->user();
 		$guru_id = $request['guru_id'];
 		$rombongan_belajar = Rombongan_belajar::find($request['rombel_id']);
 		$callback = function($query) use ($request){
@@ -762,6 +753,7 @@ class AjaxController extends Controller
 		$params = array(
 			'get_siswa'	=> $get_siswa,
 			'open'	=> ($guru_id == $rombongan_belajar->guru_id) ? 1 : 0,
+			'user'	=> $user,
 			'rombongan_belajar_id' => $request['rombel_id'],
 		);
 		return view('laporan.waka.nilai_ekskul_result')->with($params);

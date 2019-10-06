@@ -41,11 +41,20 @@ class LaporanController extends Controller
 			);
 			return view('laporan.waka.catatan_akademik')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
+			/*$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('jenis_rombel', 1)->where('semester_id', $semester->semester_id)->first();
 			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
 				$query->with('pembelajaran');
 				$query->limit(3);
 			}])->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+			*/
+			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
+				$query->with('pembelajaran');
+				$query->limit(3);
+			}])->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,
@@ -159,8 +168,11 @@ class LaporanController extends Controller
 	public function tambah_nilai_karakter(){
 		$user = auth()->user();
 		$semester = CustomHelper::get_ta();
-		$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
-		$get_siswa = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+		$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+			$query->where('guru_id', $user->guru_id);
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', $semester->semester_id);
+		})->order()->get();
 		$all_sikap = Sikap::whereNull('sikap_induk')->with('sikap')->get();
 		$params = array(
 			'data'		=> NULL,
@@ -207,9 +219,12 @@ class LaporanController extends Controller
 			);
 			return view('laporan.waka.kehadiran')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
-			$get_siswa = Anggota_rombel::with('siswa')->with('kehadiran')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
+			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('jenis_rombel', 1)->where('semester_id', $semester->semester_id)->first();
+			$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,
@@ -260,7 +275,6 @@ class LaporanController extends Controller
 			);
 			return view('laporan.waka.nilai_ekskul')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
 			$callback = function($query) use ($semester){
 				$query->where('semester_id', $semester->semester_id);
 				$query->whereIn('rombongan_belajar_id', function($q){
@@ -274,7 +288,11 @@ class LaporanController extends Controller
 				}]);
 				$query->with('nilai_ekskul');
 			};
-			$get_siswa = Anggota_rombel::with('siswa')->whereHas('anggota_ekskul', $callback)->with(['anggota_ekskul' => $callback])->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+			$get_siswa = Anggota_rombel::with('siswa')->whereHas('anggota_ekskul', $callback)->with(['anggota_ekskul' => $callback])->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,
@@ -293,11 +311,14 @@ class LaporanController extends Controller
 			);
 			return view('laporan.waka.pkl')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
 			$all_dudi = Dudi::with(['kecamatan' => function($query){
 				$query->with('get_kabupaten');
 			}])->where('sekolah_id', $user->sekolah_id)->orderBy('nama', 'asc')->get();
-			$get_siswa = Anggota_rombel::with('siswa')->with('prakerin')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+			$get_siswa = Anggota_rombel::with(['siswa', 'prakerin'])->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,
@@ -344,8 +365,11 @@ class LaporanController extends Controller
 	public function tambah_prestasi(){
 		$user = auth()->user();
 		$semester = CustomHelper::get_ta();
-		$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
-		$get_siswa = Anggota_rombel::with('siswa')->with('prestasi')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+		$get_siswa = Anggota_rombel::with(['siswa', 'prestasi'])->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 		$params = array(
 			'user' 		=> $user,
 			'semester' 	=> $semester,
@@ -461,8 +485,11 @@ class LaporanController extends Controller
 			return view('laporan.waka.kenaikan')->with($params);
 		} else {
 			$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $semester->semester_id)->where('tingkat', 13)->first();
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
-			$get_siswa = Anggota_rombel::with('siswa')->with('kenaikan')->with('rombongan_belajar')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+			$get_siswa = Anggota_rombel::with(['siswa', 'kenaikan', 'rombongan_belajar'])->whereHas('rombongan_belajar', function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			})->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,
@@ -563,8 +590,12 @@ class LaporanController extends Controller
 			);
 			return view('laporan.waka.rapor_semester')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->first();
-			$get_siswa = Anggota_rombel::with('siswa')->with('rombongan_belajar')->where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)->order()->get();
+			$callback = function($query) use ($user, $semester){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('jenis_rombel', 1);
+				$query->where('semester_id', $semester->semester_id);
+			};
+			$get_siswa = Anggota_rombel::with(['siswa', 'rombongan_belajar' => $callback])->whereHas('rombongan_belajar', $callback)->order()->get();
 			$params = array(
 				'user' 		=> $user,
 				'semester' 	=> $semester,

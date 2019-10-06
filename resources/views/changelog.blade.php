@@ -36,7 +36,7 @@
 </ol>
 </div>');
 			}
-			echo '<div class="last_update">'. date ("d-m-Y H:i:s", filemtime($filename)).'</div>';
+			//echo '<div class="last_update">'. date ("d-m-Y H:i:s", filemtime($filename)).'</div>';
 			echo $hits;
 			?>
 @stop

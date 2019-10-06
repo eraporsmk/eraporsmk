@@ -364,6 +364,13 @@ class UsersController extends Controller
 						$set_roles = array('10');
 					}
 				}
+				if($user->hasRole('pembina_ekskul')){
+					if($set_roles){
+						$set_roles = array_merge($set_roles, ['11']);
+					} else {
+						$set_roles = array('11');
+					}
+				}
 			} elseif($user->hasRole('admin')){
 				$set_roles = array('2');
 			}
@@ -422,6 +429,7 @@ class UsersController extends Controller
 		$find_guru = Guru::whereNotIn('guru_id',function($query) use ($user) {
 			$query->select('guru_id')->from('users')->whereNotNull('guru_id')->where('sekolah_id', '=', $user->sekolah_id);
 		})->where('sekolah_id', '=', $user->sekolah_id)->get();
+		//$find_guru = Guru::where('sekolah_id', $user->sekolah_id)->get();
 		$jenis_tu = CustomHelper::jenis_gtk('tendik');
 		$asesor = CustomHelper::jenis_gtk('asesor');
 		if($find_guru->count()){

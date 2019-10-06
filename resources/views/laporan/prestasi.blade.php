@@ -40,6 +40,7 @@
 
 @section('js')
 <script>
+$('.select2').select2();
 $('#siswa').change(function(){
 	var ini = $(this).val();
 	if(ini == ''){

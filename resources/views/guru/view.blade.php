@@ -146,7 +146,7 @@ if($guru->gelar_belakang){
 				<select name="dudi_id" class="form-control select2" style="width:100%">
 					<option value="">Pilih Dudi</option>
 					@foreach($data_dudi as $dudi)
-					<option value="{{$dudi->dudi_id}}">{{$dudi->nama}}</option>
+					<option value="{{$dudi->dudi_id}}" {{($guru->dudi && $guru->dudi->dudi_id == $dudi->dudi_id) ? ' selected="selected"' : '-'}}>{{$dudi->nama}}</option>
 					@endforeach
 				</select>
 				@endrole

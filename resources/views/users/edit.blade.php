@@ -43,6 +43,9 @@
 							if($user->hasRole('wali') && $row->id == 10) { 
 								$disabled = 'disabled="disabled"';
 							}
+							if($user->hasRole('pembina_ekskul') && $row->id == 11) { 
+								$disabled = 'disabled="disabled"';
+							}
 						} elseif($user->hasRole('siswa') && $row->id == 5){
 							$disabled = 'disabled="disabled"';
 						} elseif($user->hasRole('admin') && $row->id == 2){

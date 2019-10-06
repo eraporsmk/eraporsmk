@@ -54,7 +54,6 @@
 							<tbody>
 								@if($siswa->nilai_rapor->count())
 								@foreach($siswa->nilai_rapor as $nilai_rapor)
-								{{--dd($nilai_rapor)--}}
 								<tr>
 									<td>{{$nilai_rapor->pembelajaran->nama_mata_pelajaran}}</td>
 									<td class="text-center">{{$nilai_rapor->nilai_p}}</td>

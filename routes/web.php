@@ -12,10 +12,11 @@
 Route::get('/', function () {
     return view('home');
 });
+Route::get('/activated', function () {
+    return view('auth.activated');
+});
+Route::post('/proses-aktifasi', 'Auth\LoginController@activated')->name('form_activated');
 */
-
-
-
 Auth::routes();
 //home start
 Route::get('/', 'HomeController@index')->name('home');
@@ -283,3 +284,15 @@ Route::get('/cetak/rapor-nilai/{query}/{id}', 'CetakController@rapor_nilai');
 Route::get('/cetak/rapor-pendukung/{query}/{id}', 'CetakController@rapor_pendukung');
 //Route::post('/cetak/rapor-pts', array('as' => 'cetak.rapor_pts', 'uses' => 'CetakController@rapor_pts'));
 //Cetang End//
+Route::get('/list-table', function () {
+	$tables = DB::select("SELECT
+    table_schema || '.' || table_name as show_tables
+FROM
+    information_schema.tables
+WHERE
+    table_type = 'BASE TABLE'
+AND
+    table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY table_schema;");
+	$data['tables'] = $tables;
+	return view('list-table', $data);
+});

@@ -3,7 +3,7 @@
 @if($all_kd->count())
 <?php
 foreach($all_kd as $kompetensi_dasar){
-	$data_kd[$kompetensi_dasar->id_kompetensi] = $kompetensi_dasar;
+	$data_kd[str_replace('.','',$kompetensi_dasar->id_kompetensi)] = $kompetensi_dasar;
 }
 ksort($data_kd);
 ?>

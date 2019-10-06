@@ -16,14 +16,10 @@
                 color: #636b6f;
                 font-family: 'Nunito', sans-serif;
                 font-weight: 200;
-                height: 100vh;
                 margin: 0;
             }
 
-            .full-height {
-                height: 100vh;
-            }
-
+            
             .flex-center {
                 align-items: center;
                 display: flex;
@@ -83,7 +79,38 @@
                 <div class="title m-b-md">
                     Laravel
                 </div>
-
+				<table border="1" width="90%">
+					<thead>
+						<tr>
+							<th>Nama Table</th>
+							<th>Tipe</th>
+						</tr>
+					</thead>
+					<tbody>
+					@foreach($tables as $table)
+						<tr>
+							<td>{{$table->show_tables}}</td>
+							<td>
+								<?php 
+						$table_name = str_replace('public.', '', $table->show_tables);
+						$table_name = str_replace('ref.', '', $table_name);
+						$columns = \Schema::getColumnListing($table_name);
+						//$b = DB::select("SELECT column_name, data_type  FROM information_schema.COLUMNS WHERE TABLE_NAME = '$table_name';");
+						echo implode("<br>", $columns);
+						 ?>
+							</td>
+							<td>
+							<?php
+							foreach($columns as $column){
+								$a = \Schema::getColumnType($table_name, $column);
+								echo $a.'<br>';
+							}
+							?>
+							</td>
+						</tr>
+					@endforeach
+					</tbody>
+				</table>
                 <div class="links">
                     <a href="https://laravel.com/docs">Docs</a>
                     <a href="https://laracasts.com">Laracasts</a>

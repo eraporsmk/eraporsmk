@@ -138,6 +138,14 @@ class GuruController extends Controller
 		$jenis_ptk_id = $request['jenis_ptk_id'];
 		if($gelar_depan){
 			foreach($gelar_depan as $depan){
+				$insert_depan = array(
+					'sekolah_id'		=> $guru->sekolah_id,
+					'gelar_akademik_id'	=> $depan,
+					'guru_id'			=> $guru_id,
+					'ptk_id'			=> $guru->guru_id_dapodik,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				Gelar_ptk::create($insert_depan);
 			}
 		}
 		$gelar_belakang = $request['gelar_belakang'];
