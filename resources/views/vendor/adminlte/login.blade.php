@@ -84,23 +84,12 @@
 			<?php
 			$sekolah = App\Sekolah::first();
 			?>
-			@if (!$sekolah)<p>- ATAU -</p>
+			@if (!$sekolah)
             <div class="auth-links text-center">
-					<a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
-					<?php
-					/*<div class="row">
-						<div class="col-xs-6">
-						<a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
-						</div>
-						<div class="col-xs-6">
-						<a href="{{ url(config('adminlte.activated_url', 'activated')) }}" class="btn btn-danger btn-block btn-flat">Aktivasi</a>
-						</div>
-					</div>
-					*/
-					?>
-				@else
-                @endif
+				<p>- ATAU -</p>
+				<a href="{{ url(config('adminlte.register_url', 'register')) }}" class="btn btn-success btn-block btn-flat">Registrasi</a>
             </div>
+			@endif
         </div>
         <!-- /.login-box-body -->
     </div><!-- /.login-box -->

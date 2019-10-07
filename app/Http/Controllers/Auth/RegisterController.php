@@ -62,7 +62,7 @@ class RegisterController extends Controller
 			$set_data = $response->data;
 			if($curl->status == 200){
 				$set_data = $response->data;
-				if(isset($set_data->pengguna) && $set_data->pengguna != null){
+				//if(isset($set_data->pengguna) && $set_data->pengguna != null){
 					$kecamatan = '-';
 					$kabupaten = '-';
 					$provinsi = '-';
@@ -109,9 +109,9 @@ class RegisterController extends Controller
 					if(!$CheckadminRole){
 						$user->attachRole($adminRole);
 					}
-				} else {
-					return redirect()->back()->withInput($request->input())->with('error', $response->message);
-				}
+				//} else {
+					//return redirect()->back()->withInput($request->input())->with('error', $response->message);
+				//}
 			} else {
 				return redirect()->back()->withInput($request->input())->with('error', $response->error);
 			}

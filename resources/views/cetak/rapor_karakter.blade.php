@@ -28,7 +28,26 @@
 	</tr>
 </table>
 <br>
-<div class="strong">G.&nbsp;&nbsp;Deskripsi Perkembangan Karakter</div>
+<?php
+if($get_siswa->rombongan_belajar->tingkat == 10){
+	if($get_siswa->rombongan_belajar->semester->semester == 2){
+		$huruf_desc = 'F';
+		$huruf_cat = 'G';
+	} else {
+		$huruf_desc = 'E';
+		$huruf_cat = 'F';
+	}
+} else {
+	if($get_siswa->rombongan_belajar->semester->semester == 2){
+		$huruf_desc = 'G';
+		$huruf_cat = 'H';
+	} else {
+		$huruf_desc = 'F';
+		$huruf_cat = 'G';
+	}
+}
+?>
+<div class="strong">{{$huruf_desc}}.&nbsp;&nbsp;Deskripsi Perkembangan Karakter</div>
 <table width="100%" border="1">
 	<thead>
 		<tr>
@@ -52,7 +71,7 @@
 	</tbody>
 </table>
 <br>
-<div class="strong">H.&nbsp;&nbsp;Catatan Perkembangan Karakter</div>
+<div class="strong">{{$huruf_cat}}.&nbsp;&nbsp;Catatan Perkembangan Karakter</div>
 <table width="100%" border="1">
   <tr>
     <td style="padding:10px;">

@@ -78,11 +78,13 @@ class SinkronisasiController extends Controller
 		->returnResponseObject()
         ->withData($data_sync)
         ->post();
-		$host_erapor_server = CustomHelper::url_server_erapor('count_kd');
-		$response_dashboard = Curl::to($host_erapor_server)
-		->returnResponseObject()
-        ->withData($data_sync)
-        ->post();
+		$curl_kd = Curl::to(config('erapor.url_server').'sinkronisasi')->returnResponseObject()->get();
+		//dd($curl_kd);
+		//$host_erapor_server = CustomHelper::url_server_erapor('count_kd');
+		//$response_dashboard = Curl::to($host_erapor_server)
+		//->returnResponseObject()
+        //->withData($data_sync)
+        //->post();
 		$response = json_decode($curl->content);
 		if($curl->status == 200){
 			$response = $response;
@@ -93,9 +95,9 @@ class SinkronisasiController extends Controller
 			$response->error = TRUE;
 			$response->message = 'Server tidak merespon';
 		}
-		if($response_dashboard->status == 200){
-			$response_dashboard = json_decode($response_dashboard->content);
-			$response->ref_kd = $response_dashboard->dapodik;
+		if($curl_kd->status == 200){
+			//$response_dashboard = json_decode($response_dashboard->content);
+			$response->ref_kd = $curl_kd->content;
 		} else {
 			$response->ref_kd = 0;
 		}
@@ -128,6 +130,7 @@ class SinkronisasiController extends Controller
 		$kurikulum_count = Kurikulum::count();
 		$mata_pelajaran_count = Mata_pelajaran::count();
 		$mata_pelajaran_kurikulum_count = Mata_pelajaran_kurikulum::count();
+		$kompetensi_dasar_count = Kompetensi_dasar::count();
 		$data_erapor = array(
 			'get_sekolah_sinkron' => Sekolah::find($user->sekolah_id),
 			'sekolah_erapor' => $sekolah,
@@ -156,8 +159,8 @@ class SinkronisasiController extends Controller
 			'mata_pelajaran_sinkron' => $mata_pelajaran_count,
 			'mata_pelajaran_kurikulum_erapor' => $mata_pelajaran_kurikulum_count,
 			'mata_pelajaran_kurikulum_sinkron' => $mata_pelajaran_kurikulum_count,
-			'kompetensi_dasar_erapor' => Kompetensi_dasar::count(),
-			'kompetensi_dasar_sinkron' => Kompetensi_dasar::whereNull('user_id')->count(),
+			'kompetensi_dasar_erapor' => $kompetensi_dasar_count,
+			'kompetensi_dasar_sinkron' => $kompetensi_dasar_count,//Kompetensi_dasar::whereNull('user_id')->count(),
 		);
 		return $data_erapor;
 	}
@@ -186,16 +189,17 @@ class SinkronisasiController extends Controller
 		return redirect()->route('sinkronisasi_ref_kd')->with($flash);
 	}
 	public function kirim_data(){
-		$url_server = CustomHelper::url_server_erapor('status');
+		$url_server = config('erapor.url_server').'sinkronisasi/status';
+		//CustomHelper::url_server_erapor('status');
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$semester = CustomHelper::get_ta();
-		$response = Curl::to($url_server)->get();
+		$response = Curl::to($url_server)->returnResponseObject()->get();
 		$param = array(
 			'user' 		=> $user,
 			'sekolah' 	=> $sekolah,
 			'semester' 	=> $semester,
-			'status_sync'	=> json_decode($response),
+			'status_sync'	=> json_decode($response->content),
 		);
 		return view('sinkronisasi.kirim_data')->with($param);
 	}
@@ -371,11 +375,18 @@ class SinkronisasiController extends Controller
 		$last_sync = $last_sync->value;
 		$last_sync_date = date('Y-m-d', strtotime($last_sync));
 		$last_sync_time = date('H:i:s', strtotime($last_sync));
-		$url_server = CustomHelper::url_server_erapor('proses_laravel');
-		$table_sync = CustomHelper::table_sync();
+		$url_server = config('erapor.url_server').'sinkronisasi/proses';
+		$table_sync = config('erapor.table_sync');
 		$i=1;
 		$total = 0;
 		$result = 0;
+		$withData = array(
+			'semester_id' => $semester->semester_id,
+			'sekolah_id' => $user->sekolah_id,
+			'table' => 'sekolah',
+			'json' => CustomHelper::prepare_send(json_encode(Sekolah::find($user->sekolah_id))),
+		);
+		$kirim_data = Curl::to($url_server.'')->returnResponseObject()->withData($withData)->post();
 		foreach($table_sync as $sync){
 			if(Schema::hasTable($sync)){
 				$query = DB::table($sync);
@@ -383,8 +394,6 @@ class SinkronisasiController extends Controller
 					$query->whereNotNull('user_id');
 				} elseif (Schema::hasColumn($sync, 'last_sync')) {
 					$query->where('last_sync', '>=', $last_sync);
-					//$query->whereDate('last_sync', '>=', $last_sync_date);
-					//$query->whereTime('last_sync', '>=', $last_sync_time);
 				}
 				if (Schema::hasColumn($sync, 'semester_id')){
 					$query->where('semester_id', '=', $semester->semester_id);
@@ -403,12 +412,10 @@ class SinkronisasiController extends Controller
 		foreach($table_sync as $sync){
 			if(Schema::hasTable($sync)){
 				$query = DB::table($sync);
-				if($sync == 'ref_kompetensi_dasar'){
+				if($sync == 'ref.kompetensi_dasar'){
 					$query->whereNotNull('user_id');
 				} elseif (Schema::hasColumn($sync, 'last_sync')) {
 					$query->where('last_sync', '>=', $last_sync);
-					//$query->whereDate('last_sync', '>=', $last_sync_date);
-					//$query->whereTime('last_sync', '>=', $last_sync_time);
 				}
 				if (Schema::hasColumn($sync, 'semester_id')){
 					$query->where('semester_id', '=', $semester->semester_id);
@@ -421,12 +428,10 @@ class SinkronisasiController extends Controller
 					if($count > $limit){
 						for ($counter = 0; $counter <= $count; $counter += $limit) {
 							$query = DB::table($sync);
-							if($sync == 'ref_kompetensi_dasar'){
+							if($sync == 'ref.kompetensi_dasar'){
 								$query->whereNotNull('user_id');
 							} elseif (Schema::hasColumn($sync, 'last_sync')) {
 								$query->where('last_sync', '>=', $last_sync);
-								//$query->whereDate('last_sync', '>=', $last_sync_date);
-								//$query->whereTime('last_sync', '>=', $last_sync_time);
 							}
 							if (Schema::hasColumn($sync, 'semester_id')){
 								$query->where('semester_id', '=', $semester->semester_id);
@@ -443,26 +448,29 @@ class SinkronisasiController extends Controller
 									'table' => $sync,
 									'json' => CustomHelper::prepare_send(json_encode($result)),
 								);
-								$kirim_data = Curl::to($url_server)->withData($withData)->post();
+								$kirim_data = Curl::to($url_server.'')->returnResponseObject()->withData($withData)->post();
+								if($kirim_data->status == 200){
+									$response = $kirim_data->content;
+								} else {
+									$response = 'Server error';
+								}
 								$percent = intval($i/ $total * 100);
 								$arr_content['query'] = 'kirim';
 								$arr_content['percent'] = $percent;
 								$arr_content['message'] = "Mengirim data " .$sync;
 								$arr_content['total'] = $total;
 								$arr_content['no'] = $i;
-								$arr_content['response'] = $kirim_data;
+								$arr_content['response'] = $kirim_data->content;
 								Storage::disk('public')->put("sinkronisasi.txt", json_encode($arr_content));
 							}
 						}
 						$i++;
 					} else {
 						$query = DB::table($sync);
-						if($sync == 'ref_kompetensi_dasar'){
+						if($sync == 'ref.kompetensi_dasar'){
 							$query->whereNotNull('user_id');
 						} elseif (Schema::hasColumn($sync, 'last_sync')) {
 							$query->where('last_sync', '>=', $last_sync);
-							//$query->whereDate('last_sync', '>=', $last_sync_date);
-							//$query->whereTime('last_sync', '>=', $last_sync_time);
 						}
 						if (Schema::hasColumn($sync, 'semester_id')){
 							$query->where('semester_id', '=', $semester->semester_id);
@@ -478,14 +486,19 @@ class SinkronisasiController extends Controller
 								'table' => $sync,
 								'json' => CustomHelper::prepare_send(json_encode($result)),
 							);
-							$kirim_data = Curl::to($url_server)->withData($withData)->post();
+							$kirim_data = Curl::to($url_server.'')->returnResponseObject()->withData($withData)->post();
+							if($kirim_data->status == 200){
+								$response = $kirim_data->content;
+							} else {
+								$response = 'Server error';
+							}
 							$percent = intval($i/ $total * 100);
 							$arr_content['query'] = 'kirim';
 							$arr_content['percent'] = $percent;
 							$arr_content['message'] = "Mengirim data " .$sync;
 							$arr_content['total'] = $total;
 							$arr_content['no'] = $i;
-							$arr_content['response'] = $kirim_data;
+							$arr_content['response'] = $kirim_data->content;
 							Storage::disk('public')->put("sinkronisasi.txt", json_encode($arr_content));
 							$i++;
 						}

@@ -15,6 +15,7 @@ use App\Rombongan_belajar;
 use Image;
 use File;
 use Carbon\Carbon;
+use Artisan;
 class ConfigController extends Controller
 {
     public function __construct()

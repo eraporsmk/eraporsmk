@@ -118,24 +118,32 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 @if($cari_tingkat_akhir)
 <div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
 @else
-	@if($get_siswa->rombongan_belajar->tingkat == 12)
-	<div class="strong">F.&nbsp;&nbsp;Status Kelulusan</div>
-	@else
-	<div class="strong">F.&nbsp;&nbsp;Kenaikan Kelas</div>
+	@if($get_siswa->rombongan_belajar->semester->semester == 2)
+		@if($get_siswa->rombongan_belajar->tingkat == 12)
+		<div class="strong">F.&nbsp;&nbsp;Status Kelulusan</div>
+		@else
+		<div class="strong">E.&nbsp;&nbsp;Kenaikan Kelas</div>
+		@endif
 	@endif
 @endif
+@if($get_siswa->rombongan_belajar->semester->semester == 2)
 <table width="100%" border="1">
   <tr>
     <td style="padding:10px;">
 	@if($get_siswa->kenaikan)
 		{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->rombongan_belajar}}
 	@else
-	Belum dilakukan kenaikan kelas
+		@if($get_siswa->rombongan_belajar->tingkat == 12)
+			Belum dilakukan kelulusan
+		@else
+			Belum dilakukan kenaikan kelas
+		@endif
 	@endif
 	</td>
   </tr>
 </table>
 <br>
+@endif
 <br>
 <table width="100%">
   <tr>

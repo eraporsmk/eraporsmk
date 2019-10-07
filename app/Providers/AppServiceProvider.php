@@ -132,6 +132,7 @@ class AppServiceProvider extends ServiceProvider
 						'text' => 'Referensi GTK',
 						'url'  => '#',
 						'icon' => 'hand-o-right',
+						'permission'  => 'admin',
 						'submenu' => [
 							[
 								'text' => 'Referensi Guru',

@@ -53,8 +53,8 @@ ksort($data_kd);
 			foreach($data_kd as $kd){
 			?>
 			<td style="vertical-align:middle;">
-				<input type="hidden" name="kd_id_<?php echo $i; ?>[]" value="<?php echo $kd->id; ?>" />
-				<div class="text-center"><input type="checkbox" name="kd_<?php echo $i; ?>[]" value="<?php echo $kd->id_kompetensi; ?>|<?php echo $kd->id; ?>" /></div>
+				<input type="hidden" name="kd_id_<?php echo $i; ?>[]" value="<?php echo $kd->kompetensi_dasar_id; ?>" />
+				<div class="text-center"><input type="checkbox" name="kd_<?php echo $i; ?>[]" value="<?php echo $kd->id_kompetensi; ?>|<?php echo $kd->kompetensi_dasar_id; ?>" /></div>
 			</td>
 			<?php } ?>
 			<td><input class="form-control input-sm" type="text" name="keterangan_penilaian[]" value=""></td>

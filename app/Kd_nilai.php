@@ -31,7 +31,7 @@ class Kd_nilai extends Model
 		});
     }
 	public function kompetensi_dasar(){
-		return $this->hasOne('App\Kompetensi_dasar', 'id', 'kd_id');
+		return $this->hasOne('App\Kompetensi_dasar', 'kompetensi_dasar_id', 'kompetensi_dasar_id');
 	}
 	public function rencana_penilaian(){
 		return $this->hasOne('App\Rencana_penilaian', 'rencana_penilaian_id', 'rencana_penilaian_id');
@@ -40,9 +40,9 @@ class Kd_nilai extends Model
         return $this->hasMany('App\Nilai', 'kd_nilai_id', 'kd_nilai_id');
     }
 	public function nilai_kd_pengetahuan(){
-        return $this->hasMany('App\NilaiPengetahuanPerKd', 'kd_id', 'kd_id');
+        return $this->hasMany('App\NilaiPengetahuanPerKd', 'kompetensi_dasar_id', 'kompetensi_dasar_id');
     }
 	public function nilai_kd_keterampilan(){
-        return $this->hasMany('App\NilaiKeterampilanPerKd', 'kd_id', 'kd_id');
+        return $this->hasMany('App\NilaiKeterampilanPerKd', 'kompetensi_dasar_id', 'kompetensi_dasar_id');
     }
 }

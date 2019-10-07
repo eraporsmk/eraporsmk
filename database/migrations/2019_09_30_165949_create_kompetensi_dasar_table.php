@@ -14,7 +14,7 @@ class CreateKompetensiDasarTable extends Migration
     public function up()
     {
         Schema::create('ref.kompetensi_dasar', function (Blueprint $table) {
-			$table->increments('id');
+			$table->uuid('kompetensi_dasar_id');
 			$table->string('id_kompetensi', 11);
 			$table->integer('kompetensi_id');
 			$table->integer('mata_pelajaran_id');
@@ -31,6 +31,7 @@ class CreateKompetensiDasarTable extends Migration
 			$table->timestamps();
 			$table->softDeletes();
 			$table->timestamp('last_sync');
+			$table->primary('kompetensi_dasar_id');
 			$table->foreign('mata_pelajaran_id')->references('mata_pelajaran_id')->on('ref.mata_pelajaran')
                 ->onUpdate('CASCADE')->onDelete('CASCADE');
         });

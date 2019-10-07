@@ -54,7 +54,8 @@ class CetakController extends Controller
 		$pdf->getMpdf()->AddPage('P');
 		$rapor_cover= view('cetak.sertifikat2', $data);
 		$pdf->getMpdf()->WriteHTML($rapor_cover);
-		return $pdf->stream('document.pdf');  
+		$general_title = strtoupper($anggota_rombel->siswa->nama);
+		return $pdf->stream($general_title.'-SERTIFIKAT.pdf');  
 	}
 	public function rapor_pts($rombongan_belajar_id){
 		$callback = function($query){
@@ -147,7 +148,8 @@ class CetakController extends Controller
 			]);
 			$pdf->getMpdf()->defaultfooterfontsize=7;
 			$pdf->getMpdf()->defaultfooterline=0;
-			$pdf->getMpdf()->SetFooter(strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
+			$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
+			$pdf->getMpdf()->SetFooter($general_title.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
 			$rapor_top = view('cetak.rapor_top', $params);
 			$identitas_sekolah = view('cetak.identitas_sekolah', $params);
 			$identitas_peserta_didik = view('cetak.identitas_peserta_didik', $params);
@@ -155,7 +157,7 @@ class CetakController extends Controller
 			$pdf->getMpdf()->WriteHTML($identitas_sekolah);
 			$pdf->getMpdf()->WriteHTML('<pagebreak />');
 			$pdf->getMpdf()->WriteHTML($identitas_peserta_didik);
-			return $pdf->stream('document.pdf');
+			return $pdf->stream($general_title.'-IDENTITAS.pdf');
 		} else {
 			$get_siswa = Anggota_rombel::with('siswa')->with('rombongan_belajar')->where('rombongan_belajar_id', $id)->order()->get();
 		}
@@ -179,6 +181,7 @@ class CetakController extends Controller
 				$query->with('pekerjaan_ibu');
 				$query->with('pekerjaan_wali');
 			}])->with(['rombongan_belajar' => function($query) use ($id){
+				$query->where('jenis_rombel', 1);
 				$query->with(['pembelajaran' => function($query) use ($id){
 					$callback = function($query) use ($id){
 						$query->where('anggota_rombel_id', $id);
@@ -223,7 +226,8 @@ class CetakController extends Controller
 			]);
 			$pdf->getMpdf()->defaultfooterfontsize=7;
 			$pdf->getMpdf()->defaultfooterline=0;
-			$pdf->getMpdf()->SetFooter(strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
+			$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
+			$pdf->getMpdf()->SetFooter($general_title.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
 			$rapor_nilai = view('cetak.rapor_nilai', $params);
 			$rapor_catatan = view('cetak.rapor_catatan', $params);
 			$rapor_karakter = view('cetak.rapor_karakter', $params);
@@ -232,7 +236,7 @@ class CetakController extends Controller
 			$pdf->getMpdf()->WriteHTML($rapor_catatan);
 			$pdf->getMpdf()->WriteHTML('<pagebreak />');
 			$pdf->getMpdf()->WriteHTML($rapor_karakter);
-			return $pdf->stream('document.pdf');
+			return $pdf->stream($general_title.'-NILAI.pdf');
 		} else {
 			//$id = rombongan_belajar_id
 		}
@@ -254,10 +258,11 @@ class CetakController extends Controller
 			]);
 			$pdf->getMpdf()->defaultfooterfontsize=7;
 			$pdf->getMpdf()->defaultfooterline=0;
-			$pdf->getMpdf()->SetFooter(strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama.'| |Dicetak dari eRaporSMK v.'.CustomHelper::get_setting('app_version'));
+			$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
+			$pdf->getMpdf()->SetFooter($general_title.'| |Dicetak dari eRaporSMK v.'.CustomHelper::get_setting('app_version'));
 			$rapor_pendukung = view('cetak.rapor_pendukung', $params);
 			$pdf->getMpdf()->WriteHTML($rapor_pendukung);
-			return $pdf->stream('document.pdf');
+			return $pdf->stream($general_title.'-LAMPIRAN.pdf');
 		} else {
 			//$id = rombongan_belajar_id
 		}

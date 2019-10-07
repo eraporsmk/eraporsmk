@@ -70,7 +70,7 @@ class LaporanController extends Controller
 		$uraian_deskripsi = array_filter($uraian_deskripsi);
 		$insert=0;
 		foreach($uraian_deskripsi as $key => $value){
-			$new = Catatan_wali::firstOrCreate(
+			$new = Catatan_wali::UpdateOrCreate(
 				['anggota_rombel_id' => $anggota_rombel_id[$key]],
 				[
 					'sekolah_id' => $sekolah_id,

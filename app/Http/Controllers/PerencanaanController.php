@@ -260,6 +260,7 @@ class PerencanaanController extends Controller
 		return view('perencanaan.tambah_keterampilan')->with($param);
     }
 	public function simpan_perencanaan(Request $request){
+		//dd($_POST);
 		$user = auth()->user();
 		$rencana_penilaian_id 		= $request['rencana_penilaian_id'];
 		$kompetensi_id 		= $request['kompetensi_id'];
@@ -272,6 +273,7 @@ class PerencanaanController extends Controller
 		$keterangan_penilaian= $request['keterangan_penilaian'];
 		$insert = 0;
 		$gagal = 0;
+		$nama_perencanaan = ($kompetensi_id == 2) ? 'Keterampilan' : 'Pengetahuan';
 		if($rencana_penilaian_id){
 			$id_kompetensi = $request['id_kompetensi'];
 			$rencana = Rencana_penilaian::find($rencana_penilaian_id);
@@ -280,13 +282,12 @@ class PerencanaanController extends Controller
 				$rencana->bobot = $set_bobot;
 			}
 			$rencana->keterangan = $keterangan_penilaian;
-			$nama_perencanaan = ($kompetensi_id == 2) ? 'Keterampilan' : 'Pengetahuan';
 			if($rencana->save()){
 				if($request['kd']){
-					Kd_nilai::where('rencana_penilaian_id', $rencana_penilaian_id)->whereNotIn('kd_id', $request['kd'])->delete();
+					Kd_nilai::where('rencana_penilaian_id', $rencana_penilaian_id)->whereNotIn('kompetensi_dasar_id', $request['kd'])->delete();
 					foreach($request['kd'] as $key => $kd){
 						Kd_nilai::firstOrCreate(
-							['rencana_penilaian_id' => $rencana_penilaian_id, 'kd_id' => $kd],
+							['rencana_penilaian_id' => $rencana_penilaian_id, 'kompetensi_dasar_id' => $kd],
 							['id_kompetensi' => $id_kompetensi[$key], 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $user->sekolah_id]
 						);
 					}
@@ -301,12 +302,25 @@ class PerencanaanController extends Controller
 		if($nama_penilaian){
 			if($kompetensi_id == 2){
 				$rules['teknik_penilaian'] = 'required';
-				$rules['bobot'] = 'required|integer';
+				if ($request->has('bobot')) {
+					$rules['bobot'] = 'required|integer';
+				} else {
+					$rules['bobot_value'] = 'required|integer';
+				}
 				$customMessages = [
 					'required' => 'Isian :attribute tidak boleh kosong.',
 					'integer' => 'Isian :attribute harus berupa angka.'
 				];
 				$this->validate($request, $rules, $customMessages);
+				foreach($nama_penilaian as $k=>$v) {
+					$i = $k + 1;
+					$kds		= $request['kd_'.$i];
+					$rules['kd_'.$i] = 'required';
+					$customMessages = [
+						'required' => 'Pilihan KD tidak boleh kosong.',
+					];
+					$this->validate($request, $rules, $customMessages);
+				}
 				$find_bobot_keterampilan = Bobot_keterampilan::where('pembelajaran_id', '=', $pembelajaran_id)->where('metode_id', '=', $teknik_penilaian)->first();
 				if(!$find_bobot_keterampilan){
 					$insert_bobot_keterampilan = array(
@@ -340,7 +354,7 @@ class PerencanaanController extends Controller
 								'sekolah_id'			=> $user->sekolah_id,
 								'rencana_penilaian_id' 	=> $rencana_penilaian->rencana_penilaian_id,
 								'id_kompetensi' 		=> $get_post_kd[0],
-								'kd_id' 				=> $get_post_kd[1],
+								'kompetensi_dasar_id' 	=> $get_post_kd[1],
 								'last_sync'				=> date('Y-m-d H:i:s'),
 							);
 							if(Kd_nilai::create($insert_kd_nilai)){
@@ -360,6 +374,15 @@ class PerencanaanController extends Controller
 					'integer' => 'Isian :attribute harus berupa angka.'
 				];
 				$this->validate($request, $rules, $customMessages);
+				foreach($nama_penilaian as $k=>$v) {
+					$i = $k + 1;
+					$kds		= $request['kd_'.$i];
+					$rules['kd_'.$i] = 'required';
+					$customMessages = [
+						'required' => 'Pilihan KD tidak boleh kosong.',
+					];
+					$this->validate($request, $rules, $customMessages);
+				}
 				$bobot_penilaian = $request['bobot_penilaian'];
 				$bentuk_penilaian = $request['bentuk_penilaian'];
 				foreach($nama_penilaian as $k=>$v) {
@@ -383,7 +406,7 @@ class PerencanaanController extends Controller
 								'sekolah_id'			=> $user->sekolah_id,
 								'rencana_penilaian_id' 	=> $rencana_penilaian->rencana_penilaian_id,
 								'id_kompetensi' 		=> $get_post_kd[0],
-								'kd_id' 				=> $get_post_kd[1],
+								'kompetensi_dasar_id' 	=> $get_post_kd[1],
 								'last_sync'				=> date('Y-m-d H:i:s'),
 							);
 							if(Kd_nilai::create($insert_kd_nilai)){
