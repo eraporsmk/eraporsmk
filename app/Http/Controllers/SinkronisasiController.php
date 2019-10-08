@@ -677,9 +677,9 @@ class SinkronisasiController extends Controller
 					],
 					[
 						'name' => 'anggota_rombel', 
-						'jumlah' => DB::connection('erapor4')->table('anggota_rombel')->where('anggota_rombel.sekolah_id', $sekolah->sekolah_id)
+						'jumlah' => DB::connection('erapor4')->table('anggota_rombel')->select('anggota_rombel_id_dapodik')->where('anggota_rombel.sekolah_id', $sekolah->sekolah_id)
 						->join('rombongan_belajar', 'rombongan_belajar.rombongan_belajar_id', '=', 'anggota_rombel.rombongan_belajar_id')
-						->join('ref_semester', 'ref_semester.id', '=', 'anggota_rombel.semester_id')->count(),
+						->join('ref_semester', 'ref_semester.id', '=', 'anggota_rombel.semester_id')->groupBy('anggota_rombel_id_dapodik')->get()->count(),
 					],
 					[
 						'name' => 'teknik_penilaian', 

@@ -416,24 +416,17 @@ class ReferensiController extends Controller
 			->where('pembelajaran.semester_id', '=', $semester->semester_id)
 			->where('pembelajaran.guru_id', '=', $user->guru_id)
 			->orWhere('pembelajaran.guru_pengajar_id', '=', $user->guru_id);
-		})->orderBy('ref.kompetensi_dasar.mata_pelajaran_id', 'asc')->orderBy('id', 'asc')->get();
+		})->orderBy('ref.kompetensi_dasar.mata_pelajaran_id', 'asc')->orderBy('id_kompetensi', 'asc');
 		return Datatables::of($query)
-		->filter(function ($instance) use ($request) {
+		->filter(function ($query) use ($request) {
 			if ($request->has('mata_pelajaran_id')) {
-				$instance->collection = $instance->collection->filter(function ($row) use ($request) {
-					return Str::contains($row['mata_pelajaran_id'], $request->get('mata_pelajaran_id')) ? true : false;
-				});
+				$query->where('ref.kompetensi_dasar.mata_pelajaran_id', request('mata_pelajaran_id'));
 			}
 			if ($request->has('filter_kelas')) {
-				$instance->collection = $instance->collection->filter(function ($row) use ($request) {
-					$kelas = $request->get('filter_kelas');
-					return Str::contains($row['kelas_'.$kelas], 1) ? true : false;
-				});
+				$query->where('kelas_'.request('filter_kelas'), 1);
 			}
 			if ($request->has('filter_kompetensi')) {
-				$instance->collection = $instance->collection->filter(function ($row) use ($request) {
-					return Str::contains($row['kompetensi_id'], $request->get('filter_kompetensi')) ? true : false;
-				});
+				$query->where('kompetensi_id', request('filter_kompetensi'));
 			}
 		})
 		->addColumn('kelas', function ($item) {
@@ -461,7 +454,6 @@ class ReferensiController extends Controller
             	$icon_aktif 	= 'fa-check';
 				$title_aktif	= 'Aktifkan';
 			}
-			//dd($item);
 			$return  = '<div class="text-center"><div class="btn-group">
 							<button type="button" class="btn btn-default btn-sm">Aksi</button>
                             <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
@@ -469,14 +461,14 @@ class ReferensiController extends Controller
 								<span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right text-left" role="menu">
-								 <li><a href="'.url('referensi/edit-kd/'.$item->id).'" class="toggle-modal tooltip-left" title="Tambah/Ubah Ringkasan Kompetensi"><i class="fa fa-pencil"></i>Ubah Ringkasan</a></li>
-								 <li><a href="'.url('referensi/delete-kd/'.$item->id).'" class="confirm tooltip-left" title="Hapus Ringkasan Kompetensi"><i class="fa fa-power-off"></i>Hapus</a></li>
-								 <li><a data-status="'.$item->aktif.'" href="'.url('referensi/toggle-aktif/'.$item->id).'" class="confirm_aktif tooltip-left" title="'.$title_aktif.'"><i class="fa '.$icon_aktif.'"></i>'.$title_aktif.'</a></li>
+								 <li><a href="'.url('referensi/edit-kd/'.$item->kompetensi_dasar_id).'" class="toggle-modal tooltip-left" title="Tambah/Ubah Ringkasan Kompetensi"><i class="fa fa-pencil"></i>Ubah Ringkasan</a></li>
+								 <li><a href="'.url('referensi/delete-kd/'.$item->kompetensi_dasar_id).'" class="confirm tooltip-left" title="Hapus Ringkasan Kompetensi"><i class="fa fa-power-off"></i>Hapus</a></li>
+								 <li><a data-status="'.$item->aktif.'" href="'.url('referensi/toggle-aktif/'.$item->kompetensi_dasar_id).'" class="confirm_aktif tooltip-left" title="'.$title_aktif.'"><i class="fa '.$icon_aktif.'"></i>'.$title_aktif.'</a></li>
                             </ul>
                         </div></div>';
 			return $return;
 		})
-		->rawColumns(['isi_kd', 'status', 'tindakan'])
+		->rawColumns(['kompetensi_dasar', 'kompetensi_dasar_alias', 'status', 'tindakan'])
 		->make(true);
 	}
 	public function edit_kd($id){

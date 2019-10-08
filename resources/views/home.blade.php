@@ -207,6 +207,7 @@ Selamat Datang {{ $user->name }}
 		{{--CustomHelper::test($all_pembelajaran)--}}
 	@endrole
 	@role('wali')
+	@if($rombongan_belajar)
 		@if ($message = Session::get('success'))
 		  <div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -223,7 +224,7 @@ Selamat Datang {{ $user->name }}
 	<div class="row">
 		<div class="col-lg-12 col-xs-12">
 			<section id="mata-pelajaran">
-			<?php 
+			<?php
 			$aktifkan = ($rombongan_belajar->kunci_nilai) ? 1 : 0;
 			?>
 				<h4>Anda adalah Wali Kelas Rombongan Belajar <label class="label bg-green">{{$rombongan_belajar->nama}}</label></h4>
@@ -291,6 +292,7 @@ Selamat Datang {{ $user->name }}
 			</section>
 		</div>
 	</div>
+	@endif
 	@endrole
 	@role('waka')
 		<h4 class="page-header">Progres Perencanaan dan Penilaian Tahun Pelajaran {{str_replace(' ', ' Semester ', $semester->nama)}}</h4>

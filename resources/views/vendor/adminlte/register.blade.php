@@ -18,14 +18,16 @@
 		@if ($message = Session::get('success'))
 		  <div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			  <strong>Sukses!</strong> {{ $message }}
+			  <strong>Sukses!</strong><br />
+			  {!! $message !!}
 		  </div>
 		@endif
 	
 		@if ($message = Session::get('error'))
 		  <div class="alert alert-danger alert-block alert-dismissable"><i class="fa fa-ban"></i>
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			<strong>Gagal!</strong> {{ $message }}
+			<strong>Gagal!</strong><br />
+			{!! $message !!}
 		  </div>
 		@endif
             <form action="{{ url(config('adminlte.register_url', 'register')) }}" method="post">

@@ -551,8 +551,9 @@ class MigrasiErapor extends Command
 		}
 		Migrasi::updateOrCreate(
 			['nama_table' => 'anggota_rombel'],
-			['jumlah_asal'	=> $erapor->count(), 'jumlah_masuk' => Anggota_rombel::count()]
+			['jumlah_asal'	=> $i, 'jumlah_masuk' => Anggota_rombel::count()]
 		);
+		$result['jumlah'] = $i;
 		$result['status'] = 1;
 		$result['progress'] = $percent;
 		$result['table']	= 'teknik_penilaian';
@@ -871,7 +872,7 @@ class MigrasiErapor extends Command
 					$find_kd = Kompetensi_dasar::where('id_kompetensi', '=', $data->id_kompetensi)->where('kompetensi_id', '=', ($data->aspek == 'P') ? 1 : 2)->where('mata_pelajaran_id', '=', $data->mata_pelajaran_id)->where('kelas_'.$data->kelas, '=', 1)->first();
 					if($find_kd){
 						if($find_kd->kurikulum == $kurikulum){
-							$kd_id = $find_kd->id;
+							$kd_id = $find_kd->kompetensi_dasar_id;
 							$id_kompetensi = $find_kd->id_kompetensi;
 						} else {
 							$insert_kd = array(
@@ -891,7 +892,7 @@ class MigrasiErapor extends Command
 								'last_sync'					=> date('Y-m-d H:i:s'),
 							);
 							$create_kd = Kompetensi_dasar::create($insert_kd);
-							$kd_id = $create_kd->id;
+							$kd_id = $create_kd->kompetensi_dasar_id;
 							$id_kompetensi = $create_kd->id_kompetensi;
 						}
 					} else {
@@ -912,13 +913,13 @@ class MigrasiErapor extends Command
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
 						$create_kd = Kompetensi_dasar::create($insert_kd);
-						$kd_id = $create_kd->id;
+						$kd_id = $create_kd->kompetensi_dasar_id;
 						$id_kompetensi = $create_kd->id_kompetensi;
 					}
 					$insert_kd_nilai = array(
 						'sekolah_id'					=> $sekolah_id,
 						'rencana_penilaian_id'			=> $find_rencana->rencana_penilaian_id,
-						'kd_id'							=> $kd_id,
+						'kompetensi_dasar_id'			=> $kd_id,
 						'id_kompetensi'					=> $id_kompetensi,
 						'last_sync'						=> date('Y-m-d H:i:s'),
 					);

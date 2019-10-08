@@ -7,7 +7,7 @@
 @section('content')
 <form id="update_data">
 	{{ csrf_field() }}
-	<input type="hidden" name="id" value="{{$kd->id}}" />
+	<input type="hidden" name="id" value="{{$kd->kompetensi_dasar_id}}" />
 	<table class="table">
 		<tr>
 			<td width="20%">Mata Pelajaran</td>

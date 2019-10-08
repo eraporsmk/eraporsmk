@@ -12,6 +12,7 @@ class Kompetensi_dasar extends Model
     public $incrementing = false;
 	protected $table = 'ref.kompetensi_dasar';
 	protected $primaryKey = 'kompetensi_dasar_id';
+	protected $guarded = [];
 	public function mata_pelajaran(){
 		return $this->hasOne('App\Mata_pelajaran', 'mata_pelajaran_id', 'mata_pelajaran_id');
 	}
