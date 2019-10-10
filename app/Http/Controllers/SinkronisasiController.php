@@ -7,6 +7,7 @@ use App\User;
 use App\Role;
 use App\Role_user;
 use CustomHelper;
+use ServerProvider;
 use Ixudra\Curl\Facades\Curl;
 use App\Sekolah;
 use App\Mst_wilayah;
@@ -71,7 +72,7 @@ class SinkronisasiController extends Controller
 			'sekolah_id'		=> $user->sekolah_id,
 			'npsn'				=> $sekolah->npsn
 		);
-		$host_server_direktorat = CustomHelper::url_server_direktorat('status');
+		$host_server_direktorat = ServerProvider::url_server_direktorat('status');
 		$curl = Curl::to($host_server_direktorat)
 		->withHeader('x-api-key:'.$user->sekolah_id)
 		->withOption('USERPWD', "admin:1234")
@@ -80,7 +81,7 @@ class SinkronisasiController extends Controller
         ->post();
 		$curl_kd = Curl::to(config('erapor.url_server').'sinkronisasi')->returnResponseObject()->get();
 		//dd($curl_kd);
-		//$host_erapor_server = CustomHelper::url_server_erapor('count_kd');
+		//$host_erapor_server = ServerProvider::url_server_erapor('count_kd');
 		//$response_dashboard = Curl::to($host_erapor_server)
 		//->returnResponseObject()
         //->withData($data_sync)
@@ -190,16 +191,17 @@ class SinkronisasiController extends Controller
 	}
 	public function kirim_data(){
 		$url_server = config('erapor.url_server').'sinkronisasi/status';
-		//CustomHelper::url_server_erapor('status');
+		//ServerProvider::url_server_erapor('status');
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$semester = CustomHelper::get_ta();
 		$response = Curl::to($url_server)->returnResponseObject()->get();
+		//dd($response);
 		$param = array(
 			'user' 		=> $user,
 			'sekolah' 	=> $sekolah,
 			'semester' 	=> $semester,
-			'status_sync'	=> json_decode($response->content),
+			'status_sync'	=> ($response->status == 200) ? json_decode($response->content) : json_decode(json_encode(['server' => 0])),
 		);
 		return view('sinkronisasi.kirim_data')->with($param);
 	}
@@ -552,8 +554,8 @@ class SinkronisasiController extends Controller
 				$updated_at = date('Y-m-d H:i:s',$query->updated_at->getTimestamp());
 			}
 		}
-		$host_server_direktorat = CustomHelper::url_server_direktorat($aksi);
-		$host_erapor_server = CustomHelper::url_server_erapor($aksi);
+		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
+		$host_erapor_server = ServerProvider::url_server_erapor($aksi);
 		$data_sync = array(
 			'username_dapo'		=> $user->email,
 			'password_dapo'		=> trim($user->password_dapo),
@@ -587,7 +589,7 @@ class SinkronisasiController extends Controller
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$semester = CustomHelper::get_ta();
 		$aksi = 'rombongan_belajar_sync';
-		$host_server_direktorat = CustomHelper::url_server_direktorat($aksi);
+		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
 		$data_sync = array(
 			'username_dapo'		=> $user->email,
 			'password_dapo'		=> trim($user->password_dapo),
@@ -607,7 +609,7 @@ class SinkronisasiController extends Controller
 		$semester = CustomHelper::get_ta();
 		$last_sync = Setting::where('key', '=', 'last_sync')->first();
 		$last_sync = $last_sync->value;
-		$url_server = CustomHelper::url_server_erapor('ambil_data');
+		$url_server = ServerProvider::url_server_erapor('ambil_data');
 		$data_sync = array(
 			'sekolah_id'		=> $user->sekolah_id,
 			'npsn'				=> $sekolah->npsn,
@@ -864,8 +866,8 @@ class SinkronisasiController extends Controller
 		$last_sync = Setting::where('key', '=', 'last_sync')->first();
 		$last_sync = $last_sync->value;
 		$updated_at = $last_sync;
-		$host_server_direktorat = CustomHelper::url_server_direktorat($aksi);
-		$host_erapor_server = CustomHelper::url_server_erapor($aksi);
+		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
+		$host_erapor_server = ServerProvider::url_server_erapor($aksi);
 		$data_sync = array(
 			'username_dapo'		=> $user->email,
 			'password_dapo'		=> trim($user->password_dapo),

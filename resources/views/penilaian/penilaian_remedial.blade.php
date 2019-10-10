@@ -78,7 +78,7 @@
 					<td class="text-center"><?php echo ($nilai_perkd) ? '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_perkd,0).'" '.$aktif.' />' : '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_asli_perkd,0).'" '.$aktif.' />'; ?></td>
 					@endforeach
 					<?php
-					$nilai_asli = array_diff($kd_nilai, $kd_remedial);
+					/*$nilai_asli = array_diff($kd_nilai, $kd_remedial);
 					if($nilai_asli){
 						foreach($nilai_asli as $asli){
 							$nilai_asal = $nilai[$siswa->anggota_rombel_id][$asli];
@@ -103,7 +103,7 @@
 								echo '<td class="text-center">-</td>';
 							}
 						}
-					}
+					}*/
 					$rerata_akhir = $siswa->nilai_remedial->rerata_akhir;
 					$rerata_remedial = $siswa->nilai_remedial->rerata_remedial;
 					if($kkm > $rerata_akhir){

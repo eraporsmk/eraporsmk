@@ -24,36 +24,46 @@
 		</tr>
 	</thead>
 	<tbody>
-	@foreach($get_siswa->rombongan_belajar->pembelajaran as $pembelajaran)
-	<?php
-	$all_pembelajaran[$pembelajaran->kelompok->nama_kelompok][] = array(
-		'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
-		'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
-		'nilai_akhir_pengetahuan'	=> ($pembelajaran->nilai_akhir_pengetahuan) ? $pembelajaran->nilai_akhir_pengetahuan->nilai : 0,
-		'huruf_pengetahuan'	=> ($pembelajaran->nilai_akhir_pengetahuan) ? CustomHelper::terbilang($pembelajaran->nilai_akhir_pengetahuan->nilai) : '-',
-		'nilai_akhir_keterampilan'	=> ($pembelajaran->nilai_akhir_keterampilan) ? $pembelajaran->nilai_akhir_keterampilan->nilai : 0,
-		'huruf_keterampilan'	=> ($pembelajaran->nilai_akhir_keterampilan) ? CustomHelper::terbilang($pembelajaran->nilai_akhir_keterampilan->nilai) : '-',
-	);
-	$i=1;
-	?>
-	@endforeach
-	@foreach($all_pembelajaran as $kelompok => $data_pembelajaran)
-	<tr>
-		<td colspan="7"><b style="font-size: 13px;">{{$kelompok}}</b></td>
-	</tr>
-	@foreach($data_pembelajaran as $pembelajaran)
-	<?php $pembelajaran = (object) $pembelajaran; ?>
+	@if(count($get_siswa->rombongan_belajar->pembelajaran))
+		@foreach($get_siswa->rombongan_belajar->pembelajaran as $pembelajaran)
+		<?php
+		$all_pembelajaran[$pembelajaran->kelompok->nama_kelompok][] = array(
+			'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
+			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+			'nilai_akhir_pengetahuan'	=> ($pembelajaran->nilai_akhir_pengetahuan) ? $pembelajaran->nilai_akhir_pengetahuan->nilai : 0,
+			'huruf_pengetahuan'	=> ($pembelajaran->nilai_akhir_pengetahuan) ? CustomHelper::terbilang($pembelajaran->nilai_akhir_pengetahuan->nilai) : '-',
+			'nilai_akhir_keterampilan'	=> ($pembelajaran->nilai_akhir_keterampilan) ? $pembelajaran->nilai_akhir_keterampilan->nilai : 0,
+			'huruf_keterampilan'	=> ($pembelajaran->nilai_akhir_keterampilan) ? CustomHelper::terbilang($pembelajaran->nilai_akhir_keterampilan->nilai) : '-',
+		);
+		$i=1;
+		?>
+		@endforeach
+	@else
+	<?php $all_pembelajaran = array(); ?>
+	@endif
+	@if($all_pembelajaran)
+		@foreach($all_pembelajaran as $kelompok => $data_pembelajaran)
 		<tr>
-			<td class="text-center">{{$i++}}</td>
-			<td>{{$pembelajaran->nama_mata_pelajaran}}</td>
-			<td class="text-center">{{$pembelajaran->kkm}}</td>
-			<td class="text-center">{{$pembelajaran->nilai_akhir_pengetahuan}}</td>
-			<td class="text-center">{{$pembelajaran->huruf_pengetahuan}}</td>
-			<td class="text-center">{{$pembelajaran->nilai_akhir_keterampilan}}</td>
-			<td class="text-center">{{$pembelajaran->huruf_keterampilan}}</td>
+			<td colspan="7"><b style="font-size: 13px;">{{$kelompok}}</b></td>
 		</tr>
-	@endforeach
-	@endforeach
+		@foreach($data_pembelajaran as $pembelajaran)
+		<?php $pembelajaran = (object) $pembelajaran; ?>
+			<tr>
+				<td class="text-center">{{$i++}}</td>
+				<td>{{$pembelajaran->nama_mata_pelajaran}}</td>
+				<td class="text-center">{{$pembelajaran->kkm}}</td>
+				<td class="text-center">{{$pembelajaran->nilai_akhir_pengetahuan}}</td>
+				<td class="text-center">{{$pembelajaran->huruf_pengetahuan}}</td>
+				<td class="text-center">{{$pembelajaran->nilai_akhir_keterampilan}}</td>
+				<td class="text-center">{{$pembelajaran->huruf_keterampilan}}</td>
+			</tr>
+		@endforeach
+		@endforeach
+	@else
+		<tr>
+			<td class="text-center" colspan="7">Belum ada data untuk ditampilkan</td>
+		</tr>
+	@endif
 	</tbody>
 </table>
 @stop

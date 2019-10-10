@@ -18,6 +18,6 @@ class NilaiKeterampilanPerKd extends Model
         );
     }
 	public function kd_nilai(){
-		return $this->hasOne('App\Kd_nilai', 'kd_id', 'kd_id');
+		return $this->hasOne('App\Kd_nilai', 'kompetensi_dasar_id', 'kompetensi_dasar_id');
 	}
 }

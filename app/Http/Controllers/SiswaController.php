@@ -82,16 +82,16 @@ class SiswaController extends Controller
 			->filter(function ($query) {
 				if (request()->has('filter_jurusan')) {
 					$query->whereHas('anggota_rombel.rombongan_belajar', function($subquery){
-						$subquery->where('jurusan_id', '=', request('filter_jurusan'));
+						$subquery->where('jurusan_sp_id', request('filter_jurusan'));
 					});
 				}
 				if (request()->has('filter_kelas')) {
 					$query->whereHas('anggota_rombel.rombongan_belajar', function($subquery){
-						$subquery->where('jurusan_id', '=', request('filter_jurusan'));
-						$subquery->where('tingkat', '=', request('filter_kelas'));
+						$subquery->where('jurusan_sp_id', request('filter_jurusan'));
+						$subquery->where('tingkat', request('filter_kelas'));
 					});
 				}
-			}, true)
+			})
 			->addColumn('set_nama', function ($item) {
 				if($item->photo){
 					$foto = url('storage/images/'.$item->photo);

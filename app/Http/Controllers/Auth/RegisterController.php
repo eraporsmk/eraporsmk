@@ -11,6 +11,7 @@ use App\Sekolah;
 use App\Role;
 use App\Role_user;
 use CustomHelper;
+use ServerProvider;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class RegisterController extends Controller
         $validatedData = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:1|confirmed',
         ]);
 		$semester = CustomHelper::get_ta();
 		$data_sync = array(
@@ -53,7 +54,7 @@ class RegisterController extends Controller
 			'tahun_ajaran_id'	=> $semester->tahun_ajaran_id,
 			'semester_id'		=> $semester->semester_id,
 		);
-		$curl = Curl::to(CustomHelper::url_register())
+		$curl = Curl::to(ServerProvider::url_register())
 		->returnResponseObject()
 		->withData($data_sync)
 		->post();

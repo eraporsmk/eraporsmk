@@ -438,6 +438,10 @@ class UsersController extends Controller
 				$guru->email = ($guru->email != $user->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
 				$guru->email = ($guru->email != $sekolah->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
 				$guru->email = strtolower($guru->email);
+				$find_user_email = User::where('email', $guru->email)->first();
+				if($find_user_email){
+					$guru->email = strtolower($random).'@erapor-smk.net';
+				}
 				$insert_user = array(
 					'name' => $guru->nama,
 					'email' => $guru->email,
@@ -493,6 +497,10 @@ class UsersController extends Controller
 				$siswa->email = ($siswa->email != $sekolah->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
 				$siswa->email = (!$find_user) ? $siswa->email : strtolower($random).'@erapor-smk.net';
 				$siswa->email = strtolower($siswa->email);
+				$find_user_email = User::where('email', $siswa->email)->first();
+				if($find_user_email){
+					$siswa->email = strtolower($random).'@erapor-smk.net';
+				}
 				$insert_user = array(
 					'name' => $siswa->nama,
 					'email' => $siswa->email,

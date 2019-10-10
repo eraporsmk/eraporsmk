@@ -11,7 +11,7 @@ $get_kd_pengetahuan = array();
 $get_kd_keterampilan = array();
 foreach($pembelajaran->kd_nilai_p as $kd_nilai_p){
 	//dd($kd_nilai_p);
-	$nilai = $pembelajaran->one_anggota_rombel->nilai_kd_pengetahuan()->where('kd_id', $kd_nilai_p->kd_id)->first();
+	$nilai = $pembelajaran->one_anggota_rombel->nilai_kd_pengetahuan()->where('kompetensi_dasar_id', $kd_nilai_p->kompetensi_dasar_id)->first();
 	$get_kd_pengetahuan[] = array(
 		'id'	=> $kd_nilai_p->kompetensi_dasar->id_kompetensi,
 		'nilai'	=> ($nilai) ? $nilai->nilai_kd : 0,
@@ -20,7 +20,7 @@ foreach($pembelajaran->kd_nilai_p as $kd_nilai_p){
 	);
 }
 foreach($pembelajaran->kd_nilai_k as $kd_nilai_k){
-	$nilai = $pembelajaran->one_anggota_rombel->nilai_kd_keterampilan()->where('kd_id', $kd_nilai_k->kd_id)->first();
+	$nilai = $pembelajaran->one_anggota_rombel->nilai_kd_keterampilan()->where('kompetensi_dasar_id', $kd_nilai_k->kompetensi_dasar_id)->first();
 	$get_kd_keterampilan[] = array(
 		'id'	=> $kd_nilai_k->kompetensi_dasar->id_kompetensi,
 		'nilai'	=> ($nilai) ? $nilai->nilai_kd : 0,

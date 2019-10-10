@@ -348,7 +348,7 @@ class ProsesData extends Command
 				$insert_siswa = array(
 					'sekolah_id'		=> $sekolah->sekolah_id,
 					'nama' 				=> $data->nama,
-					'no_induk' 			=> ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->nipd : 0,
+					'no_induk' 			=> ($data->registrasi_peserta_didik) ? ($data->registrasi_peserta_didik->nipd) ? $data->registrasi_peserta_didik->nipd : 0 : 0,
 					'nisn' 				=> $data->nisn,
 					'jenis_kelamin' 	=> ($data->jenis_kelamin) ? $data->jenis_kelamin : 0,
 					'tempat_lahir' 		=> ($data->tempat_lahir) ? $data->tempat_lahir : 0,
@@ -627,18 +627,20 @@ class ProsesData extends Command
 					if($akt_pd->bimbing_pd){
 						foreach($akt_pd->bimbing_pd as $bimbing_pd){
 							$find_guru = Guru::where('guru_id_dapodik', $bimbing_pd->ptk_id)->first();
-							$insert_bimbing_pd = array(
-								'sekolah_id'		=> $data->sekolah_id,
-								'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
-								'guru_id'			=> $find_guru->guru_id,
-								'ptk_id'			=> $bimbing_pd->ptk_id,
-								'urutan_pembimbing'	=> $bimbing_pd->urutan_pembimbing,
-								'last_sync'			=> date('Y-m-d H:i:s'),
-							);
-							$create_bimbing_pd = Bimbing_pd::updateOrCreate(
-								['id_bimb_pd' => $bimbing_pd->id_bimb_pd],
-								$insert_bimbing_pd
-							);
+							if($find_guru){
+									$insert_bimbing_pd = array(
+									'sekolah_id'		=> $data->sekolah_id,
+									'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
+									'guru_id'			=> $find_guru->guru_id,
+									'ptk_id'			=> $bimbing_pd->ptk_id,
+									'urutan_pembimbing'	=> $bimbing_pd->urutan_pembimbing,
+									'last_sync'			=> date('Y-m-d H:i:s'),
+								);
+								$create_bimbing_pd = Bimbing_pd::updateOrCreate(
+									['id_bimb_pd' => $bimbing_pd->id_bimb_pd],
+									$insert_bimbing_pd
+								);
+							}
 						}
 					}
 				}

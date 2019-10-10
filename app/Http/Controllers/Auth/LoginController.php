@@ -82,7 +82,7 @@ class LoginController extends Controller
 		]);
 		
 		$password = Validator::make($request->all(), [
-			'password' => 'required|min:5|max:100',
+			'password' => 'required|min:1|max:100',
 		]);
 		$login_type = '';
 		if ($email->passes() && $password->passes()){

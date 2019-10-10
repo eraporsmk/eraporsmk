@@ -117,14 +117,12 @@ Route::get('/rekap-nilai', 'ConfigController@rekap_nilai')->name('download_rekap
 #Route::get('/rekap-nilai', 'ConfigController@download')->name('download_rekap_nilai');
 Route::post('konfigurasi/simpan', 'ConfigController@simpan');
 Route::get('/changelog', 'ChangelogController@index')->name('changelog');
-Route::get('/check-update', 'UpdateController@index')->name('check_update');
+Route::middleware('auth')->get('/check-update', function () {
+    return view('update');
+});
 Route::get('/proses-update', 'UpdateController@proses_update')->name('proses_update');
 Route::get('/ekstrak', 'UpdateController@extract_to')->name('extract_to');
 Route::get('/update-versi', 'UpdateController@update_versi')->name('update_versi');
-Route::get('/clear-cache', function() {
-    Artisan::call('cache:clear');
-    return "Cache is cleared";
-});
 Route::get('/referensi/mata-pelajaran', 'ReferensiController@index')->name('mata_pelajaran');
 Route::get('/referensi/list-mata-pelajaran', 'ReferensiController@list_mata_pelajaran')->name('list_mata_pelajaran');
 Route::get('/referensi/ekskul', 'ReferensiController@ekskul')->name('ekskul');
@@ -284,15 +282,8 @@ Route::get('/cetak/rapor-nilai/{query}/{id}', 'CetakController@rapor_nilai');
 Route::get('/cetak/rapor-pendukung/{query}/{id}', 'CetakController@rapor_pendukung');
 //Route::post('/cetak/rapor-pts', array('as' => 'cetak.rapor_pts', 'uses' => 'CetakController@rapor_pts'));
 //Cetang End//
-Route::get('/list-table', function () {
-	$tables = DB::select("SELECT
-    table_schema || '.' || table_name as show_tables
-FROM
-    information_schema.tables
-WHERE
-    table_type = 'BASE TABLE'
-AND
-    table_schema NOT IN ('pg_catalog', 'information_schema') ORDER BY table_schema;");
-	$data['tables'] = $tables;
-	return view('list-table', $data);
+Route::get('/excel-pembelajaran', 'ExcelController@pembelajaran');
+Route::get('/clear-cache', function() {
+    Artisan::call('cache:clear');
+    return "Cache is cleared";
 });

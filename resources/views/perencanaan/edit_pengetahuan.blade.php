@@ -5,6 +5,12 @@
 @stop
 
 @section('content')
+<?php
+foreach($all_kd as $kompetensi_dasar){
+	$data_kd[str_replace('.','',$kompetensi_dasar->id_kompetensi)] = $kompetensi_dasar;
+}
+ksort($data_kd);
+?>
     <form action="{{ route('simpan_perencanaan') }}" method="post" class="form-horizontal" id="form">
 		{{ csrf_field() }}
 		<div class="col">
@@ -60,7 +66,7 @@
 					<th class="text-center" width="10">Bobot</th>
 					<?php
 					//$all_kd = array();
-					foreach($all_kd as $kd){
+					foreach($data_kd as $kd){
 						$kompetensi_dasar = ($kd->kompetensi_dasar_alias) ? $kd->kompetensi_dasar_alias : $kd->kompetensi_dasar;
 					?>
 					<th class="text-center"><a href="javascript:void(0)" class="tooltip-top" title="<?php echo strip_tags($kompetensi_dasar); ?>"><?php echo $kd->id_kompetensi; ?></a></th>
@@ -85,13 +91,13 @@
 					</td>
 					<?php
 					foreach($rencana->kd_nilai as $kd_nilai){
-						$kd_id[] = $kd_nilai->kd_id;
+						$kd_id[] = $kd_nilai->kompetensi_dasar_id;
 					}
-					foreach($all_kd as $kd){
+					foreach($data_kd as $kd){
 					?>
 					<td style="vertical-align:middle;">
 						<input type="hidden" name="id_kompetensi[]" value="{{$kd->id_kompetensi}}" />
-						<div class="text-center"><input type="checkbox" <?php echo (in_array($kd->id, $kd_id)) ? ' checked="checked"' : ''; ?> name="kd[]" value="<?php echo $kd->id; ?>" /></div>
+						<div class="text-center"><input type="checkbox" <?php echo (in_array($kd->kompetensi_dasar_id, $kd_id)) ? ' checked="checked"' : ''; ?> name="kd[]" value="<?php echo $kd->kompetensi_dasar_id; ?>" /></div>
 					</td>
 					<?php } ?>
 					<td><input class="form-control input-sm" type="text" name="keterangan_penilaian" value="{{$rencana->keterangan}}"></td>

@@ -171,7 +171,7 @@ class RombelController extends Controller
 				$pembelajaran->no_urut = $nomor_urut;
 				$pembelajaran->last_sync = date('Y-m-d H:i:s');
 				if($pembelajaran->save()){
-					$status['type'] = 'warning';
+					$status['type'] = 'success';
 					$status['text'] = 'Berhasil memperbaharui pembelajaran '.$nama_mapel_alias;
 					$status['title'] = 'Data Tersimpan!';
 				} else {
@@ -181,9 +181,25 @@ class RombelController extends Controller
 				}
 			}
 		} else {
-			$status['type'] = 'info';
-			$status['text'] = 'Guru tidak dipilih untuk mata pelajaran '.$nama_mapel_alias;;
-			$status['title'] = 'Data dilewati!';
+			$pembelajaran = Pembelajaran::findOrFail($pembelajaran_id);
+			if($pembelajaran->kelompok_id){
+				$pembelajaran->kelompok_id = NULL;
+				$pembelajaran->no_urut = NULL;
+				$pembelajaran->last_sync = date('Y-m-d H:i:s');
+				if($pembelajaran->save()){
+					$status['type'] = 'success';
+					$status['text'] = 'Berhasil memperbaharui pembelajaran '.$nama_mapel_alias;
+					$status['title'] = 'Data Tersimpan!';
+				} else {
+					$status['type'] = 'error';
+					$status['text'] = 'Gagal memperbaharui pembelajaran '.$nama_mapel_alias;
+					$status['title'] = 'Data dilewati!';
+				}
+			} else {
+				$status['type'] = 'info';
+				$status['text'] = 'Guru tidak dipilih untuk mata pelajaran '.$nama_mapel_alias;;
+				$status['title'] = 'Data dilewati!';
+			}
 		}
 		echo json_encode($status);
 	}

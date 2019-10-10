@@ -191,7 +191,7 @@ class PenilaianController extends Controller
 				if($nilai_filter){
 					$insert_remedial = array(
 						'sekolah_id' 		=> $user->sekolah_id,
-						'nilai'				=> serialize($nilai),
+						'nilai'				=> serialize($nilai_filter),
 						'rerata_akhir'		=> $rerata_akhir[$anggota_rombel_id],
 						'rerata_remedial'	=> $rerata_remedial[$anggota_rombel_id],
 						'last_sync'			=> date('Y-m-d H:i:s'),

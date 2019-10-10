@@ -211,8 +211,6 @@ class AjaxController extends Controller
 		} else {
 			$kurikulum = 2013;
 		}
-		//$orderByRaw = "split_part(id_kompetensi, '.', 1) ASC";
-		//$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->orderByRaw($orderByRaw)->get();
 		$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->get();
 		$bobot = '';
 		$bentuk_penilaian = '';
@@ -288,7 +286,7 @@ class AjaxController extends Controller
 		if($all_kd_nilai->count()){
 			foreach($all_kd_nilai as $kd_nilai){
 				$record= array();
-				$record['value'] 	= $kd_nilai->kd_id;
+				$record['value'] 	= $kd_nilai->kompetensi_dasar_id;
 				$record['text'] 	= $kd_nilai->id_kompetensi;
 				$output['result'][] = $record;
 			}
@@ -305,14 +303,14 @@ class AjaxController extends Controller
 		$nama_kompetensi = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
 		$pembelajaran = Pembelajaran::with('rombongan_belajar')->with(['kd_nilai_p' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
-			$q->select(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian']);
-			$q->groupBy(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian', 'rencana_penilaian.pembelajaran_id']);
-			$q->orderBy('kd_nilai.kd_id', 'asc');
+			$q->select(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian']);
+			$q->groupBy(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian', 'rencana_penilaian.pembelajaran_id']);
+			$q->orderBy('kd_nilai.kompetensi_dasar_id', 'asc');
 		},'kd_nilai_k' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
-			$q->select(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian']);
-			$q->groupBy(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian', 'rencana_penilaian.pembelajaran_id']);
-			$q->orderBy('kd_nilai.kd_id', 'asc');
+			$q->select(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian']);
+			$q->groupBy(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.nama_penilaian', 'rencana_penilaian.pembelajaran_id']);
+			$q->orderBy('kd_nilai.kompetensi_dasar_id', 'asc');
 		}, 'one_anggota_rombel' => function($query) use ($request){
 			$query->with('siswa');
 			$query->with(['nilai_kd_pengetahuan' => function($query) use ($request){
@@ -336,7 +334,7 @@ class AjaxController extends Controller
 		$pembelajaran = Pembelajaran::with('rombongan_belajar')->with(['kd_nilai_capaian' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
 			$q->where('rencana_penilaian.kompetensi_id', '=', $request['kompetensi_id']);
-			$q->where('kd_id', '=', $request['kd']);
+			$q->where('kompetensi_dasar_id', '=', $request['kd']);
 		}, 'anggota_rombel' => function($query){
 			$query->where('jenis_rombel', 1);
 		}, 'anggota_rombel.siswa', 'anggota_rombel.nilai_kd_'.$nama_kompetensi => function($query) use ($request){
@@ -355,10 +353,10 @@ class AjaxController extends Controller
 		$with = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
 		$pembelajaran = Pembelajaran::with(['kd_nilai' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
-			$q->select(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id']);
+			$q->select(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id']);
 			$q->where('rencana_penilaian.kompetensi_id', '=', $request['kompetensi_id']);
-			$q->groupBy(['kd_nilai.kd_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.pembelajaran_id']);
-			$q->orderBy('kd_nilai.kd_id', 'asc');
+			$q->groupBy(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.pembelajaran_id']);
+			$q->orderBy('kd_nilai.kompetensi_dasar_id', 'asc');
 		}, 'anggota_rombel', 'anggota_rombel.siswa', 'anggota_rombel.v_nilai_akhir_'.$nama_kompetensi => function($query) use ($request){
 			$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
 		}, 'anggota_rombel.nilai_remedial' => function($query) use ($request){
@@ -394,7 +392,7 @@ class AjaxController extends Controller
 					});
 				};
 				$q->with(['kd_nilai'], $callback);
-				$q->orderBy('kd_id');
+				$q->orderBy('kompetensi_dasar_id');
 			}])->with([$with_2 => function($q) use ($kompetensi_id, $pembelajaran_id){
 				$q->where('kompetensi_id', '=', $kompetensi_id);
 				$q->where('pembelajaran_id', '=', $pembelajaran_id);
@@ -409,12 +407,12 @@ class AjaxController extends Controller
 						$query->where('kompetensi_id', '=', $kompetensi_id);
 						$query->where('pembelajaran_id', '=', $pembelajaran_id);
 					});
-					$sq->select(['kd_id', 'id_kompetensi']);
-					$sq->groupBy(['kd_id', 'id_kompetensi']);
+					$sq->select(['kompetensi_dasar_id', 'id_kompetensi']);
+					$sq->groupBy(['kompetensi_dasar_id', 'id_kompetensi']);
 					$sq->orderBy('id_kompetensi');
 				};
 				$q->wherehas('kd_nilai', $callback);
-				$q->orderBy('kd_id');
+				$q->orderBy('kompetensi_dasar_id');
 			}])->with([$with_2 => function($q) use ($kompetensi_id, $pembelajaran_id){
 				$q->where('kompetensi_id', '=', $kompetensi_id);
 				$q->where('pembelajaran_id', '=', $pembelajaran_id);
@@ -425,7 +423,7 @@ class AjaxController extends Controller
 			$q->where('kompetensi_id', '=', $kompetensi_id);
 			$q->where('pembelajaran_id', '=', $pembelajaran_id);
 		};
-		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback])->with('kompetensi_dasar')->select(['kd_id', 'id_kompetensi'])->groupBy(['kd_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
+		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback])->with('kompetensi_dasar')->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
 		$params = array(
 			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
 			'all_siswa' => $all_siswa,

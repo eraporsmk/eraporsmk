@@ -22,25 +22,25 @@ class LeggerKDExport implements FromView
 			$query->order();
 			$query->with(['nilai_kd_pengetahuan' => function($q){
 				$q->with('kd_nilai');
-				$q->orderBy('kd_id');
+				$q->orderBy('kompetensi_dasar_id');
 			}]);
 			$query->with(['nilai_kd_keterampilan' => function($q){
 				$q->with('kd_nilai');
-				$q->orderBy('kd_id');
+				$q->orderBy('kompetensi_dasar_id');
 			}]);
 		}])->with('jurusan')->with('sekolah')->with('semester')->with(['pembelajaran' => function($query){
 			$query->with(['kd_nilai_p' => function($query){
-				$query->select(['kd_id', 'pembelajaran_id', 'kompetensi_id']);
+				$query->select(['kompetensi_dasar_id', 'pembelajaran_id', 'kompetensi_id']);
 				$query->orderBy('kompetensi_id', 'asc');
-				$query->orderBy('kd_id', 'asc');
-				$query->groupBy(['kd_id', 'pembelajaran_id', 'kompetensi_id']);
+				$query->orderBy('kompetensi_dasar_id', 'asc');
+				$query->groupBy(['kompetensi_dasar_id', 'pembelajaran_id', 'kompetensi_id']);
 				$query->with('kompetensi_dasar');
 			}]);
 			$query->with(['kd_nilai_k' => function($query){
-				$query->select(['kd_id', 'pembelajaran_id', 'kompetensi_id']);
+				$query->select(['kompetensi_dasar_id', 'pembelajaran_id', 'kompetensi_id']);
 				$query->orderBy('kompetensi_id', 'asc');
-				$query->orderBy('kd_id', 'asc');
-				$query->groupBy(['kd_id', 'pembelajaran_id', 'kompetensi_id']);
+				$query->orderBy('kompetensi_dasar_id', 'asc');
+				$query->groupBy(['kompetensi_dasar_id', 'pembelajaran_id', 'kompetensi_id']);
 				$query->with('kompetensi_dasar');
 			}]);
 			$query->whereNotNull('kelompok_id');

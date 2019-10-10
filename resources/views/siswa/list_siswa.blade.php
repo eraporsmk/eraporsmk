@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title_postfix', ' | Data Peserta Didik Aktif')
+@section('title_postfix', 'Data '.$title.' |')
 
 @section('content_header')
     <h1>Data {{$title}}</h1>
@@ -20,7 +20,7 @@
 				<option value="">==Filter Berdasar Kompetensi Keahlian==</option>
 				@if($all_jurusan->count())
 				@foreach($all_jurusan as $jurusan)
-				<option value="{{$jurusan->jurusan_id}}">{{$jurusan->nama_jurusan_sp}}</option>
+				<option value="{{$jurusan->jurusan_sp_id}}">{{$jurusan->nama_jurusan_sp}}</option>
 				@endforeach
 				@endif
 			</select>

@@ -61,11 +61,11 @@
 		</tr>
 	@foreach($pembelajaran->kd_nilai_p as $kd_nilai_p)
 		<tr>
-			<td>{{$kd_nilai_p->kd_id}}</td>
+			<td>{{$kd_nilai_p->kompetensi_dasar_id}}</td>
 			<td>{{($kd_nilai_p->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai_p->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai_p->kompetensi_dasar->kompetensi_dasar}}</td>
 			<td>{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 			@foreach($rombongan_belajar->anggota_rombel as $siswa)
-			<td>{{number_format($siswa->nilai_kd_pengetahuan()->where('pembelajaran_id', $kd_nilai_p->pembelajaran_id)->where('kd_id', $kd_nilai_p->kd_id)->avg('nilai_kd'),0)}}</td>
+			<td>{{number_format($siswa->nilai_kd_pengetahuan()->where('pembelajaran_id', $kd_nilai_p->pembelajaran_id)->where('kompetensi_dasar_id', $kd_nilai_p->kompetensi_dasar_id)->avg('nilai_kd'),0)}}</td>
 			@endforeach
 			<?php $start_avg++; ?>
 			<td>=AVERAGE(D{{$start_avg}}:{{CustomHelper::get_previous_letter($huruf_p).$start_avg}})</td>
@@ -92,11 +92,11 @@
 		</tr>
 	@foreach($pembelajaran->kd_nilai_k as $kd_nilai_k)
 		<tr>
-			<td>{{$kd_nilai_k->kd_id}}</td>
+			<td>{{$kd_nilai_k->kompetensi_dasar_id}}</td>
 			<td>{{($kd_nilai_k->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai_k->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai_k->kompetensi_dasar->kompetensi_dasar}}</td>
 			<td>{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 			@foreach($rombongan_belajar->anggota_rombel as $siswa)
-			<td>{{number_format($siswa->nilai_kd_keterampilan()->where('pembelajaran_id', $kd_nilai_k->pembelajaran_id)->where('kd_id', $kd_nilai_k->kd_id)->avg('nilai_kd'),0)}}</td>
+			<td>{{number_format($siswa->nilai_kd_keterampilan()->where('pembelajaran_id', $kd_nilai_k->pembelajaran_id)->where('kompetensi_dasar_id', $kd_nilai_k->kompetensi_dasar_id)->avg('nilai_kd'),0)}}</td>
 			@endforeach
 			<td>=AVERAGE(D{{($start_avg + 1)}}:{{CustomHelper::get_previous_letter($huruf_k).($start_avg + 1)}})</td>
 		</tr>

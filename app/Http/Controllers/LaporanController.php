@@ -614,9 +614,9 @@ class LaporanController extends Controller
 						$query->where('anggota_rombel_id', $id);
 					};
 					$query->with('kelompok');
-					$query->whereHas('nilai_akhir_pengetahuan', $callback);
+					//$query->whereHas('nilai_akhir_pengetahuan', $callback);
 					$query->with(['nilai_akhir_pengetahuan' => $callback]);
-					$query->whereHas('nilai_akhir_keterampilan', $callback);
+					//$query->whereHas('nilai_akhir_keterampilan', $callback);
 					$query->with(['nilai_akhir_keterampilan' => $callback]);
 					$query->whereNotNull('kelompok_id');
 					$query->orderBy('kelompok_id', 'asc');

@@ -64,25 +64,25 @@
 		<td style="width: 5%;">10.</td>
 		<td style="width: 35%;padding:5px;">Sekolah Asal</td>
 		<td style="width: 1%;">:</td>
-		<td style="width: 58%">{{$get_siswa->siswa->sekolah_asal}}</td>
+		<td style="width: 58%">{{($get_siswa->siswa->sekolah_asal) ? $get_siswa->siswa->sekolah_asal : '-'}}</td>
 	</tr>
 	<tr>
 		<td style="width: 5%;">11.</td>
 		<td style="width: 35%;padding:5px;">Diterima di sekolah ini</td>
 		<td style="width: 5%">&nbsp;</td>
-		<td style="width: 58%">{{$get_siswa->siswa->diterima_kelas}}</td>
+		<td style="width: 58%">{{($get_siswa->siswa->diterima_kelas) ? : '-'}}</td>
 	</tr>
 	<tr>
 		<td style="width: 5%;">&nbsp;</td>
 		<td style="width: 35%;padding:5px;">Di kelas</td>
 		<td style="width: 1%;">:</td>
-		<td style="width: 58%">{{$get_siswa->siswa->diterima_kelas}}</td>
+		<td style="width: 58%">{{($get_siswa->siswa->diterima_kelas) ? $get_siswa->siswa->diterima_kelas : '-'}}</td>
 	</tr>
 	<tr>
 		<td style="width: 5%;">&nbsp;</td>
 		<td style="width: 35%;padding:5px;">Pada tanggal</td>
 		<td style="width: 1%;">:</td>
-		<td style="width: 58%">{{CustomHelper::TanggalIndo($get_siswa->siswa->diterima)}}</td>
+		<td style="width: 58%">{{($get_siswa->siswa->diterima) ? CustomHelper::TanggalIndo($get_siswa->siswa->diterima) : '-'}}</td>
 	</tr>
 	<tr>
 		<td style="width: 5%;">&nbsp;</td>
