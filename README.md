@@ -1,4 +1,4 @@
-<p align="center"><img src="http://psmk.kemdikbud.go.id/anggraini.php/article-thumb/1/4455.jpg" width="400"></p>
+<p align="center"><img src="http://portal.erapor-smk.net/logo3.png" width="600"></p>
 
 ## Cara Install
 
