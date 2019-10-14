@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
 				'icon'  => 'dashboard',
 				'active' => ['/', 'home'],
 			]);
-			if($url['host'] == 'localhost' || $url['port'] != ''){
+			if($url['host'] == 'localhost'){
 				$event->menu->add([
 					'text'        => 'Sinkronisasi',
 					'url'         => '#',
