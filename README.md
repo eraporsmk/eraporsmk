@@ -37,6 +37,11 @@ DB_ERAPOR4_USERNAME=postgres
 DB_ERAPOR4_PASSWORD=postgres
 ```
 
+## Generate App Key
+```bash
+php artisan key:generate
+```
+
 ## Migration
 - Membuat struktur table
 ```bash
