@@ -86,6 +86,13 @@ class AppServiceProvider extends ServiceProvider
 					'permission'  		=> 'admin',
 					'submenu' => [
 						[
+							'text' => 'eRapor 4.x.x',
+							'url'  => 'sinkronisasi/erapor4',
+							'icon' => 'refresh',
+							'label'       => 'Offline',
+							'label_color' => 'danger',
+						],
+						[
 							'text' => 'Ambil Data Dapodik',
 							'url'  => 'sinkronisasi/dapodik',
 							'icon' => 'download',
