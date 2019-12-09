@@ -37,7 +37,29 @@ class KDSeeder extends Seeder
 				'last_sync'					=> $obj->last_sync,
 			]);
     	}*/
-		$sql = File::get('database/data/ref_kd.sql');
+		$sql = File::get('database/data/ref_kd00.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd01.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd02.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd03.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd04.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd05.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd06.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd07.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd08.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd09.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd10.sql');
+		DB::unprepared($sql);
+		$sql = File::get('database/data/ref_kd11.sql');
 		DB::unprepared($sql);
 		$this->command->getOutput()->writeln("Proses import ref. Kompetensi Dasar selesai");
     }
