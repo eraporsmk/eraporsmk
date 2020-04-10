@@ -90,7 +90,7 @@ $('#update_notification').find('a').click(function(e){
 			$.get('{{route('updater.extract')}}', {storageFilename: data.storageFilename, storageFolder: data.storageFolder, versionAvailable: data.versionAvailable }).done(function( data_extract ) {
 				$('.extract_to').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
 				$('.update_versi').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
-				if(data.next){
+				if(data_extract.next){
 					$.get('{{route('updater.proses')}}', {releaseFolder: data_extract.releaseFolder, releaseName: data_extract.releaseName }).done(function( data_proses ) {
 						$('.update_versi').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
 						swal({

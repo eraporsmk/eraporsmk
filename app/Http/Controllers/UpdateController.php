@@ -226,8 +226,13 @@ class UpdateController extends Controller
 			$update = 0;
 			while ($zip_item = zip_read($zipHandle) ){
 				$filename = zip_entry_name($zip_item);
+				$newFileName = explode('/', $filename);
+				if(count($newFileName) > 1){
+					$collection = collect($newFileName);
+					$collection->forget(0);
+					$filename = implode('/',$collection->all());
+				}
 				$dirname = dirname($filename);
-
 				// Exclude these cases (1/2)
 				if(	substr($filename,-1,1) == '/' || dirname($filename) === $archive || substr($dirname,0,2) === '__') continue;
 
@@ -238,17 +243,18 @@ class UpdateController extends Controller
 				// Exclude these cases (2/2)
 				// todo:check linux and windows test
 				//if($dirname === '.' ) continue;
-
 				$filename = $dirname.'/'.basename($filename); //set new purify path for current file
-
+				$filename = str_replace($dirname.'/','',$filename);
+				//echo $dirname;
+				//dd($filename);
 				if ( !is_dir(base_path().'/'.$dirname) ){ //Make NEW directory (if exist also in current version continue...)
-					//File::makeDirectory(base_path().'/'.$dirname, $mode = 0755, true, true);
+					File::makeDirectory(base_path().'/'.$dirname, $mode = 0755, true, true);
 				}
 
 				if ( !is_dir(base_path().'/'.$filename) ){ //Overwrite a file with its last version
 					$contents = zip_entry_read($zip_item, zip_entry_filesize($zip_item));
 					$contents = str_replace("\r\n", "\n", $contents);
-					//File::put(base_path().'/'.$filename, $contents);
+					File::put(base_path().'/'.$filename, $contents);
 					unset($contents);
 				}
 				$update++;
