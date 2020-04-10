@@ -15,7 +15,7 @@ body{font-size:11px !important;}
   <tr>
 	<td>Tahun Pelajaran</td>
     <td class="text-center">:</td>
-    <td><?php echo str_replace('/','-',$semester->nama); ?></td>
+    <td><?php echo str_replace('/','-',$data_semester->nama); ?></td>
   </tr>
   <tr>
 	<td><?php if($rombongan_belajar->tingkat == 10){ ?>Program Keahlian<?php } else { ?>Kompetensi Keahlian<?php } ?></td>

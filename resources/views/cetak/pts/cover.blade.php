@@ -11,9 +11,9 @@
 <br>
 <br>
 <br>
-<h3>RAPOR UJIAN TENGAH SEMESTER {{strtoupper(substr($semester->nama,10))}}</h3>
+<h3>RAPOR UJIAN TENGAH SEMESTER {{strtoupper(substr($data_semester->nama,10))}}</h3>
 <h3>{{($sekolah) ? strtoupper($sekolah->nama) : '-'}}</h3>
-<h3>TAHUN PELAJARAN {{str_replace('/','-',substr($semester->nama,0,9))}}</h3><br>
+<h3>TAHUN PELAJARAN {{str_replace('/','-',substr($data_semester->nama,0,9))}}</h3><br>
 <br>
 <br>
 <br>

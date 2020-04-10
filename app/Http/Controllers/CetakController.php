@@ -112,12 +112,11 @@ class CetakController extends Controller
 		$tanggal_rapor = CustomHelper::get_setting('tanggal_rapor');
 		$tanggal_rapor = date('Y-m-d', strtotime($tanggal_rapor));
 		$data['tanggal_rapor'] = $tanggal_rapor;
-		//dd($rombongan_belajar);
 		foreach($rombongan_belajar->anggota_rombel as $anggota_rombel){
 			$pdf->getMpdf()->SetFooter(strtoupper($anggota_rombel->siswa->nama).' - '.$rombongan_belajar->nama.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
 			$data['siswa'] = $anggota_rombel->siswa;
 			$data['sekolah'] = $rombongan_belajar->sekolah;
-			$data['semester'] = $rombongan_belajar->semester;
+			$data['data_semester'] = $rombongan_belajar->semester;
 			$rapor_cover = view('cetak.pts.cover', $data);
 			$pdf->getMpdf()->WriteHTML($rapor_cover);
 			$get_pembelajaran=[];
