@@ -37,6 +37,9 @@ class TestController extends Controller
     }
 	public function index(){
 		echo 'test<br />';
+		//base_path()
+		dd(base_path());
+		/*
 		$a = Rencana_penilaian::get();
 		foreach($a as $b){
 			$c = $b->pembelajaran()->withTrashed()->first();

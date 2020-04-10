@@ -31,6 +31,7 @@ class UpdateController extends Controller
     }
 	public function update_versi(){
 		//$user = auth()->user();
+		/*
 		$a = Rombongan_belajar::where(function($query){
 			$query->where('jenis_rombel', 51);
 			$query->where('sekolah_id', session('sekolah_id'));
@@ -72,12 +73,14 @@ class UpdateController extends Controller
 				$query->where('semester_id', session('semester_id'));
 			})->delete();
 		}
-		Setting::where('key', 'app_version')->update(['value' => '5.0.7']);
+		*/
+		Setting::where('key', 'app_version')->update(['value' => '5.0.8']);
 		Setting::where('key', 'db_version')->update(['value' => '4.0.1']);
 		//Artisan::call('migrate');
 		Artisan::call('config:clear');
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
+		File::put(base_path().'/version.txt', '5.0.8');
 		echo 'sukses';
 	}
 }
