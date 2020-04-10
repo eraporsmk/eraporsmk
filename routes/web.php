@@ -129,6 +129,26 @@ Route::get('/rekap-nilai', 'ConfigController@rekap_nilai')->name('download_rekap
 Route::post('konfigurasi/simpan', 'ConfigController@simpan');
 Route::get('/changelog', 'ChangelogController@index')->name('changelog');
 Route::middleware('auth')->get('/check-update', 'UpdateController@index')->name('update_aplikasi');
+Route::middleware('role:admin')->get('/periksa-pembaharuan', 'UpdateController@periksa_pembaharuan')->name('periksa_pembaharuan');
+Route::middleware('role:admin')->get('/periksa-pembaharuana', function (\Codedge\Updater\UpdaterManager $updater) {
+
+    // Check if new version is available
+    if($updater->source()->isNewVersionAvailable()) {
+
+        // Get the current installed version
+        $updater->source()->getVersionInstalled();
+
+        // Get the new version available
+        $updater->source()->getVersionAvailable();
+
+        // Run the update process
+        $updater->source()->update();
+        
+    } else {
+        echo "No new version available.";
+    }
+
+});
 //Route::middleware('auth')->get('/check-update', function () {
     //return view('update');
 //})->name('update_aplikasi');

@@ -13,6 +13,8 @@ use App\Rombongan_belajar;
 use App\Anggota_rombel;
 use App\Ekstrakurikuler;
 use App\Siswa;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
 class UpdateController extends Controller
 {
 	public function __construct()
@@ -83,4 +85,92 @@ class UpdateController extends Controller
 		File::put(base_path().'/version.txt', '5.0.8');
 		echo 'sukses';
 	}
+	public function periksa_pembaharuan(Request $request){
+		$version = File::get(base_path().'/version.txt');;
+		$client = new Client([
+			'base_uri' => 'https://api.github.com',
+			'timeout'  => 5.0,
+			'verify' => false
+		]);
+		$action = '/repos/eraporsmk/eraporsmk/releases/latest';
+		$curl = $client->get($action);
+		$version = '5.0.7';
+		if($curl->getStatusCode() == 200){
+			$response = json_decode($curl->getBody());
+			$versionAvailable = str_replace('v.', '', $response->tag_name);
+			if (version_compare($version, $versionAvailable, '<')) {
+				$output = [
+					'server' => TRUE,
+					'new_version' => TRUE,
+					'zipball_url' => $response->zipball_url,
+				];
+			} else {
+				$output = [
+					'server' => TRUE,
+					'new_version' => FALSE,
+					'zipball_url' => NULL,
+				];
+			}
+		} else {
+			$output = [
+				'server' => FALSE,
+				'new_version' => FALSE,
+				'zipball_url' => NULL,
+			];
+		}
+		return response()->json($output);
+	}
+	public function proses_update($versionAvailable, $zipball_url){
+		$storageFolder = $this->path.'/'.$versionAvailable.'-'.now()->timestamp;
+		$storageFilename = $storageFolder.'.zip';
+		$downloadReleaseClient = new Client([
+			'base_uri' => 'https://api.github.com',
+			'verify' => false,
+			'sink' => $storageFilename,
+		]);
+		$downloadRelease = $downloadReleaseClient->get($zipball_url);
+		$this->unzipArchive($storageFilename, $storageFolder, false);
+		$this->createReleaseFolder($storageFolder, $versionAvailable);
+	}
+	private function unzipArchive($file, $targetDir, $deleteZipArchive = true): bool
+    {
+        if (empty($file) || ! File::exists($file)) {
+            throw new \InvalidArgumentException("Archive [{$file}] cannot be found or is empty.");
+        }
+
+        $zip = new \ZipArchive();
+        $res = $zip->open($file);
+
+        if (! $res) {
+            throw new Exception("Cannot open zip archive [{$file}].");
+        }
+
+        if (empty($targetDir)) {
+            $extracted = $zip->extractTo(File::dirname($file));
+        } else {
+            $extracted = $zip->extractTo($targetDir);
+        }
+
+        $zip->close();
+
+        if ($extracted && $deleteZipArchive === true) {
+            File::delete($file);
+        }
+
+        return true;
+	}
+	private function createReleaseFolder(string $releaseFolder, $releaseName)
+    {
+        $folders = File::directories($releaseFolder);
+		dd($folders);
+        if (count($folders) === 1) {
+            // Only one sub-folder inside extracted directory
+            File::moveDirectory($folders[0], $this->path.'/'.$releaseName);
+            File::deleteDirectory($folders[0]);
+            File::deleteDirectory($releaseFolder);
+        } else {
+            // Release (with all files and folders) is already inside, so we need to only rename the folder
+            File::moveDirectory($releaseFolder, $this->path.'/'.$releaseName);
+        }
+    }
 }

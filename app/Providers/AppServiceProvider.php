@@ -12,6 +12,7 @@ use App\Setting;
 use App\Sekolah;
 use Illuminate\Support\Facades\Auth;
 use Config;
+use File;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -87,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
 					]
 			]);
 		}
+		//config(['self-update.repository_types.github.use_branch' => 'v5']);
 		//dd($ta);
 		//$ta = CustomHelper::get_ta();
 		$events->listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {

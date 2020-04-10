@@ -5,11 +5,6 @@
 @stop
 
 @section('content')
-	<?php
-	if (!File::isDirectory(base_path('updates'))) {
-		File::makeDirectory(base_path('updates'));
-	}
-	?>
 	<div id="update_notification" class="callout callout-info">
 		<h4>Memerika Pembaharuan</h4>
 		<p class="p1">Silahkan tunggu beberapa saat, aplikasi sedang memeriksa pembaharuan di server</p>
@@ -40,19 +35,26 @@
 $(document).ready(function() {  
 	$.ajax({
 		type: 'GET',   
-		url: 'updater.check',
+		url: 'periksa-pembaharuan',
 		async: false,
 		success: function(response) {
 			console.log(response);
-			if(response != ''){
-				$('#update_notification h4').html('Pembaharuan Tersedia');
-				$('.callout-info').switchClass( "callout-info", "callout-success", 0, "easeInOutQuad" );
-				$('#update_notification .p1').html('Gunakan Tombol di bawah ini untuk memperbaharui aplikasi');
-				$('#update_notification .p2').show();
+			//return false;
+			if(response.server){
+				if(response.new_version){
+					$('#update_notification h4').html('Pembaharuan Tersedia');
+					$('.callout-info').switchClass( "callout-info", "callout-success", 0, "easeInOutQuad" );
+					$('#update_notification .p1').html('Gunakan Tombol di bawah ini untuk memperbaharui aplikasi');
+					$('#update_notification .p2').show();
+				} else {
+					$('#update_notification h4').html('Pembaharuan Belum Tersedia');
+					$('.callout-info').switchClass( "callout-info", "callout-danger", 0, "easeInOutQuad" );
+					$('#update_notification .p1').html('Belum tersedia pembaharuan untuk versi aplikasi Anda');
+				}
 			} else {
-				$('#update_notification h4').html('Pembaharuan Belum Tersedia');
+				$('#update_notification h4').html('Memerika Pembaharuan Gagal');
 				$('.callout-info').switchClass( "callout-info", "callout-danger", 0, "easeInOutQuad" );
-				$('#update_notification .p1').html('Belum tersedia pembaharuan untuk versi aplikasi Anda');
+				$('#update_notification .p1').html('Server tidak merespon. Silahkan segarkan kembali halaman ini.');
 			}
 		}
 	});
