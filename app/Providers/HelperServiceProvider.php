@@ -62,7 +62,7 @@ class HelperServiceProvider extends ServiceProvider
 	}
 	public static function get_ta(){
 		$user = auth()->user();
-		if(Schema::hasTable('ref.semester')){
+		if(Schema::hasTable('settings')){
 			if(isset($user->periode_aktif)){
 				return Semester::find($user->periode_aktif);
 			} else {
