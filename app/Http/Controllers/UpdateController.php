@@ -86,7 +86,7 @@ class UpdateController extends Controller
 		echo 'sukses';
 	}
 	public function periksa_pembaharuan(Request $request){
-		$version = File::get(base_path().'/version.txt');;
+		$version = config('global.app_version');
 		$client = new Client([
 			'base_uri' => 'https://api.github.com',
 			'timeout'  => 5.0,
@@ -102,12 +102,14 @@ class UpdateController extends Controller
 				$output = [
 					'server' => TRUE,
 					'new_version' => TRUE,
+					'current_version' => $version,
 					'zipball_url' => $response->zipball_url,
 				];
 			} else {
 				$output = [
 					'server' => TRUE,
 					'new_version' => FALSE,
+					'current_version' => $version,
 					'zipball_url' => NULL,
 				];
 			}
@@ -115,6 +117,7 @@ class UpdateController extends Controller
 			$output = [
 				'server' => FALSE,
 				'new_version' => FALSE,
+				'current_version' => $version,
 				'zipball_url' => NULL,
 			];
 		}
