@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Contracts\Events\Dispatcher;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Blade;
@@ -68,22 +69,24 @@ class AppServiceProvider extends ServiceProvider
 				$view->with($with);
 			}
 		});
-		config([
-			'global' => Setting::all([
-				'key','value'
-			])
-			->keyBy('key') // key every setting by its name
-			->transform(function ($setting) {
-				return $setting->value; // return only the value
-			})
-			->toArray(),
-			'site' => 
-				[
-					'app_name' 	=> 'e-Rapor SMK',
-					'semester' 	=> $ta,
-					'asd'		=> 'tambahan',
-				]
-		]);
+		if(Schema::hasTable('settings')){
+			config([
+				'global' => Setting::all([
+					'key','value'
+				])
+				->keyBy('key') // key every setting by its name
+				->transform(function ($setting) {
+					return $setting->value; // return only the value
+				})
+				->toArray(),
+				'site' => 
+					[
+						'app_name' 	=> 'e-Rapor SMK',
+						'semester' 	=> $ta,
+						'asd'		=> 'tambahan',
+					]
+			]);
+		}
 		//dd($ta);
 		//$ta = CustomHelper::get_ta();
 		$events->listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {

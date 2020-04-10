@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Nilai;
@@ -61,10 +62,12 @@ class HelperServiceProvider extends ServiceProvider
 	}
 	public static function get_ta(){
 		$user = auth()->user();
-		if(isset($user->periode_aktif)){
-			return Semester::find($user->periode_aktif);
-		} else {
-			return Semester::where('periode_aktif', 1)->first();
+		if(Schema::hasTable('ref.semester')){
+			if(isset($user->periode_aktif)){
+				return Semester::find($user->periode_aktif);
+			} else {
+				return Semester::where('periode_aktif', 1)->first();
+			}
 		}
 	}
 	public static function table_sync(){
