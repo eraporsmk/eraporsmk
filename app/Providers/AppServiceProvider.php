@@ -88,9 +88,6 @@ class AppServiceProvider extends ServiceProvider
 					]
 			]);
 		}
-		//config(['self-update.repository_types.github.use_branch' => 'v5']);
-		//dd($ta);
-		//$ta = CustomHelper::get_ta();
 		$events->listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {
 			$url = parse_url(url('/'));
 			$event->menu->add('periode');
@@ -364,7 +361,7 @@ class AppServiceProvider extends ServiceProvider
 					],
 				],
 			]);
-			if($ta->semester == 1){
+			if($ta && $ta->semester == 1){
 				$event->menu->add([
 					'text'	=> 'Laporan Hasil Belajar',
 					'url'  => '#',
