@@ -9,7 +9,7 @@
 @section('content')
     <?php
 			$hits = '';
-			$filename = storage_path('app/public/Changelog.txt');//"./Changelog.txt";
+			$filename = public_path('Changelog.txt');//"./Changelog.txt";
 			if (file_exists($filename)) {
 				$hits = file_get_contents($filename);
 			} else {

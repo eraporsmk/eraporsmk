@@ -1,12 +1,36 @@
 <div id="form">
+<legend><h3>Versi 5.0.8</h3></legend>
+<ol>
+<li><b style="color:green">[Perbaikan]</b> Cetak Rapor UTS</li>
+<li><b style="color:green">[Perbaikan]</b> Akses Menu sesuai Role</li>
+</ol>
+<legend><h3>Versi 5.0.7</h3></legend>
+<ol>
+<li><b style="color:green">[Perbaikan]</b> Kunci nilai</li>
+<li><b style="color:green">[Perbaikan]</b> Filter mata pelajaran agama</li>
+<li><b style="color:green">[Perbaikan]</b> Pilihan tahun ajaran di form login</li>
+<li><b style="color:green">[Perbaikan]</b> Sinkronisasi dapodik</li>
+</ol>
+<legend><h3>Versi 5.0.6</h3></legend>
+<ol>
+<li><b style="color:green">[Perbaikan]</b> Sinkronisasi dapodik</li>
+<li><b style="color:green">[Perbaikan]</b> Pilihan kepala sekolah di menu Pengaturan Umum</li>
+<li><b style="color:green">[Perbaikan]</b> Ekstrakurikuler, Anggota Ekstrakurikuler dan Nilai Ekstrakurikuler</li>
+<li><b style="color:green">[Perbaikan]</b> Leger Nilai Akhir</li>
+</ol>
+<legend><h3>Versi 5.0.5</h3></legend>
+<ol>
+<li><b style="color:green">[Perbaikan]</b> Menambah rencana keterampilan</li>
+<li><b style="color:green">[Perbaikan]</b> Kepala sekolah dari instruktur</li>
+</ol>
 <legend><h3>Versi 5.0.4</h3></legend>
 <ol>
-<li><b style="color:green">[Perbaikan]</b> Unduh excel rekap nilai</li>
-<li><b style="color:green">[Perbaikan]</b> Ordering nama peserta didik di rekap nilai</li>
 <li><b style="color:green">[Perbaikan]</b> Edit perencanaan</li>
 <li><b style="color:green">[Perbaikan]</b> Penilaian remedial</li>
 <li><b style="color:green">[Perbaikan]</b> Hitung ulang nilai remedial (jika ada) pada aksi Generate Nilai</li>
-<li><b style="color:green">[Perbaikan]</b> Import excel</li>
+<li><b style="color:green">[Perbaikan]</b> Login menggunakan NUPTK/NISN</li>
+<li><b style="color:green">[Perbaikan]</b> Sorting nama peserta didik</li>
+<li><b style="color:green">[Perbaikan]</b> Mapping Pembelajaran</li>
 </ol>
 <legend><h3>Versi 5.0.3</h3></legend>
 <ol>
