@@ -43,8 +43,19 @@
 	<tbody>
 	<?php
 	$all_pembelajaran = array();
+	$get_pembelajaran = [];
+	$set_pembelajaran = $get_siswa->rombongan_belajar->pembelajaran;//()->whereNotNull('kelompok_id')->orderBy('kelompok_id', 'asc')->orderBy('no_urut', 'asc')->get();
+	foreach($set_pembelajaran as $pembelajaran){
+		if(in_array($pembelajaran->mata_pelajaran_id, CustomHelper::mapel_agama())){
+			if(CustomHelper::filter_pembelajaran_agama($get_siswa->siswa->agama->nama, $pembelajaran->mata_pelajaran->nama)){
+				$get_pembelajaran[$pembelajaran->pembelajaran_id] = $pembelajaran;
+			}
+		} else {
+			$get_pembelajaran[$pembelajaran->pembelajaran_id] = $pembelajaran;
+		}
+	}
 	?>
-	@foreach($get_siswa->rombongan_belajar->pembelajaran as $pembelajaran)
+	@foreach($get_pembelajaran as $pembelajaran)
 	<?php
 	$rasio_p = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
 	$rasio_k = ($pembelajaran->rasio_k) ? $pembelajaran->rasio_k : 50;
@@ -61,21 +72,24 @@
 	} else {
 		$produktif = 0;
 	}
-	$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran->pembelajaran_id, $pembelajaran->rombongan_belajar_id);
 	$all_pembelajaran[$pembelajaran->kelompok->nama_kelompok][] = array(
 		'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
 		'nilai_akhir_pengetahuan'	=> $nilai_pengetahuan_value,
 		'nilai_akhir_keterampilan'	=> $nilai_keterampilan_value,
 		'nilai_akhir'	=> $nilai_akhir,
 		'predikat'	=> CustomHelper::konversi_huruf($kkm, $nilai_akhir, $produktif),
-		//CustomHelper::terbilang($nilai_akhir),
 	);
 	$i=1;
 	?>
 	@endforeach
 	@foreach($all_pembelajaran as $kelompok => $data_pembelajaran)
+	@if($kelompok == 'C1. Dasar Bidang Keahlian' || $kelompok == 'C3. Kompetensi Keahlian')
 	<tr>
-		<td colspan="6"><b style="font-size: 13px;">{{$kelompok}}</b></td>
+		<td colspan="6" class="strong"><b style="font-size: 13px;">C. Muatan Peminatan Kejuruan</b></td>
+	</tr>
+	@endif
+	<tr>
+		<td colspan="6" class="strong"><b style="font-size: 13px;">{{$kelompok}}</b></td>
 	</tr>
 	@foreach($data_pembelajaran as $pembelajaran)
 	<?php $pembelajaran = (object) $pembelajaran; ?>

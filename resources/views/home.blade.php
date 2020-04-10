@@ -60,6 +60,7 @@ Selamat Datang {{ $user->name }}
 					<div class="box-header with-border">
 						<h3 class="box-title"><strong>Identitas Sekolah</strong></h3>
 					</div>
+					<?php //$sekolah = config('site.sekolah'); ?>
 					<table class="table table-condensed">
 						<tr>
 							<td width="30%">Nama Sekolah</td>
@@ -103,7 +104,7 @@ Selamat Datang {{ $user->name }}
 					</tr>
 					<tr>
 					<?php
-					$data_guru = App\Guru::find($sekolah->guru_id);
+					//$data_guru = App\Guru::find($sekolah->guru_id);
 					if(isset($sekolah->guru->nama)){
 						$nama_kepsek = CustomHelper::nama_guru($sekolah->guru->gelar_depan, $sekolah->guru->nama, $sekolah->guru->gelar_belakang);
 					} else {
@@ -126,11 +127,11 @@ Selamat Datang {{ $user->name }}
 					</tr>
 					<tr>
 						<td>Versi Aplikasi</td>
-						<td>: {{config('site.app_version')}}</td>
+						<td>: {{config('global.app_version')}}</td>
 					</tr>
 					<tr>
 						<td>Versi Database</td>
-						<td>: {{config('site.db_version')}}</td>
+						<td>: {{config('global.db_version')}}</td>
 					</tr>
 					<tr>
 						<td>Group Diskusi</td>
@@ -139,13 +140,13 @@ Selamat Datang {{ $user->name }}
 					<tr>
 						<td>Tim Helpdesk</td>
 						<td>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=628156441864&text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Wahyudin [08156441864]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=6281229997730&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Ahmad Aripin [081229997730]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=6282113057512&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Iman [082113057512]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=6282174508706&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Ikhsan [082174508706]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=6282134924288&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Toni [082134924288]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=628174144627&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Hendri [08174144627]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" href="https://api.whatsapp.com/send?phone=6285624669298&amp;text=NPSN%3A%2020613916"><i class="fa fa-whatsapp"></i> Deetha [085624669298]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=628156441864&text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Wahyudin [08156441864]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6281229997730&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Ahmad Aripin [081229997730]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282113057512&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Iman [082113057512]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282174508706&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Ikhsan [082174508706]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282134924288&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Toni [082134924288]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=628174144627&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Hendri [08174144627]</a>
+							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6285624669298&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Deetha [085624669298]</a>
 						</td>
 					</tr>
 				</table>
@@ -191,12 +192,12 @@ Selamat Datang {{ $user->name }}
 				?>
 				<tr>
 					<td>{{$loop->iteration}}</td>
-					<td>{{$pembelajaran->mata_pelajaran->nama}} ({{$pembelajaran->mata_pelajaran->mata_pelajaran_id}})</td>
+					<td>{{$pembelajaran->nama_mata_pelajaran}} ({{$pembelajaran->mata_pelajaran_id}})</td>
 					<td class="text-center">{{$pembelajaran->rombongan_belajar->nama}}</td>
 					<td>{{ CustomHelper::nama_guru($pembelajaran->rombongan_belajar->wali->gelar_depan, $pembelajaran->rombongan_belajar->wali->nama, $pembelajaran->rombongan_belajar->wali->gelar_belakang) }}</td>
 					<td class="text-center">{{$pembelajaran->rombongan_belajar->anggota_rombel_count}}</td>
-					<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
-					<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
+					<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
+					<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
 				</tr>
 			@endforeach
 		@else
@@ -276,8 +277,8 @@ Selamat Datang {{ $user->name }}
 									<td class="text-center">{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_pengetahuan_count}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_keterampilan_count}}</td>
-									<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
-									<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
+									<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
+									<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
 								</tr>
 								@endforeach
 								@else
@@ -349,7 +350,8 @@ Selamat Datang {{ $user->name }}
 		</div>
 	@endrole
 	@role('siswa')
-		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{$user->siswa->anggota_rombel->rombongan_belajar->nama}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang)}}</span></h4>
+	@if($pengguna)
+		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{$pengguna->siswa->anggota_rombel->rombongan_belajar->nama}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang)}}</span></h4>
 		<h4 class="page-header">Daftar Mata Pelajaran</h4>
 		<div class="row">
 			<div class="col-lg-12 col-xs-12" style="margin-bottom:20px;">
@@ -373,6 +375,7 @@ Selamat Datang {{ $user->name }}
 					<tbody>
 						@foreach($user->siswa->anggota_rombel->rombongan_belajar->pembelajaran as $pembelajaran)
 						<?php
+						//dd($pembelajaran);
 						$nilai_rapor = $pembelajaran->nilai_rapor()->where('anggota_rombel_id', $user->siswa->anggota_rombel->anggota_rombel_id)->first();
 						$produktif = array(4,5,9,10,13);
 						if(in_array($pembelajaran->kelompok_id,$produktif)){
@@ -399,6 +402,7 @@ Selamat Datang {{ $user->name }}
 				</table>
 			</div>
 		</div>
+	@endif
 	@endrole
 	@role('kaprog')
 		<!--h3>Sedang dalam pengembangan</h3-->
@@ -433,6 +437,16 @@ function turn_on_icheck(){
 	});
 }
 $(document).ready( function () {
+	@role('admin')
+	console.log('admin');
+		$.get('{{url('updater.check')}}').done(function(response) {
+			if(response){
+				swal({title: 'Pembaharuan Tersedia', text: 'Versi '+response+' tersedia',icon: 'success', button: {text: "Proses", closeModal: true},closeOnClickOutside: false}).then((result) => {
+				window.location.replace('<?php echo route('update_aplikasi'); ?>');
+				});
+			}
+		});
+	@endrole
 	$('.select2').select2();
 	$('a.generate_nilai').bind('click',function(e) {
 		e.preventDefault();

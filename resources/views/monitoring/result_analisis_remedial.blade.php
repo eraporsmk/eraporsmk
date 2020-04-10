@@ -16,7 +16,7 @@ if($pembelajaran->kd_nilai->count()){
 	<thead>
 		<tr>
 			<th class="text-center" width="1%" rowspan="2" style="vertical-align:middle;">No</th>
-			<th style="width: 40%" rowspan="2" style="vertical-align:middle;">Nama Peserta Didik</th>
+			<th style="width: 40%; vertical-align:middle;" rowspan="2">Nama Peserta Didik</th>
 			<th style="width: 10%" class="text-center" colspan="{{count($pembelajaran->kd_nilai)}}">Kompetensi Dasar</th>
 			<th style="width: 10%; vertical-align:middle;" class="text-center" rowspan="2">Rerata Akhir</th>
 			<th style="width: 10%; vertical-align:middle;" class="text-center" rowspan="2">Rerata Remedial</th>
@@ -48,8 +48,9 @@ if($pembelajaran->kd_nilai->count()){
 				@endforeach
 			@endif
 			<?php
-			if($anggota_rombel->{$with}){
-				$nilai_akhir = $anggota_rombel->{$with}->nilai_akhir;
+			$a = ($anggota_rombel->{$with}) ? $anggota_rombel->{$with}->where('anggota_rombel_id', $anggota_rombel->anggota_rombel_id)->where('pembelajaran_id', $pembelajaran->pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->first() : NULL;
+			if($a){
+				$nilai_akhir = $a->nilai_akhir;
 			} else {
 				$nilai_akhir = 0;
 			}

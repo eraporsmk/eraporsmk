@@ -19,8 +19,8 @@ if(in_array($pembelajaran->kelompok_id, $kelompok_produktif)){
 		</tr>
 	</thead>
 	<tbody>
-	@if($pembelajaran->anggota_rombel->count())
-	@foreach($pembelajaran->anggota_rombel as $anggota_rombel)
+	@if($pembelajaran->rombongan_belajar->anggota_rombel->count())
+	@foreach($pembelajaran->rombongan_belajar->anggota_rombel as $anggota_rombel)
 	<?php 
 	$nilai_pengetahuan = '-';
 	$nilai_keterampilan = '-';

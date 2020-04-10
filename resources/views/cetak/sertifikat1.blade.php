@@ -58,7 +58,7 @@ Sertifikat ini berlaku untuk : 3 (tiga) Tahun<br />
 		<p><i>School Principal</i></p>
 	</td>
 	<td style="width:20%"></td>
-    <td style="width:40%" class="text-center"><p><br>{{($rencana_ukk->guru_eksternal->dudi) ? CustomHelper::nama_guru($rencana_ukk->guru_eksternal->dudi->gelar_depan, $rencana_ukk->guru_eksternal->dudi->nama, $rencana_ukk->guru_eksternal->dudi->gelar_belakang) : '-'}}</p><br>
+    <td style="width:40%" class="text-center">{{($rencana_ukk->guru_eksternal->dudi) ? CustomHelper::nama_guru($rencana_ukk->guru_eksternal->dudi->gelar_depan, $rencana_ukk->guru_eksternal->dudi->nama, $rencana_ukk->guru_eksternal->dudi->gelar_belakang) : '-'}}<br>
 <br>
 <br>
 <br>

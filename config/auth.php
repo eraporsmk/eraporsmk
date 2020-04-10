@@ -70,6 +70,15 @@ return [
             'driver' => 'eloquent',
             'model' => App\User::class,
         ],
+		'guru' =>  [
+			'driver' => 'eloquent',
+			'model'  => App\Guru::class,
+		],
+	 
+		'siswa' =>  [
+			'driver' => 'eloquent',
+			'model'  => App\Siswa::class,
+		],
 
         // 'users' => [
         //     'driver' => 'database',

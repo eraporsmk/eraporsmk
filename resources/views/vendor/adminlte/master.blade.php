@@ -28,7 +28,9 @@
 	<!-- Theme style -->
 	<link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/AdminLTE.min.css') }}">
 @yield('adminlte_css')
-    
+    <style>
+	.auto_width{width:100% !important;}
+	</style>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>

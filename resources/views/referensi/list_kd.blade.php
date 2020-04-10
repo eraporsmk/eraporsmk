@@ -60,8 +60,8 @@
 				<th style="width: 15%">Mata Pelajaran</th>
 				<th style="width: 5%" class="text-center">Kode</th>
                 <th style="width: 5%" class="text-center">Kelas</th>
-				<th style="width: 20%">Isi Kompetensi</th>
-                <th style="width: 20%">Ringkasan Kompetensi</th>
+				<th style="width: 60%">Isi Kompetensi</th>
+                <th style="width: 5%">Kurikulum</th>
 				<th style="width: 5%" colspan="text-center">Status</th>
                 <th style="width: 5%" class="text-center">Tindakan</th>
 			</tr>
@@ -167,8 +167,8 @@ $(document).ready( function () {
             { "data": "mata_pelajaran.nama" },
             { "data": "id_kompetensi" },
 			{ "data": "kelas" },
-			{ "data": "kompetensi_dasar" },
-			{ "data": "kompetensi_dasar_alias" },
+			{ "data": "isi_kd" },
+			{ "data": "kurikulum" },
 			{ "data": "status" },
 			{ "data": "tindakan" },
         ],

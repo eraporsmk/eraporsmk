@@ -13,4 +13,7 @@ class Anggota_akt_pd extends Model
 	protected $table = 'anggota_akt_pd';
 	protected $primaryKey = 'anggota_akt_pd_id';
 	protected $guarded = [];
+	public function siswa(){
+		return $this->hasOne('App\Siswa', 'peserta_didik_id', 'peserta_didik_id');
+	}
 }

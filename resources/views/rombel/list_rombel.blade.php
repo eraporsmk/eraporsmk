@@ -19,9 +19,9 @@
 		<thead>
 			<tr>
 				<th style="width: 8%">Nama Rombel</th>
-                <th style="width: 15%">Wali Kelas</th>
+                <th style="width: 10%">Wali Kelas</th>
                 <th style="width: 5%">Tingkat</th>
-				<th style="width: 5%" class="text-center">Jurusan</th>
+				<th style="width: 10%" class="text-center">Program/Kompetensi Keahlian</th>
 				<th style="width: 10%" class="text-center">Kurikulum</th>
                 <th style="width: 10%" class="text-center">Anggota Rombel</th>
                 <th style="width: 5%" class="text-center">Pembelajaran</th>
@@ -35,6 +35,8 @@
 @stop
 
 @section('js')
+<!--script src="{{ asset('vendor/adminlte/plugins/jquery-noty/packaged/jquery.noty.packaged.js') }}"></script>
+<script src="{{ asset('vendor/adminlte/plugins/jquery-tabledit/jquery.tabledit.js') }}"></script-->
 <script type="text/javascript">
 var hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 var bulan = ['Januari', 'Februari', 'Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];

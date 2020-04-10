@@ -93,9 +93,9 @@
 			<td width="70%"><input type="text" name="sekolah_asal" class="form-control" value="{{$siswa->sekolah_asal}}" /></td>
 		</tr>
 		<tr>
-			<td width="30%">Diterima dikelas</td>
+			<td width="30%">Diterima dikelas <a class="diterima_dikelas btn btn-sm btn-info" href="{{route('diterima_dikelas', ['id' => $siswa->peserta_didik_id_dapodik])}}"><i class="fa fa-refresh"></i></a></td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" name="diterima_kelas" class="form-control" value="{{$siswa->diterima_kelas}}" /></td>
+			<td width="70%"><input type="text" id="diterima_kelas" name="diterima_kelas" class="form-control" value="{{$siswa->diterima_kelas}}" /></td>
 		</tr>
 		<tr>
 			<td width="30%">Diterima pada tanggal</td>
@@ -161,7 +161,7 @@
 @stop
 
 @section('footer')
-	@role('admin')
+	@role(['admin', 'wali', 'waka'])
 	<a class="btn btn-primary update_data" href="javascript:void(0)">Simpan</a>
 	@endrole
     <a class="btn btn-default" href="javascript:void(0)" data-dismiss="modal">Close</a>
@@ -170,6 +170,17 @@
 @section('js')
 <script>
 $('.select2').select2();
+$('.diterima_dikelas').click(function(e){
+	e.preventDefault();
+	var url = $(this).attr('href');
+	$.ajax({
+		url: url,
+		type: 'get',
+		success: function(response){
+			$('#diterima_kelas').val(response);
+		}
+	});
+});
 $('.update_data').click(function(e){
 	e.preventDefault();
 	$.ajax({

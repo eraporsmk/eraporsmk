@@ -26,9 +26,11 @@ class NilaiImport implements ToCollection, WithStartRow, WithCalculatedFormulas
 		foreach($collection as $row){
 			unset($row[0], $row[1], $row[2]);
 			$nilai = (array) json_decode($row);
-			$record['nilai'] = array_values($nilai);
-			$record['rerata'] = number_format( array_sum($nilai) / count($nilai), 0);
+			$formatted_array = array_map(function($num){return number_format($num,0);}, $nilai);
+			$record['nilai'] = array_values($formatted_array);
+			$record['rerata'] = number_format( array_sum($formatted_array) / count($formatted_array), 0);
 			$result[] = $record;
+			//dd($result);
 			//print_r($nilai);
 			//$set_array[] = $row;
 		}

@@ -29,12 +29,14 @@
 						<tbody>
 						@if($siswa->nilai_rapor->count())
 							@foreach($siswa->nilai_rapor as $nilai_rapor)
+							@if($nilai_rapor->pembelajaran)
 							<tr>
 								<td>{{$nilai_rapor->pembelajaran->nama_mata_pelajaran}}</td>
 								<td class="text-center">{{$nilai_rapor->nilai_p}}</td>
 								<td class="text-center">{{$nilai_rapor->nilai_k}}</td>
 								<td class="text-center">{{number_format((($nilai_rapor->nilai_p * $nilai_rapor->rasio_p) + ($nilai_rapor->nilai_k * $nilai_rapor->rasio_k)) / 100,0) }}</td>
 							</tr>
+							@endif
 							@endforeach
 						@else
 							<tr>

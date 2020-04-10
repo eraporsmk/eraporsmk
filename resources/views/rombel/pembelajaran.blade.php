@@ -6,9 +6,8 @@
 
 @section('content')
 	{{--dd($all_pembelajaran)--}}
-	<form id="pembelajaran" method="post">
-	<input type="hidden" name="rombongan_belajar_id" value="{{$all_pembelajaran->rombongan_belajar_id}}" />
-	<input type="hidden" name="kurikulum_id" id="kurikulum_id" value="{{$all_pembelajaran->kurikulum_id}}" />
+	<form id="pembelajaran_post" method="post">
+	@csrf
 	<table class="table table-bordered table-hover" id="pembelajaran">
 		<thead>
 			<th class="text-center" width="5%">No</th>
@@ -16,7 +15,7 @@
 			<th class="text-center" width="20%">Guru Mata Pelajaran (Dapodik)</th>
 			<th class="text-center" width="20%">Guru Pengajar</th>
 			<th class="text-center" width="15%">Kelompok</th>
-			<th class="text-center" width="15%">No. Urut</th>
+			<th class="text-center" width="10%">No. Urut</th>
 		</thead>
 		<tbody id="editable">
 		<?php 
@@ -38,29 +37,31 @@
 			}
 		?>
 		<tr>
-			<td><div class="text-center"><?php echo $i; ?></div></td>
+			<td class="text-center">
+				<?php echo $i; ?>
+				<input type="hidden" name="pembelajaran_id" value="{{$pembelajaran->pembelajaran_id}}" />
+			</td>
 			<td>
-				<input type="hidden" class="token" name="token" value="{{ Session::token() }}" />
-				<input type="hidden" class="nama_mapel_alias" name="nama_mapel_alias" value="{{$pembelajaran->nama_mata_pelajaran}}" />
-				<input type="hidden" class="pembelajaran_id" name="pembelajaran_id" value="{{$pembelajaran->pembelajaran_id}}" />
 				<a href="#" class="nama_mapel" data-type="text" data-value="{{$pembelajaran->nama_mata_pelajaran}}" data-name="{{$pembelajaran->pembelajaran_id}}" data-pk="{{$pembelajaran->mata_pelajaran_id}}" data-url="<?php echo url('rombel/tambah_alias'); ?>" data-title="Edit Nama Mapel" data-token="{{ Session::token() }}">{{$pembelajaran->nama_mata_pelajaran}} ({{$pembelajaran->mata_pelajaran_id}})</a>
-				<input type="hidden" name="mapel" id="mapel" value="{{$pembelajaran->mata_pelajaran_id}}" class="form-control" />
- 			</td>
+			</td>
+			<td>{{$nama_guru}}</td>
 			<td>
-				<input type="hidden" class="guru" name="guru" value="{{$guru_pengajar_id}}" />
-				{{$nama_guru}}
+				<select class="select2 form-control" name="guru_pengajar_id" style="width:100%">
+					<option value="" data-description="Kosongkan Guru Pengajar">== Pilih Pengajar ==</option>
+					@foreach($all_pengajar as $pengajar)
+					<option value="{{$pengajar->guru_id}}" title="{{$pengajar->nuptk}}"{!!($pengajar->guru_id == $pembelajaran->guru_pengajar_id) ? ' selected="selected"' : '' !!}>{{strtoupper($pengajar->nama)}}</option>
+					@endforeach
+				</select>
 			</td>
 			<td>
-				<input type="hidden" class="pengajar" name="pengajar" value="{{$guru_pengajar_id}}" />
-				<a class="pengajar" href="javascript:void(0)" id="guru_pengajar_id" data-type="select2" data-name="pengajar_id" data-value="{{$guru_pengajar_id}}" title="Pilih Guru Pengajar">{{($guru_pengajar_id) ? $nama_pengajar : 'Pilih Guru Pengajar'}}</a>
+				<select name="kelompok_id" class="form-control select2" style="width:100%">
+					<option value="">== Pilih Kelompok ==</option>
+					@foreach($all_kelompok as $kelompok)
+					<option value="{{$kelompok->kelompok_id}}"{!!($kelompok->kelompok_id == $pembelajaran->kelompok_id) ? ' selected="selected"' : '' !!}>{{$kelompok->nama_kelompok}}</option>
+					@endforeach
+				</select>
 			</td>
-			<td>
-				<input type="hidden" class="kelompok_id" name="kelompok_id" value="{{$pembelajaran->kelompok_id}}" />
-				<a class="kelompok_id" href="javascript:void(0)" id="kelompok_id" data-type="select2" data-name="kelompok_id" data-value="{{$pembelajaran->kelompok_id}}" title="Pilih Kelompok"></a>
-			</td>
-			<td>
-				<input type="number" class="form-control input-sm" name="nomor_urut" value="{{$pembelajaran->no_urut}}" />
-			</td>
+			<td class="text-center"><input type="text" name="no_urut" value="{{$pembelajaran->no_urut}}" class="nomor_urut form-control" /></td>
 		</tr>
 		<?php 
 		$i++;}
@@ -79,7 +80,6 @@
 	<a class="btn btn-default btn-sm" href="javascript:void(0)" data-dismiss="modal">Tutup</a>
 	<a href="javascript:void(0)" class="btn btn-success btn-sm simpan_pembelajaran"><i class="fa fa-plus-circle"></i> Simpan</a>
 @endsection
-
 @section('js')
 <link rel="stylesheet" href="{{ asset('vendor/adminlte/plugins/bootstrap-editable/css/bootstrap-editable.css') }}">
 <script src="{{ asset('vendor/adminlte/plugins/bootstrap-editable/js/jquery.mockjax.js') }}"></script>
@@ -101,70 +101,58 @@ $.fn.serializeObject = function(){
     });
     return o;
 };
+$.fn.inputFilter = function(inputFilter) {
+	return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+		if (inputFilter(this.value)) {
+			this.oldValue = this.value;
+			this.oldSelectionStart = this.selectionStart;
+			this.oldSelectionEnd = this.selectionEnd;
+		} else if (this.hasOwnProperty("oldValue")) {
+			this.value = this.oldValue;
+			this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+		} else {
+			this.value = "";
+		}
+	});
+};
+function formatState (state) {
+	if (!state.id) {
+		return state.text;
+	}
+	var $state = $(
+		'<span> ' + state.text + '<br /> '+ state.title +'</span>'
+	);
+  return $state;
+};
 $(function(){
 	$.fn.editable.defaults.mode = 'inline';
 	$.fn.editable.defaults.params = function (params) {
         params._token = $("input[name=_token]").val();
         return params;
     };
-	$.fn.editable.defaults.url = '<?php echo url('rombel/tambah_alias'); ?>';
-	$.get('<?php echo url('rombel/pengajar/'); ?>', function( response ) {
-		var data = $.parseJSON(response);
-		var guru = [];
-		$.each(data, function(i, item) {
-        	guru.push({id: item.id, text: item.text});
-    	});
-		$('tbody#editable tr td a.nama_mapel').editable({
-			success: function(response, newValue) {
-				$(this).prev().val(newValue);
-			}
-		});
-		$('tbody#editable tr td a.pengajar').editable({
-	        source: guru,
-			emptytext : 'Pilih Guru Pengajar',
-    	    select2: {
-				dropdownAutoWidth : true,
-        	    width: 300,
-            	placeholder: '== Pilih Guru Pengajar ==',
-	            allowClear: true
-    	    },
-		    success: function(response, newValue) {
-				$(this).prev().val(newValue);
-    		}
-	    });   
+	$('tbody#editable tr td a.nama_mapel').editable({
+		success: function(response, newValue) {
+			$(this).prev().val(newValue);
+		}
 	});
-	$.get('<?php echo url('rombel/kelompok/'.$all_pembelajaran->kurikulum_id); ?>', function( response ) {
-		var data = $.parseJSON(response);
-		var kelompok = [];
-		$.each(data, function(i, item) {
-        	kelompok.push({id: item.id, text: item.text});
-    	});
-		$('tbody#editable tr td a.kelompok_id').editable({
-	        source: kelompok,
-			emptytext : 'Pilih Kelompok',
-    	    select2: {
-				dropdownAutoWidth : true,
-        	    //width: 300,
-            	placeholder: '== Pilih Kelompok ==',
-	            allowClear: true
-    	    },
-		    success: function(response, newValue) {
-				$(this).prev().val(newValue);
-    		}
-	    });   
+	$('.select2').select2({
+		templateResult: formatState,
+		//dropdownParent: $('#modal_content')
+	});
+	$(".nomor_urut").inputFilter(function(value) {
+		return /^\d*$/.test(value);    // Allow digits only, using a RegExp
 	});
 	$('a.simpan_pembelajaran').click(function(){
-		var data = $("form#pembelajaran").serializeObject();
+		var data = $("form#pembelajaran_post").serializeObject();
 		var result = $.parseJSON(JSON.stringify(data));
 		console.log(result);
-		var array_guru = Array.isArray(result.guru);
-		if(!array_guru){
+		var set_pengajar;
+		$.each(result.pembelajaran_id, function (i, item) {
 			$.ajax({
 				url: '<?php echo url('rombel/simpan_pembelajaran/'); ?>',
 				type: 'post',
-				data: {keahlian_id:result.keahlian_id, rombel_id:result.rombel_id, query:result.query, guru_id:result.guru, guru_pengajar_id:result.pengajar,mapel_id:result.mapel, kelompok_id:result.kelompok_id, nomor_urut:result.nomor_urut, nama_mapel_alias:result.nama_mapel_alias,_token:result.token,pembelajaran_id:result.pembelajaran_id},
-				success: function(response){
-					var view = $.parseJSON(response);
+				data: {pembelajaran_id:item, guru_pengajar_id:result.guru_pengajar_id[i], kelompok_id:result.kelompok_id[i], nomor_urut:result.no_urut[i],_token:result._token},
+				success: function(view){
 					noty({
 						text        : view.text,
 						type        : view.type,
@@ -180,31 +168,7 @@ $(function(){
 					});
 				}
 			});
-		} else {
-			$.each(result.guru, function (i, item) {
-				$.ajax({
-					url: '<?php echo url('rombel/simpan_pembelajaran/'); ?>',
-					type: 'post',
-					data: {keahlian_id:result.keahlian_id, rombel_id:result.rombel_id, query:result.query, guru_id:item, guru_pengajar_id:result.pengajar[i], mapel_id:result.mapel[i], kelompok_id:result.kelompok_id[i], nomor_urut:result.nomor_urut[i], nama_mapel_alias:result.nama_mapel_alias[i],_token:result.token[i],pembelajaran_id:result.pembelajaran_id[i]},
-					success: function(response){
-						var view = $.parseJSON(response);
-						noty({
-							text        : view.text,
-							type        : view.type,
-							timeout		: 1500,
-							dismissQueue: true,
-							layout      : 'topLeft',
-							animation: {
-								open: {height: 'toggle'},
-								close: {height: 'toggle'}, 
-								easing: 'swing', 
-								speed: 500 
-							}
-						});
-					}
-				});
-			});
-		}
+		});
 	});
 });
 </script>

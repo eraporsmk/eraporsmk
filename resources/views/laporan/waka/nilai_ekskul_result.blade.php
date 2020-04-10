@@ -14,9 +14,12 @@
 			<td rowspan="{{$siswa->anggota_ekskul->count() + 1}}" style="vertical-align:middle;">{{strtoupper($siswa->siswa->nama)}}</td>
 		@if($siswa->anggota_ekskul->count())
 			@foreach($siswa->anggota_ekskul as $anggota_ekskul)
+			@if(!$anggota_ekskul->kelas_ekskul)
+				{{dd($anggota_ekskul)}}
+			@endif
 		<tr>
-			<td style="vertical-align:middle;">{{$anggota_ekskul->kelas_ekskul->nama_ekskul}}</td>
-			<td style="vertical-align:middle;">{{CustomHelper::nama_guru($anggota_ekskul->kelas_ekskul->guru->gelar_depan, $anggota_ekskul->kelas_ekskul->guru->nama, $anggota_ekskul->kelas_ekskul->guru->gelar_belakang)}}</td>
+			<td style="vertical-align:middle;">{{$anggota_ekskul->kelas_ekskul->nama}}</td>
+			<td style="vertical-align:middle;">{{CustomHelper::nama_guru($anggota_ekskul->kelas_ekskul->wali->gelar_depan, $anggota_ekskul->kelas_ekskul->wali->nama, $anggota_ekskul->kelas_ekskul->wali->gelar_belakang)}}</td>
 			<td>
 			<?php
 			if ($anggota_ekskul->nilai_ekskul){

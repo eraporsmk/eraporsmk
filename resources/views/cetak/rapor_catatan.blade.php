@@ -82,10 +82,10 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 	</thead>
 	<tbody>
 	@if($get_siswa->all_nilai_ekskul->count())
-	@foreach($get_siswa->all_nilai_ekskul as $nilai_ekskul){
+	@foreach($get_siswa->all_nilai_ekskul as $nilai_ekskul)
 		<tr>
 			<td align="center">{{$loop->iteration}}</td>
-			<td>{{strtoupper($nilai_ekskul->ekstrakurikuler->nama_ekskul)}}</td>
+			<td>{{strtoupper($nilai_ekskul->rombongan_belajar->nama)}}</td>
 			<td>{{$nilai_ekskul->deskripsi_ekskul}}</td>
 		</tr>
 	@endforeach
@@ -102,15 +102,15 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 	<tr>
 		<tr>
 			<td width="200">Sakit</td>
-			<td> : {{($get_siswa->kehadiran) ? $get_siswa->kehadiran->sakit.' hari' : '.... hari'}}</td>
+			<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->sakit) ? $get_siswa->kehadiran->sakit.' hari' : '- hari' : '.... hari'}}</td>
 		</tr>
 		<tr>
 			<td>Izin</td>
-			<td width="300"> : {{($get_siswa->kehadiran) ? $get_siswa->kehadiran->izin.' hari' : '.... hari'}}</td>
+			<td width="300"> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->izin) ? $get_siswa->kehadiran->izin.' hari' : '- hari' : '.... hari'}}</td>
 		</tr>
 		<tr>
 			<td>Tanpa Keterangan</td>
-			<td> : {{($get_siswa->kehadiran) ? $get_siswa->kehadiran->alpa.' hari' : '.... hari'}}</td>
+			<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->alpa) ? $get_siswa->kehadiran->alpa.' hari' : '- hari' : '.... hari'}}</td>
 		</tr>
 	</tr>
 </table>
@@ -131,7 +131,11 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
   <tr>
     <td style="padding:10px;">
 	@if($get_siswa->kenaikan)
-		{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->rombongan_belajar}}
+		@if($get_siswa->kenaikan->status == 3)
+			LULUS
+		@else
+			{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->rombongan_belajar->nama}}
+		@endif
 	@else
 		@if($get_siswa->rombongan_belajar->tingkat == 12)
 			Belum dilakukan kelulusan
@@ -157,7 +161,7 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 		<p>...................................................................</p>
 	</td>
 	<td style="width:20%"></td>
-    <td style="width:40%"><p>{{$get_siswa->sekolah->kabupaten}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
+    <td style="width:40%"><p>{{str_replace('Kab. ','',$get_siswa->sekolah->kabupaten)}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
 <br>
 <br>
 <br>

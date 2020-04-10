@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Support\Database\CacheQueryBuilder;
 class Sekolah extends Model
 {
     public $incrementing = false;

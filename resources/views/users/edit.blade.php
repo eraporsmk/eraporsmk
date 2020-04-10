@@ -9,12 +9,12 @@
 
 @section('content')
 
-<form method="post" action="{{ route('user.update', ['id' => $user->user_id]) }}" data-parsley-validate class="form-horizontal form-label-left">
+<form method="post" action="{{ route('user.update', ['id' => $pengguna->user_id]) }}" data-parsley-validate class="form-horizontal form-label-left">
 
         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }} row">
             <label for="name" class="col-sm-2 col-form-label">Nama</label>
             <div class="col-sm-10">
-                <input type="text" value="{{$user->name}}" id="name" name="name" class="form-control col-md-7 col-xs-12"> @if ($errors->has('name'))
+                <input type="text" value="{{$pengguna->name}}" id="name" name="name" class="form-control col-md-7 col-xs-12"> @if ($errors->has('name'))
                 <span class="help-block">{{ $errors->first('name') }}</span>
                 @endif
             </div>
@@ -23,7 +23,7 @@
         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }} row">
             <label for="email" class="col-sm-2 col-form-label">Email</label>
             <div class="col-sm-10">
-                <input type="text" value="{{$user->email}}" id="email" name="email" class="form-control col-md-7 col-xs-12"> @if ($errors->has('email'))
+                <input type="text" value="{{$pengguna->email}}" id="email" name="email" class="form-control col-md-7 col-xs-12"> @if ($errors->has('email'))
                 <span class="help-block">{{ $errors->first('email') }}</span>
                 @endif
             </div>
@@ -38,17 +38,19 @@
                     @foreach($roles as $row)
 						<?php
 						$disabled = '';
-						if($user->hasRole('guru') && $row->id == 4) { 
+						if($pengguna->hasRole('guru') && $row->id == 4) { 
 							$disabled = 'disabled="disabled"';
-							if($user->hasRole('wali') && $row->id == 10) { 
+							if($pengguna->hasRole('wali') && $row->id == 10) { 
 								$disabled = 'disabled="disabled"';
 							}
-							if($user->hasRole('pembina_ekskul') && $row->id == 11) { 
+							if($pengguna->hasRole('pembina_ekskul') && $row->id == 11) { 
 								$disabled = 'disabled="disabled"';
 							}
-						} elseif($user->hasRole('siswa') && $row->id == 5){
+						} elseif($pengguna->hasRole('siswa') && $row->id == 5){
 							$disabled = 'disabled="disabled"';
-						} elseif($user->hasRole('admin') && $row->id == 2){
+						} elseif($pengguna->hasRole('admin') && $row->id == 2){
+							$disabled = 'disabled="disabled"';
+						} elseif($pengguna->hasRole('tu') && $row->id == 3){
 							$disabled = 'disabled="disabled"';
 						}
 						?>

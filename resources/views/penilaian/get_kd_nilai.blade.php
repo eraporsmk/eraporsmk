@@ -1,3 +1,17 @@
+<?php
+if($rombongan_belajar->kunci_nilai){
+?>
+<script>
+$('#simpan').remove();
+</script>
+<div class="alert alert-danger alert-dismissible">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<h4><i class="icon fa fa-info"></i> Informasi!</h4>
+	Status penilaian tidak aktif. Untuk menambah atau memperbaharui penilaian, silahkan menghubungi wali kelas.
+</div>
+<?php
+} else {
+?>
 @if(isset($all_kd_nilai->kd_nilai) && $all_kd_nilai->kd_nilai->count())
 <link rel="stylesheet" href="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.css') }}">
 <script src="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.js') }}"></script>
@@ -26,6 +40,7 @@
 			<?php } ?>
 		</tr>
 		<?php
+		//dd($all_kd_nilai->kd_nilai);
 		foreach($all_kd_nilai->kd_nilai as $kd_nilai){
 			$kompetensi_dasar = ($kd_nilai->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai->kompetensi_dasar->kompetensi_dasar;
 		?>
@@ -106,3 +121,4 @@ $(function() {
 </script>
 @else
 @endif
+<?php } ?>

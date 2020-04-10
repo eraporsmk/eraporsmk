@@ -31,9 +31,9 @@
 			<?php $huruf = 'C'; ?>
 			@foreach($siswa->rombongan_belajar->pembelajaran as $pembelajaran)
 			<?php
-			$nilai = ($siswa->nilai_akhir_legger()->where('kompetensi_id', 1)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()) ? $siswa->nilai_akhir_legger()->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()->nilai : 0;
+			$nilai_p = ($siswa->nilai_akhir_legger()->where('kompetensi_id', 1)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()) ? $siswa->nilai_akhir_legger()->where('kompetensi_id', 1)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()->nilai : 0;
 			?>
-			<td>{{$nilai}}</td>
+			<td>{{$nilai_p}}</td>
 			<?php $huruf++; ?>
 			@endforeach
 			<td>=SUM(D{{$i}}:{{$huruf.$i}})</td>
@@ -54,9 +54,9 @@
 			<?php $huruf = 'C'; ?>
 			@foreach($siswa->rombongan_belajar->pembelajaran as $pembelajaran)
 			<?php
-			$nilai = ($siswa->nilai_akhir_legger()->where('kompetensi_id', 2)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()) ? $siswa->nilai_akhir_legger()->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()->nilai : 0;
+			$nilai_k = ($siswa->nilai_akhir_legger()->where('kompetensi_id', 2)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()) ? $siswa->nilai_akhir_legger()->where('kompetensi_id', 2)->where('nilai_akhir.pembelajaran_id', $pembelajaran->pembelajaran_id)->where('nilai_akhir.anggota_rombel_id', $siswa->anggota_rombel_id)->first()->nilai : 0;
 			?>
-			<td>{{$nilai}}</td>
+			<td>{{$nilai_k}}</td>
 			<?php $huruf++; ?>
 			@endforeach
 			<td>=SUM(D{{$i}}:{{$huruf.$i}})</td>

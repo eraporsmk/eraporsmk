@@ -5,6 +5,11 @@
 @stop
 
 @section('content')
+	<?php
+	if (!File::isDirectory(base_path('updates'))) {
+		File::makeDirectory(base_path('updates'));
+	}
+	?>
 	<div id="update_notification" class="callout callout-info">
 		<h4>Memerika Pembaharuan</h4>
 		<p class="p1">Silahkan tunggu beberapa saat, aplikasi sedang memeriksa pembaharuan di server</p>

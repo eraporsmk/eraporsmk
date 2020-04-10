@@ -22,20 +22,17 @@
     @endif
     <div class="row" style="margin-bottom:10px;">
 		<div class="col-md-4">
-			<select id="filter_jurusan" class="form-control select2">
+			<select id="filter_jurusan" class="form-control select2" style="width:100%">
 				<option value="">==Filter Berdasar Kompetensi Keahlian==</option>
-				<option value="15052520">Multimedia</option>
-				<option value="35088750">Administrasi Perkantoran</option>
-				<option value="35090755">Akuntansi</option>
-				<option value="35281530">Otomatisasi dan Tata Kelola Perkantoran</option>
-				<option value="15052">Teknik Komputer dan Informatika</option>
-				<option value="35281">Manajemen Perkantoran</option>
-				<option value="35291">Akuntansi dan Keuangan</option>
-				<option value="35291535">Akuntansi dan Keuangan Lembaga</option>
+				@if($all_jurusan->count())
+				@foreach($all_jurusan as $jurusan)
+				<option value="{{$jurusan->jurusan_sp_id}}">{{$jurusan->nama_jurusan_sp}}</option>
+				@endforeach
+				@endif
 			</select>
 		</div>
-		<div class="col-md-4">
-			<select id="filter_tingkat" class="form-control" style="display:none;">
+		<div id="filter_kelas_show" class="col-md-4" style="display:none;">
+			<select id="filter_kelas" class="form-control select2" style="width:100%">
 				<option value="">==Filter Berdasar Tingkat==</option>
 				<option value="10">Kelas 10</option>
 				<option value="11">Kelas 11</option>
@@ -43,8 +40,10 @@
 				<option value="13">Kelas 13</option>
 			</select>
 		</div>
-		<div class="col-md-4">
-			<select id="filter_rombel" class="form-control" style="display:none;"></select>
+		<div id="filter_rombel_show" class="col-md-4" style="display:none;">
+			<select id="filter_rombel" class="form-control select2" style="width:100%">
+				<option value="">==Filter Berdasar Rombel==</option>
+			</select>
 		</div>
 	</div>
 	<table id="datatable" class="table table-bordered table-striped table-hover">
@@ -80,13 +79,50 @@ function turn_on_icheck(){
 			});
 		}
 	});
+	$('a.confirm').bind('click',function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		swal({
+			title: "Anda Yakin?",
+			text: "Semua nilai dibawah perencanaan terpilih akan terhapus!",
+			icon: "warning",
+			buttons: true,
+			dangerMode: true,
+			closeOnClickOutside: false,
+		}).then((willDelete) => {
+			if (willDelete) {
+				$.get(url).done(function(data) {
+					swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
+							window.location.replace('{{route('perencanaan_keterampilan')}}');
+					});
+				});
+			}
+		});
+	});
 }
 $(document).ready( function () {
-	var table = $('#datatable').DataTable( {
+	$('.select2').select2();
+	var oTable = $('#datatable').DataTable( {
 		"retrieve": true,
 		"processing": true,
         "serverSide": true,
-        "ajax": "{{ url('perencanaan/list-rencana/2') }}",
+        "ajax": {
+			"url": "{{ url('perencanaan/list-rencana/2') }}",
+			"data": function (d) {
+				var filter_jurusan = $('#filter_jurusan').val();
+				var filter_kelas = $('#filter_kelas').val();
+				var filter_rombel = $('#filter_rombel').val();
+				if(filter_jurusan){
+					d.filter_jurusan = filter_jurusan;
+				}
+				if(filter_kelas){
+					d.filter_kelas = filter_kelas;
+				}
+				if(filter_rombel){
+					d.filter_rombel = filter_rombel;
+				}
+			}
+		},
 		"columns": [
             { "data": "nama_mata_pelajaran", "name": "pembelajaran.nama_mata_pelajaran" },
             //{ "data": "kelas" },
@@ -111,6 +147,47 @@ $(document).ready( function () {
 		"fnDrawCallback": function(oSettings){
 			turn_on_icheck();
 		}
+    });
+	$('#filter_jurusan').change(function(e){
+		var ini = $(this).val();
+		$('#filter_rombel_show').hide();
+		if(ini == ''){
+			$('#filter_kelas_show').hide();
+		} else {
+			$('#filter_kelas_show').show();
+			$('#filter_kelas').prop("selectedIndex", 0);
+			$("#filter_kelas").trigger('change.select2');
+		}
+        oTable.draw();
+        e.preventDefault();
+    });
+	$('#filter_kelas').change(function(e){
+        var ini = $(this).val();
+		if(ini == ''){
+			$('#filter_rombel_show').hide();
+		} else {
+			$('#filter_rombel_show').show();
+			oTable.on( 'xhr', function () {
+				$("#filter_rombel").html('<option value="">== Filter Berdasar Rombel ==</option>');
+				var result = oTable.ajax.json();
+				if(typeof result.data[0] !== 'undefined'){
+					if(!$.isEmptyObject(result.data[0].rombongan_belajar.result)){
+						$.each(result.data[0].rombongan_belajar.result, function (i, item) {
+							$('#filter_rombel').append($('<option>', { 
+								value: item.value,
+								text : item.text
+							}));
+						});
+					}
+				}
+			} );
+		}
+ 		oTable.draw();
+		e.preventDefault();
+   });
+	$('#filter_rombel').change(function(e){
+		oTable.draw();
+        e.preventDefault();
     });
 });
 </script>

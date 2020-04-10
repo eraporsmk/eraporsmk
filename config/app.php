@@ -192,6 +192,7 @@ return [
 		BackupManager\Laravel\Laravel55ServiceProvider::class,
 		Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class,
 		pcinaglia\laraupdater\LaraUpdaterServiceProvider::class,
+		Ammadeuss\LaravelHtmlDomParser\ServiceProvider::class,
     ],
 
     /*
@@ -250,10 +251,12 @@ return [
 		'Zipper' => Chumper\Zipper\Zipper::class,
 		//'Updater' => Codedge\Updater\UpdaterFacade::class,
 		'CustomHelper' => App\Providers\HelperServiceProvider::class,
+		'UserHelp' => App\Helpers\Encrypt::class,
 		'ServerProvider' => App\Providers\ServerServiceProvider::class,
 		//'Debugbar' => Barryvdh\Debugbar\Facade::class,
 		'PGSchema' => Pacuna\Schemas\Facades\PGSchema::class,
 		'PDF' => Meneses\LaravelMpdf\Facades\LaravelMpdf::class,
+		'HTMLDomParser' => Ammadeuss\LaravelHtmlDomParser\Facade::class,
     ],
 
 ];

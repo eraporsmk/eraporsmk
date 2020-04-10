@@ -31,10 +31,10 @@
 		?>
 			<tr>
 				<td class="text-center"><?php echo $i; ?></td>
-				<td><?php echo $siswa->nama; ?></td>
+				<td><?php echo strtoupper($siswa->nama); ?></td>
 				<td class="text-center"><?php echo $siswa->nisn; ?></td>
 				<td><?php echo $siswa->jenis_kelamin; ?></td>
-				<td><?php echo $siswa->tempat_lahir.', '.CustomHelper::TanggalIndo($siswa->tanggal_lahir); ?></td>
+				<td><?php echo strtoupper($siswa->tempat_lahir).', '.CustomHelper::TanggalIndo($siswa->tanggal_lahir); ?></td>
 				<td class="text-center"><?php echo $siswa->agama->nama; ?></td>
 				@if($all_anggota->jenis_rombel == 51)
 				<td class="text-center">{{$siswa->kelas->nama}}</td>

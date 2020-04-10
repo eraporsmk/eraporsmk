@@ -28,7 +28,7 @@ body{font-size:11px !important;}
     <td><?php echo $rombongan_belajar->nama; ?></td>
   </tr>
 </table><br />
-<div class="strong" align="center">DAFTAR NILAI<br />PENILAIAN TENGAH SEMESTER</div>
+<div class="strong" align="center">DAFTAR NILAI<br />UJIAN TENGAH SEMESTER</div>
 <p>&nbsp;</p>
 <table border="1" class="table">
     <thead>
@@ -36,7 +36,7 @@ body{font-size:11px !important;}
     <th style="vertical-align:middle;width: 2px;" align="center" rowspan="2">No</th>
     <th style="vertical-align:middle;width: 300px;" rowspan="2" align="center" class="text-center">Mata Pelajaran</th>
     <th rowspan="2" align="center" style="width:10px;" class="text-center">SKM</th>
-    <th colspan="2" align="center" class="width:150px;text-center">Nilai Murni</th>
+    <th colspan="2" align="center" class="width:150px;text-center">Nilai</th>
 	<th rowspan="2" align="center" style="width:200px;" class="text-center">Keterangan</th>
   </tr>
   <tr>
@@ -51,6 +51,7 @@ body{font-size:11px !important;}
 			<td colspan="6" class="strong">{{$kelompok}}</td>
 		</tr>
 		@foreach($nilai_kelompok[$siswa->peserta_didik_id] as $nilai)
+		@if($nilai)
 		<tr>
 			<td class="text-center">{{$i++}}</td>
 			<td>{{$nilai['nama_mata_pelajaran']}}</td>
@@ -59,6 +60,7 @@ body{font-size:11px !important;}
 			<td class="text-center">{{$nilai['terbilang']}}</td>
 			<td></td>
 		</tr>
+		@endif
 		@endforeach
 	@endforeach
 	</tbody>

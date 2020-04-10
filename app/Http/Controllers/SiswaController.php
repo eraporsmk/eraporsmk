@@ -8,7 +8,7 @@ Use App\Rombongan_belajar;
 Use App\Anggota_rombel;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Facades\Hash;
-use App\Providers\HelperServiceProvider;
+use CustomHelper;
 use Illuminate\Support\Facades\DB;
 use App\Jurusan_sp;
 use Illuminate\Support\Str;
@@ -26,7 +26,7 @@ class SiswaController extends Controller
 		$params = array(
 			'status' => 'aktif',
 			'title' => 'Peserta Didik Aktif',
-			'all_jurusan' => Jurusan_sp::where('sekolah_id', '=', $user->sekolah_id)->get(),
+			'all_jurusan' => Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get(),
 		);
 		return view('siswa.list_siswa')->with($params);
     }
@@ -35,50 +35,49 @@ class SiswaController extends Controller
 		$params = array(
 			'status' => 'keluar',
 			'title' => 'Peserta Didik Keluar',
-			'all_jurusan' => Jurusan_sp::where('sekolah_id', '=', $user->sekolah_id)->get(),
+			'all_jurusan' => Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get(),
 		);
 		return view('siswa.list_siswa')->with($params);
     }
 	public function list_siswa(Request $request, $status){
 		$user = auth()->user();
-		$semester = HelperServiceProvider::get_ta();
 		if($status == 'aktif'){
-			$callback = function($query) use ($user, $semester) {
-				$query->whereHas('rombongan_belajar', function($subquery) use ($user, $semester){
-					$subquery->where('rombongan_belajar.jenis_rombel', '=', 1);
-					$subquery->where('sekolah_id', '=', $user->sekolah_id);
-					$subquery->where('semester_id', '=', $semester->semester_id);
+			$callback = function($query) use ($user) {
+				$query->whereHas('rombongan_belajar', function($subquery) use ($user){
+					$subquery->where('rombongan_belajar.jenis_rombel', 1);
+					$subquery->where('sekolah_id', session('sekolah_id'));
+					$subquery->where('semester_id', session('semester_id'));
 				});
 				$query->select(['anggota_rombel.*', 'anggota_rombel.deleted_at as terhapus']);
-				$query->with(['rombongan_belajar' => function($subquery) use ($user, $semester){
-					$subquery->where('rombongan_belajar.jenis_rombel', '=', 1);
-					$subquery->where('sekolah_id', '=', $user->sekolah_id);
-					$subquery->where('semester_id', '=', $semester->semester_id);
+				$query->with(['rombongan_belajar' => function($subquery) use ($user){
+					$subquery->where('rombongan_belajar.jenis_rombel', 1);
+					$subquery->where('sekolah_id', session('sekolah_id'));
+					$subquery->where('semester_id', session('semester_id'));
 				}]);
-				$query->where('sekolah_id', '=', $user->sekolah_id);
-				$query->where('semester_id', '=', $semester->semester_id);
+				$query->where('sekolah_id', session('sekolah_id'));
+				$query->where('semester_id', session('semester_id'));
 			};
-			$query =  Siswa::whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback])->with('agama');
+			$query =  Siswa::whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback, 'agama']);
 		} else {
-			$callback = function($query) use ($user, $semester) {
-				$query->whereHas('rombongan_belajar', function($subquery) use ($user, $semester){
-					$subquery->where('rombongan_belajar.jenis_rombel', '=', 1);
-					$subquery->where('sekolah_id', '=', $user->sekolah_id);
-					$subquery->where('semester_id', '=', $semester->semester_id);
+			$callback = function($query) use ($user) {
+				$query->whereHas('rombongan_belajar', function($subquery) use ($user){
+					$subquery->where('rombongan_belajar.jenis_rombel', 1);
+					$subquery->where('sekolah_id', session('sekolah_id'));
+					$subquery->where('semester_id', session('semester_id'));
 				});
 				$query->select(['anggota_rombel.*', 'anggota_rombel.deleted_at as terhapus']);
-				$query->with(['rombongan_belajar' => function($subquery) use ($user, $semester){
-					$subquery->where('rombongan_belajar.jenis_rombel', '=', 1);
-					$subquery->where('sekolah_id', '=', $user->sekolah_id);
-					$subquery->where('semester_id', '=', $semester->semester_id);
+				$query->with(['rombongan_belajar' => function($subquery) use ($user){
+					$subquery->where('rombongan_belajar.jenis_rombel', 1);
+					$subquery->where('sekolah_id', session('sekolah_id'));
+					$subquery->where('semester_id', session('semester_id'));
 				}]);
-				$query->where('sekolah_id', '=', $user->sekolah_id);
-				$query->where('semester_id', '=', $semester->semester_id);
+				$query->where('sekolah_id', session('sekolah_id'));
+				$query->where('semester_id', session('semester_id'));
 				$query->onlyTrashed();
 			};
-			$query =  Siswa::whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback]);
+			$query =  Siswa::whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback, 'agama'])->onlyTrashed();
 		}
-		return DataTables::of($query)
+		$dt = DataTables::of($query)
 			->filter(function ($query) {
 				if (request()->has('filter_jurusan')) {
 					$query->whereHas('anggota_rombel.rombongan_belajar', function($subquery){
@@ -91,22 +90,33 @@ class SiswaController extends Controller
 						$subquery->where('tingkat', request('filter_kelas'));
 					});
 				}
+				if (request()->has('filter_rombel')) {
+					$query->whereHas('anggota_rombel', function($subquery){
+						$subquery->where('rombongan_belajar_id', request('filter_rombel'));
+					});
+				}
+				if (request()->has('search')) {
+					$search = request('search')['value'];
+					if($search){
+						$query->where('nama', 'ilike', '%'.$search.'%');
+					}
+				}
 			})
 			->addColumn('set_nama', function ($item) {
 				if($item->photo){
-					$foto = url('storage/images/'.$item->photo);
+					$foto = asset('storage/images/'.$item->photo);
 				} else {
 					if($item->jenis_kelamin == 'L'){
-						$foto = url('vendor/img/no_avatar.jpg');
+						$foto = asset('vendor/img/no_avatar.jpg');
 					} else {
-						$foto = url('vendor/img/no_avatar_f.jpg');
+						$foto = asset('vendor/img/no_avatar_f.jpg');
 					}
 				}
 				$return  = '<img src="'.$foto.'" width="50" style="float:left; margin-right:10px;" />'.strtoupper($item->nama)."<br />".$item->nisn;
 				return $return;
 			})
 			->addColumn('set_tempat_lahir', function ($item) {
-				$return  = $item->tempat_lahir.', '.HelperServiceProvider::TanggalIndo(date('Y-m-d', strtotime($item->tanggal_lahir)));
+				$return  = $item->tempat_lahir.', '.CustomHelper::TanggalIndo(date('Y-m-d', strtotime($item->tanggal_lahir)));
 				return $return;
 			})
 			->addColumn('set_agama', function ($item) {
@@ -114,13 +124,15 @@ class SiswaController extends Controller
 				return $return;
 			})
             ->addColumn('rombel', function ($item) {
-				$anggota = $item->anggota_rombel->first();
-				$nama_rombel = ($anggota->rombongan_belajar) ? $anggota->rombongan_belajar->nama.'/'.$anggota->rombongan_belajar->tingkat : '-';
+				$nama_rombel = '-';
+				if($item->anggota_rombel){
+					$nama_rombel = $item->anggota_rombel->rombongan_belajar->nama;
+				}
 				return $nama_rombel;
 			})
             ->addColumn('tgl_keluar', function ($item) {
-				$anggota = $item->anggota_rombel->first();
-				$return  = ($anggota->terhapus) ? HelperServiceProvider::TanggalIndo(date('Y-m-d', strtotime($anggota->terhapus))) : '-';
+				//$anggota = $item->anggota_rombel->first();
+				$return  = ($item->anggota_rombel) ? ($item->anggota_rombel->terhapus) ? CustomHelper::TanggalIndo(date('Y-m-d', strtotime($item->anggota_rombel->terhapus))) : '-' : '';
 				//$return  = '-';
 				return $return;
 			})
@@ -128,9 +140,36 @@ class SiswaController extends Controller
 				$links = '<div class="text-center"><a href="'.url('pd/view/'.$item->peserta_didik_id).'" class="btn btn-success btn-sm toggle-modal"><i class="fa fa-eye"></i> Detil</a></a>';
                 return $links;
 
-            })
-            ->rawColumns(['set_nama', 'set_tempat_lahir', 'agama', 'rombel', 'tgl_keluar', 'actions'])
-            ->make(true);  
+            });
+		if ($request->has('filter_kelas')) {
+			$dt->addColumn('rombongan_belajar', function () {
+				$tingkat = request('filter_kelas');
+				$data_rombel = Rombongan_belajar::where('jurusan_sp_id', request('filter_jurusan'))->where('tingkat', $tingkat)->orderBy('nama')->get();
+				if($data_rombel->count()){
+					foreach($data_rombel as $rombel){
+						$record= array();
+						$record['value'] 	= $rombel->rombongan_belajar_id;
+						$record['text'] 	= $rombel->nama;
+						$output['result'][] = $record;
+					}
+				} else {
+					$record['value'] 	= '';
+					$record['text'] 	= 'Tidak ditemukan rombongan belajar di kelas terpilih '.$tingkat;
+					$output['result'][] = $record;
+				}
+				return $output;
+			});
+		} else {
+			$dt->addColumn('rombongan_belajar', function () {
+				$record['value'] 	= '';
+				$record['text'] 	= 'Tidak ditemukan rombongan belajar di kelas terpilih';
+				$output['result'][] = $record;
+				return $output;
+			});
+		}
+		$dt->rawColumns(['rombongan_belajar', 'set_nama', 'set_tempat_lahir', 'agama', 'rombel', 'tgl_keluar', 'actions']);
+        //->make(true); 
+		return $dt->make(true); 
 	}
 	public function view($siswa_id){
 		/*$a = Siswa::find($siswa_id);
@@ -154,9 +193,9 @@ class SiswaController extends Controller
 			'telp_wali' 		=> $request['telp_wali'],
 			'kerja_wali' 		=> $request['kerja_wali'],
 		);
-		$update = Siswa::where('peserta_didik_id', '=', $request['peserta_didik_id'])->update($update_data);
+		$update = Siswa::where('peserta_didik_id', $request['peserta_didik_id'])->update($update_data);
 		if($update){
-			User::where('peserta_didik_id', '=', $request['peserta_didik_id'])->update(['email' => $request['email']]);
+			User::where('peserta_didik_id', $request['peserta_didik_id'])->update(['email' => $request['email']]);
 			$output['title'] = 'Sukses';
 			$output['text'] = 'Berhasil memperbaharui data peserta didik';
 			$output['icon'] = 'success';

@@ -57,7 +57,7 @@
 							@endif
 						</select>
 					</td>
-					<td><input type="text" class="form-control" name="rombongan_belajar[]" id="rombongan_belajar" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? $siswa->rombongan_belajar->nama : $siswa->kenaikan->rombongan_belajar : ''}}" /></td>
+					<td><input type="text" class="form-control" name="rombongan_belajar[]" id="rombongan_belajar" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? $siswa->rombongan_belajar->nama : '' : ''}}" /></td>
 				</tr>
 				{{--dd($siswa)--}}
 				@endforeach

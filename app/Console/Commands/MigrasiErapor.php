@@ -234,40 +234,42 @@ class MigrasiErapor extends Command
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
 		foreach($erapor as $rombel){
-			$semester = DB::connection('erapor4')->table('ref_semester')->find($rombel->semester_id);
-			$tahun = substr($semester->tahun, 0,4); // returns "d"
-			$semester_id = $tahun.$semester->semester;
-			$get_jurusan_id = Jurusan_sp::where('jurusan_id', '=', $rombel->jurusan_id)->first();
-			$get_wali = Guru::where('guru_id_dapodik', '=', $rombel->guru_id_dapodik)->first();
-			$get_user = User::where('guru_id', '=', $get_wali->guru_id)->first();
-			$insert_rombel = array(
-				'sekolah_id' 			=> $sekolah_id,
-				'jurusan_id' 			=> $rombel->jurusan_id,
-				'jurusan_sp_id' 		=> $get_jurusan_id->jurusan_sp_id,
-				'kurikulum_id' 			=> $rombel->kurikulum_id,
-				'nama' 					=> $rombel->nama,
-				'guru_id' 				=> $get_wali->guru_id,
-				'tingkat' 				=> $rombel->tingkat,
-				'ptk_id' 				=> $rombel->guru_id_dapodik,
-				'jenis_rombel'			=> 1,
-				'last_sync'				=> date('Y-m-d H:i:s'),
-				'rombel_id_dapodik' 	=> $rombel->rombel_id_dapodik, 
-				'rombongan_belajar_id_migrasi' 			=> $rombel->rombongan_belajar_id,
-			);
-			$create_data = Rombongan_belajar::updateOrCreate(
-				['rombel_id_dapodik' => $rombel->rombel_id_dapodik, 'semester_id' => $semester_id],
-				$insert_rombel
-			);
-			if($create_data){
-				$record['progress'] = $percent + (intval($i/ $erapor->count() * 100) / 100);
-				$record['inserted'] = number_format($i,0,',','.');
-				Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
-				$i++;
-			}
-			$adminRole = Role::where('name', 'wali')->first();
-			$CheckadminRole = DB::table('role_user')->where('user_id', $get_user->user_id)->where('role_id', $adminRole->id)->first();
-			if(!$CheckadminRole){
-				$get_user->attachRole($adminRole);
+			if($rombel->rombel_id_dapodik){
+				$semester = DB::connection('erapor4')->table('ref_semester')->find($rombel->semester_id);
+				$tahun = substr($semester->tahun, 0,4); // returns "d"
+				$semester_id = $tahun.$semester->semester;
+				$get_jurusan_id = Jurusan_sp::where('jurusan_id', '=', $rombel->jurusan_id)->first();
+				$get_wali = Guru::where('guru_id_dapodik', '=', $rombel->guru_id_dapodik)->first();
+				$get_user = User::where('guru_id', '=', $get_wali->guru_id)->first();
+				$insert_rombel = array(
+					'sekolah_id' 			=> $sekolah_id,
+					'jurusan_id' 			=> $rombel->jurusan_id,
+					'jurusan_sp_id' 		=> $get_jurusan_id->jurusan_sp_id,
+					'kurikulum_id' 			=> $rombel->kurikulum_id,
+					'nama' 					=> $rombel->nama,
+					'guru_id' 				=> $get_wali->guru_id,
+					'tingkat' 				=> $rombel->tingkat,
+					'ptk_id' 				=> $rombel->guru_id_dapodik,
+					'jenis_rombel'			=> 1,
+					'last_sync'				=> date('Y-m-d H:i:s'),
+					'rombel_id_dapodik' 	=> $rombel->rombel_id_dapodik, 
+					'rombongan_belajar_id_migrasi' 			=> $rombel->rombongan_belajar_id,
+				);
+				$create_data = Rombongan_belajar::updateOrCreate(
+					['rombel_id_dapodik' => $rombel->rombel_id_dapodik, 'semester_id' => $semester_id],
+					$insert_rombel
+				);
+				if($create_data){
+					$record['progress'] = $percent + (intval($i/ $erapor->count() * 100) / 100);
+					$record['inserted'] = number_format($i,0,',','.');
+					Storage::disk('public')->put('proses_migrasi.json', json_encode($record));
+					$i++;
+				}
+				$adminRole = Role::where('name', 'wali')->first();
+				$CheckadminRole = DB::table('role_user')->where('user_id', $get_user->user_id)->where('role_id', $adminRole->id)->first();
+				if(!$CheckadminRole){
+					$get_user->attachRole($adminRole);
+				}
 			}
 		}
 		Migrasi::updateOrCreate(

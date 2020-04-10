@@ -3,11 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Chumper\Zipper\Facades\Zipper;
-use App\Kd_json;
 use App\Kompetensi_dasar;
-use Illuminate\Support\Facades\Storage;
-use Ixudra\Curl\Facades\Curl;
+use App\Kd_nilai;
 class KdStart extends Command
 {
     /**
@@ -15,7 +12,7 @@ class KdStart extends Command
      *
      * @var string
      */
-    protected $signature = 'kd:start';
+    protected $signature = 'kd:clean';
 
     /**
      * The console command description.
@@ -41,33 +38,34 @@ class KdStart extends Command
      */
     public function handle()
     {
-		$this->info("Memulai proses sinkronisasi referensi kompetensi dasar");
-		/*$this->info("Memulai proses sinkronisasi referensi kompetensi dasar");
-		if(!Storage::disk('public')->exists('storage/kd_json/0.json')){
-			$Path = public_path('storage/kd_json.zip');
-        	Zipper::make($Path)->extractTo('storage');
-		}
-		$all_data = Storage::files('public/kd_json');
-		foreach($all_data as $data){
-			$kd_kd_json = Kd_json::where('nama_file', str_replace('public/kd_json/', '', $data))->first();
-			if($kd_kd_json){
-				Kd_json::create(['nama_file' => str_replace('public/kd_json/', '', $data)]);
+		$this->info("Memulai proses cleansing referensi kompetensi dasar");
+		$all_kd = Kompetensi_dasar::get();
+		foreach($all_kd as $kd){
+			$delete = Kompetensi_dasar::where(function($query) use ($kd){
+				$query->where('id_kompetensi', $kd->id_kompetensi);
+				$query->where('kompetensi_id', $kd->kompetensi_id);
+				$query->where('mata_pelajaran_id', $kd->mata_pelajaran_id);
+				$query->where('kelas_10', $kd->kelas_10);
+				$query->where('kelas_11', $kd->kelas_11);
+				$query->where('kelas_12', $kd->kelas_12);
+				$query->where('kelas_13', $kd->kelas_13);
+				$query->where('kurikulum', $kd->kurikulum);
+				$query->where('kompetensi_dasar_id', '!=', $kd->kompetensi_dasar_id);
+			})->delete();
+			if($delete){
+				$kd_nilai = Kd_nilai::whereHas('kompetensi_dasar', function($query) use ($kd){
+					$query->where('id_kompetensi', $kd->id_kompetensi);
+					$query->where('kompetensi_id', $kd->kompetensi_id);
+					$query->where('mata_pelajaran_id', $kd->mata_pelajaran_id);
+					$query->where('kelas_10', $kd->kelas_10);
+					$query->where('kelas_11', $kd->kelas_11);
+					$query->where('kelas_12', $kd->kelas_12);
+					$query->where('kelas_13', $kd->kelas_13);
+					$query->where('kurikulum', $kd->kurikulum);
+					$query->where('kompetensi_dasar_id', '!=', $kd->kompetensi_dasar_id);
+				})->update(['kompetensi_dasar_id' => $kd->kompetensi_dasar_id]);
 			}
-			$json = Storage::disk('public')->get('kd_json/'.str_replace('public/kd_json/', '', $data));
-			$response = json_decode($json);
-			$json_proses_kd = Storage::disk('public')->get('proses_kompetensi_dasar.json');
-			$response_proses_kd = json_decode($json_proses_kd);
-			$record['table'] = $response_proses_kd->table;
-			$record['jumlah'] = $response_proses_kd->jumlah;
-			foreach($response->data as $obj){
-				$record['inserted'] = Kompetensi_dasar::count();
-				Storage::disk('public')->put('proses_kompetensi_dasar.json', json_encode($record));
-				$create_kd = Kompetensi_dasar::updateOrCreate(
-					['aspek' => $obj->aspek, 'mata_pelajaran_id' => $obj->mata_pelajaran_id, 'kompetensi_dasar' => $obj->kompetensi_dasar, 'kurikulum_id' => $obj->kurikulum_id, 'kelas' => $obj->kelas],
-					['id_kompetensi' => $obj->id_kompetensi, 'id_kompetensi_nas' => $obj->id_kompetensi_nas, 'kompetensi_dasar_alias' => $obj->kompetensi_dasar_alias, 'aktif' => $obj->aktif, 'created_at' => $obj->created_at, 'updated_at' => $obj->updated_at, 'deleted_at' => $obj->deleted_at, 'last_sync' => $obj->last_sync]
-				);
-			}
 		}
-		$this->info("Proses sinkronisasi referensi kompetensi dasar selesai");*/
+		$this->info("Proses cleansing referensi kompetensi dasar selesai");
     }
 }

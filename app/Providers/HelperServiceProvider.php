@@ -4,13 +4,14 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Auth;
 use App\Nilai;
 use App\Pembelajaran;
 use App\Agama;
 use App\Anggota_rombel;
 use App\Semester;
-use Auth;
 use App\Setting;
+use UserHelp;
 class HelperServiceProvider extends ServiceProvider
 {
     /**
@@ -29,7 +30,7 @@ class HelperServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+		//
     }
 	public static function prepare_send($str){
 		return rawurlencode(base64_encode(gzcompress(self::encryptor(serialize($str)))));
@@ -59,7 +60,12 @@ class HelperServiceProvider extends ServiceProvider
 		return $data[$query];
 	}
 	public static function get_ta(){
-		return Semester::where('periode_aktif', 1)->first();
+		$user = auth()->user();
+		if(isset($user->periode_aktif)){
+			return Semester::find($user->periode_aktif);
+		} else {
+			return Semester::where('periode_aktif', 1)->first();
+		}
 	}
 	public static function table_sync(){
 		$table_sync = array(
@@ -115,7 +121,7 @@ class HelperServiceProvider extends ServiceProvider
 		return $label;
 	}
 	public static function check_2018(){
-		$semester = self::get_ta();
+		$semester = config('site.semester');//self::get_ta();
 		$tahun = substr($semester->semester_id,0,4);
 		if($tahun >= 2018){
 			return true;
@@ -258,8 +264,10 @@ class HelperServiceProvider extends ServiceProvider
 			$nama_agama = str_replace('Budha','Buddha',$agama->nama);
 			$agama_id[$agama->id] = $nama_agama;
 		}
-		$get_mapel = Pembelajaran::find($pembelajaran_id);
-		$nama_mapel = str_replace('Pendidikan Agama','',$get_mapel->nama_mata_pelajaran);
+		$get_mapel = Pembelajaran::with('mata_pelajaran')->find($pembelajaran_id);
+		$nama_mapel = str_replace('Pendidikan Agama','',$get_mapel->mata_pelajaran->nama);
+		$nama_mapel = str_replace('KongHuChu','Konghuchu',$nama_mapel);
+		$nama_mapel = str_replace('Kong Hu Chu','Konghuchu',$nama_mapel);
 		$nama_mapel = str_replace('dan Budi Pekerti','',$nama_mapel);
 		$nama_mapel = str_replace('Pendidikan Kepercayaan terhadap','',$nama_mapel);
 		$nama_mapel = str_replace('Tuhan YME','Kepercayaan kpd Tuhan YME',$nama_mapel);
@@ -267,21 +275,37 @@ class HelperServiceProvider extends ServiceProvider
 		$agama_id = array_search($nama_mapel, $agama_id);
 		return $agama_id;
 	}
-	public static function filter_pembelajaran_agama($nama_agama){
-		$ref_agama = Agama::all();
-		foreach($ref_agama as $agama){
-			$nama_agama = str_replace('Budha','Buddha',$agama->nama);
-			$agama_id[$agama->id] = $nama_agama;
+	public static function filter_pembelajaran_agama($agama_siswa, $nama_agama){
+		$nama_agama = str_replace('Budha','Buddha',$nama_agama);
+		$nama_agama = str_replace('Pendidikan Agama','',$nama_agama);
+		$nama_agama = str_replace('dan Budi Pekerti','',$nama_agama);
+		$nama_agama = str_replace('Pendidikan Kepercayaan','',$nama_agama);
+		$nama_agama = str_replace('terhadap','kpd',$nama_agama);
+		$nama_agama = str_replace('KongHuChu','Konghuchu',$nama_agama);
+		$nama_agama = str_replace('Kong Hu Chu','Konghuchu',$nama_agama);
+		$nama_agama = trim($nama_agama);
+		$agama_siswa = str_replace('KongHuChu','Konghuchu',$agama_siswa);
+		$agama_siswa = str_replace('Kong Hu Chu','Konghuchu',$agama_siswa);
+		if($agama_siswa == $nama_agama){
+			return true;
+		} else {
+			return false;
 		}
-		//$get_mapel = Pembelajaran::find($pembelajaran_id);
-		$nama_mapel = str_replace('Pendidikan Agama','',$nama_agama);
-		$nama_mapel = str_replace('dan Budi Pekerti','',$nama_mapel);
-		$nama_mapel = str_replace('Pendidikan Kepercayaan terhadap','',$nama_mapel);
-		$nama_mapel = str_replace('Tuhan YME','Kepercayaan kpd Tuhan YME',$nama_mapel);
-		$nama_mapel = str_replace('Buddha','Budha',$nama_mapel);
-		$nama_mapel = trim($nama_mapel);
-		$agama_id = array_search($nama_mapel, $agama_id);
-		return $agama_id;
+	}
+	public static function mapel_agama(){
+		return ['100014000', '100014140', '100015000', '100015010', '100016000', '100016010', '109011000', '109011010', '100011000', '100011070', '100013000', '100013010', '100012000', '100012050'];
+	}
+	public static function filter_agama_mapel($get_id_mapel, $all_mapel,$agama_siswa){
+		$get_mapel_agama = Pembelajaran::with('mata_pelajaran')->whereIn('mata_pelajaran_id', $get_id_mapel);
+		foreach($get_mapel_agama as $agama){
+			if (strpos($agama->mata_pelajaran->nama, $agama_siswa) === false) {
+				$mapel_agama_jadi[] = $agama->pembelajaran_id;
+			}
+		}
+		if(isset($mapel_agama_jadi) && $all_mapel){
+			$all_mapel = array_diff($all_mapel, $mapel_agama_jadi);
+		}
+		return $all_mapel;
 	}
 	public static function atest(){
 		$a = Auth::user();
@@ -397,5 +421,27 @@ class HelperServiceProvider extends ServiceProvider
 			$status_teks = 'Tidak Lulus';
 		}
 		return $status_teks;
+	}
+	public static function clean($string) {
+		$string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+		$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+		return preg_replace('/-+/', '-', $string); // Replaces multiple hyphens with single one.
+	}
+	public static function password_dapo($password_dapo){
+		$passCode = UserHelp::doEncrypt($password_dapo);
+		return $passCode;
+	}
+	public static function __oc(){
+		$__oc=strtolower(substr(php_uname(),0,3));
+		if($__oc=='win'){
+			return true;
+		}
+		return false;
+	}
+	public static function escapeJsonString($value) { # list from www.json.org: (\b backspace, \f formfeed)
+		$escapers = array("\\", "/", "\"", "\n", "\r", "\t", "\x08", "\x0c");
+		$replacements = array("\\\\", "\\/", "\\\"", "\\n", "\\r", "\\t", "\\f", "\\b");
+		$result = str_replace($escapers, $replacements, $value);
+		return $result;
 	}
 }

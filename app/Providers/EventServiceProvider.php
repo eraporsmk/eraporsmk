@@ -21,12 +21,15 @@ class EventServiceProvider extends ServiceProvider
 		'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-		\Codedge\Updater\Events\UpdateAvailable::class => [
+		'Illuminate\Auth\Events\Logout' => [
+        	'App\Listeners\LogSuccessfulLogout',
+    	],
+		/*\Codedge\Updater\Events\UpdateAvailable::class => [
 			\Codedge\Updater\Listeners\SendUpdateAvailableNotification::class
 		], // [3]
 		\Codedge\Updater\Events\UpdateSucceeded::class => [
 			\Codedge\Updater\Listeners\SendUpdateSucceededNotification::class
-		], // [3]
+		], // [3]*/
     ];
 
     /**
@@ -37,7 +40,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
         //
     }
 }

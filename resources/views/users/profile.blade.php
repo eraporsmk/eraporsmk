@@ -19,7 +19,17 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
+	@if ($errors->any())
+			<div class="alert alert-danger alert-block alert-dismissable">
+				<ul>
+				@foreach ($errors->all() as $error)
+					<li>{{ $error }}</li>
+				@endforeach
+				</ul>
+			</div>
+		@endif
 <form id="form-change-password" role="form" method="POST" action="{{ route('update_profile', ['id' => $user->user_id]) }}" novalidate enctype="multipart/form-data">
+	<input type="hidden" name="_token" value="{{ csrf_token() }}"> 
 	<div class="col-md-8">
 		<label for="name" class="col-form-label">Nama</label>
 		<div class="form-group">
@@ -31,12 +41,11 @@
 		</div>
 		<label for="current-password" class="col-form-label">Sandi Saat Ini (Biarkan kosong jika tidak ingin merubah)</label>
 		<div class="form-group">
-			<input type="hidden" name="_token" value="{{ csrf_token() }}"> 
-			<input type="password" class="form-control" id="current-password" name="current_password" placeholder="Sandi saat ini">
+			<input type="password" class="form-control" id="current-password" name="current_password" placeholder="Sandi saat ini" autocomplete="new-password">
 		</div>
 		<label for="password" class="col-form-label">Sandi Baru</label>
 		<div class="form-group">
-				<input type="password" class="form-control" id="password" name="password" placeholder="Sandi baru">
+				<input type="password" class="form-control" id="password" name="password" placeholder="Sandi baru" >
 		</div>
 		<label for="password_confirmation" class="col-form-label">Konfirmasi Sandi</label>
 		<div class="form-group">

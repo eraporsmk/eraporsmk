@@ -20,7 +20,7 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
-	<form action="{{ route('laporan.simpan_kehadiran') }}" method="post" class="form-horizontal" id="form">
+	<form action="" method="post" class="form-horizontal" id="form">
 		{{ csrf_field() }}
 		<div class="col">
 			<div class="col-sm-6">

@@ -14,7 +14,7 @@
 
 @section('body')
     <div class="wrapper">
-		<?php $user = auth()->user(); ?>
+		<?php //$user = config('site.user'); ?>
         <!-- Main Header -->
         <header class="main-header">
             @if(config('adminlte.layout') == 'top-nav')
@@ -43,6 +43,10 @@
                 <span class="logo-mini">{!! config('adminlte.logo_mini', '<b>A</b>LT') !!}</span>
                 <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg">{!! config('adminlte.logo', '<b>Admin</b>LTE') !!}</span>
+				<!--
+				<img class="logo-mini" src="{{ asset('css/images/icon.png') }}" width="30" height="30" alt="{!! config('adminlte.logo_mini', '<b>A</b>LT') !!}">
+		        <img class="logo-lg" src="{{ asset('css/images/logo.png') }}" width="200" height="30" alt="{!! config('adminlte.logo', '<b>Admin</b>LTE') !!}">
+				-->
             </a>
 
             <!-- Header Navbar -->
@@ -53,8 +57,8 @@
                 </a>
 				<div class="navbar-left">
 					<?php
-					$sekolah = App\Sekolah::find($user->sekolah_id);
-					$semester = CustomHelper::get_ta();
+					//$sekolah = config('site.sekolah');
+					//$semester = config('site.semester');
 					?>
 					<a href="{{ url(config('adminlte.dashboard_url', 'home')) }}" class="logo" style="width:100%">{{($sekolah) ? $sekolah->nama : ''}}, Tahun Pelajaran {{($semester) ? $semester->nama : ''}}</a>
 				</div>
@@ -64,7 +68,7 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 						<li class="dropdown user user-menu"><a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							<?php $img = ($user->photo!= '')  ? url('storage/images/'.$user->photo) : url('vendor/img/avatar3.png'); ?><img src="<?php echo $img;?>" class="user-image" alt="User Image" /><span class="hidden-xs"><?php echo $user->name; ?></span></a>
+							<?php $img = ($user->photo!= '')  ? asset('storage/images/'.$user->photo) : asset('vendor/img/avatar3.png'); ?><img src="<?php echo $img;?>" class="user-image" alt="User Image" /><span class="hidden-xs"><?php echo $user->name; ?></span></a>
 							<ul class="dropdown-menu">
 								<li class="user-header">
 									<img src="<?php echo $img;?>" class="user-circle" alt="User Image" />
@@ -72,7 +76,7 @@
 								</li>
 								<li class="user-footer">
 									<div class="pull-left">
-										<a href="<?php echo url('profil/user'); ?>" class="btn btn-default btn-flat">Profil</a>
+										<a href="<?php echo route('user.profile'); ?>" class="btn btn-default btn-flat">Profil</a>
 									</div>
 									<div class="pull-right">
 										@if(config('adminlte.logout_method') == 'GET' || !config('adminlte.logout_method') && version_compare(\Illuminate\Foundation\Application::VERSION, '5.3.0', '<'))
@@ -174,14 +178,14 @@
         <!-- /.content-wrapper -->
 		<footer class="main-footer">
     <div class="pull-right hidden-xs">
-      <b>{{config('site.app_name')}} Versi</b> {{config('site.app_version')}}
+      <b>{{config('site.app_name')}} Versi</b> {{config('global.app_version')}}
     </div>
     <strong>Hak Cipta &copy; <?php echo date('Y'); ?> <a href="https://psmk.kemdikbud.go.id/">Direktorat Pembinaan SMK</a></strong>.
   </footer>
     </div>
     <!-- ./wrapper -->
 	<div id="spinner" style="position:fixed; top: 50%; left: 50%; margin-left: -50px; margin-top: -50px;z-index: 999999;display: none;">
-		<img src="{{url('vendor/img/ajax-loader.gif')}}" />
+		<img src="{{asset('vendor/img/ajax-loader.gif')}}" />
 	</div>
 	<div id="modal_content" class="modal fade"></div>
 @stop
@@ -192,6 +196,10 @@
     @yield('js')
 	<script type="text/javascript">
 		window.setTimeout(function() { $(".alert-dismissable").hide('slow'); }, 15000);
+		$( document ).on( 'focus', ':input', function(){
+			$( this ).attr( 'autocomplete', 'off' );
+		});
+		$('.select2').addClass('auto_width');
 		$(document).bind("ajaxSend", function() {
 			$("#spinner").show();
 			$("#show").hide();

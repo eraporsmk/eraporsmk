@@ -42,6 +42,9 @@ class Rombongan_belajar extends Model
 	public function pembelajaran(){
 		return $this->hasMany('App\Pembelajaran', 'rombongan_belajar_id', 'rombongan_belajar_id');
     }
+	public function one_pembelajaran(){
+		return $this->hasOne('App\Pembelajaran', 'rombongan_belajar_id', 'rombongan_belajar_id');
+    }
 	public function jurusan(){
 		return $this->hasOne('App\Jurusan', 'jurusan_id', 'jurusan_id');
 	}

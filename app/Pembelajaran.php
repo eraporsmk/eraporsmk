@@ -5,9 +5,11 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuid;
 use App\Providers\HelperServiceProvider;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Pembelajaran extends Model
 {
 	use Uuid;
+	use SoftDeletes;
     public $incrementing = false;
 	protected $table = 'pembelajaran';
 	protected $primaryKey = 'pembelajaran_id';
@@ -29,6 +31,12 @@ class Pembelajaran extends Model
 	}
 	public function rencana_keterampilan(){
 		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 2);
+	}
+	public function rencana_pengetahuan_dinilai(){
+		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 1)->whereHas('nilai');
+	}
+	public function rencana_keterampilan_dinilai(){
+		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 2)->whereHas('nilai');
 	}
 	public function nilai_akhir_pengetahuan(){
 		return $this->hasOne('App\Nilai_akhir', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 1);
@@ -107,7 +115,8 @@ class Pembelajaran extends Model
 		return $this->hasOne('App\Kelompok', 'kelompok_id', 'kelompok_id');
 	}
 	public function rapor_pts(){
-		return $this->hasOne('App\Rapor_pts', 'pembelajaran_id', 'pembelajaran_id');
+		//return $this->hasOne('App\Rapor_pts', 'pembelajaran_id', 'pembelajaran_id');
+		return $this->hasMany('App\Rapor_pts', 'pembelajaran_id', 'pembelajaran_id');
 	}
 	public function nilai_akhir_p(){
 		return $this->hasOneThrough(

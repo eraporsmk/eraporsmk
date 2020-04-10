@@ -4,14 +4,14 @@
 <br>
 <br>
 <br>
-	<img src="{{($sekolah) && ($sekolah->logo_sekolah) ? url('storage/images/'.$sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
+	<img src="{{($sekolah) && ($sekolah->logo_sekolah) ? url('storage/images/300/'.$sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
 <br>
 <br>
 <br>
 <br>
 <br>
 <br>
-<h3>RAPOR PENILAIAN TENGAH {{strtoupper(substr($semester->nama,10))}}</h3>
+<h3>RAPOR UJIAN TENGAH SEMESTER {{strtoupper(substr($semester->nama,10))}}</h3>
 <h3>{{($sekolah) ? strtoupper($sekolah->nama) : '-'}}</h3>
 <h3>TAHUN PELAJARAN {{str_replace('/','-',substr($semester->nama,0,9))}}</h3><br>
 <br>

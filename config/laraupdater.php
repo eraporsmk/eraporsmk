@@ -9,13 +9,13 @@
 		/*
 		* Temp folder to store update before to install it.
 		*/
-		'tmp_path' => '../updates',
+		'tmp_path' => env('TMP_UPDATE', '../updates'),//'../updates',
 
 		/*
 		* URL where your updates are stored ( e.g. for a folder named 'updates', under http://site.com/yourapp ).
 		*/
 		'update_baseurl' => 'http://updater.erapor-smk.net',
-
+		//'update_baseurl' => 'http://localhost:8002/erapor-updates',
 		/*
 		* Set a middleware for the route: updater.update
 		* Only 'auth' NOT works (manage security using 'allow_users_id' configuration)

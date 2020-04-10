@@ -100,14 +100,15 @@ class Anggota_rombel extends Model
         );
 	}
 	public function kelas_ekskul(){
-		return $this->hasOneThrough(
+		return $this->hasOne('App\Rombongan_belajar', 'rombongan_belajar_id', 'rombongan_belajar_id');
+		/*return $this->hasOneThrough(
             'App\Ekstrakurikuler',
             'App\Rombongan_belajar',
             'rombongan_belajar_id', // Foreign key on users table...
             'rombongan_belajar_id', // Foreign key on history table...
             'rombongan_belajar_id', // Local key on suppliers table...
             'rombongan_belajar_id' // Local key on users table...
-        );
+        );*/
 	}
 	public function prakerin(){
 		return $this->hasOne('App\Prakerin', 'anggota_rombel_id', 'anggota_rombel_id');

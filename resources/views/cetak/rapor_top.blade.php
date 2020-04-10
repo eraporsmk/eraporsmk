@@ -4,7 +4,7 @@
 <br>
 <br>
 <br>
-	<img src="{{($get_siswa->sekolah) && ($get_siswa->sekolah->logo_sekolah) ? url('storage/images/'.$get_siswa->sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
+	<img src="{{($get_siswa->sekolah) && ($get_siswa->sekolah->logo_sekolah) ? url('storage/images/300/'.$get_siswa->sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
 <br>
 <br>
 <br>
@@ -20,22 +20,15 @@
 <br>
 <br>
 {{--dd($get_siswa)--}}
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="width:47%; float:left; padding:7px;">Nama Peserta Didik:</div>
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="border:#000000 1px solid; width:47%; float:left; padding:7px;">{{strtoupper($get_siswa->siswa->nama)}}</div>
-<div style="width:25%; float:left;">&nbsp;</div>
+<div class="center" style="width:50%; float:left; padding:7px;">Nama Peserta Didik:</div>
+<div class="center" style="border:#000000 1px solid; width:50%; float:left; padding:7px; text-align:center;">{{strtoupper($get_siswa->siswa->nama)}}</div>
 <br>
 <br>
 <br>
 <br>
 <br>
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="width:47%; float:left; padding:7px;">NISN:</div>
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="width:25%; float:left;">&nbsp;</div>
-<div style="border:#000000 1px solid; width:47%; float:left; padding:7px;">{{$get_siswa->siswa->nisn}}</div>
+<div class="center" style="width:50%; float:left; padding:7px;">NISN:</div>
+<div class="center" style="border:#000000 1px solid; width:50%; float:left; padding:7px;">{{$get_siswa->siswa->nisn}}</div>
 <div style="width:25%; float:left;">&nbsp;</div>
 <br>
 <br>

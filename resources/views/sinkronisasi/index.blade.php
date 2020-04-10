@@ -184,6 +184,17 @@
 					),
 				13 => 
 					array(
+						'nama' => 'Wilayah',
+						'link' => 'wilayah',
+						'get_dapodik' => $dapodik->wilayah,
+						'get_erapor' => $erapor->wilayah_erapor,
+						'get_sinkron' => $erapor->wilayah_sinkron,
+						'server' => 'erapor_dashboard',
+						'data' => 'wilayah',
+						'aksi' => 'wilayah',
+					),
+				14 => 
+					array(
 						'nama' => 'Ref. Kompetensi Dasar',
 						'link' => 'ref-kd',
 						'get_dapodik' => $dapodik->ref_kd,
@@ -281,6 +292,7 @@ function frame() {
 		$.ajax({
 			url: "{{url('sinkronisasi/hitung-data/')}}/"+ProsesSinkronTable,
 			success:function(response){
+				console.log(response);
 				if(response){
 					var data = $.parseJSON(response);
 					$('.status').text("Memproses sinkronisasi data "+data.table+" ("+data.jumlah+"/"+data.inserted+")");

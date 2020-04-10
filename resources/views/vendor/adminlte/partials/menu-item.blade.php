@@ -1,5 +1,5 @@
 <?php
-$semester = CustomHelper::get_ta();
+//$semester = config('site.semester');//CustomHelper::get_ta();
 ?>
 @if (is_string($item))
     <li class="header">{{ str_replace('periode','Periode Aktif: '.$semester->nama,$item) }}</li>

@@ -32,6 +32,9 @@
 				<tr>
 					<td>
 						<input type="hidden" name="anggota_rombel_id[]" value="{{$siswa->anggota_rombel_id}}" />
+						@if(!$siswa->siswa)
+							{{dd($siswa)}}
+						@endif
 						{{strtoupper($siswa->siswa->nama)}}
 					</td>
 					<td>{{($siswa->siswa->kelas) ? $siswa->siswa->kelas->nama : '-'}}</td>

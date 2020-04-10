@@ -1,7 +1,7 @@
 @extends('adminlte::page')
-@section('title_postfix', 'Ubah Perencanaan Pengetahuan |')
+@section('title_postfix', 'Ubah Bobot Perencanaan Pengetahuan |')
 @section('content_header')
-    <h1>Ubah Perencanaan Pengetahuan</h1>
+    <h1>Ubah Bobot Perencanaan Pengetahuan</h1>
 @stop
 
 @section('content')
@@ -66,8 +66,9 @@ ksort($data_kd);
 					<th class="text-center" width="10">Bobot</th>
 					<?php
 					//$all_kd = array();
-					foreach($data_kd as $kd){
-						$kompetensi_dasar = ($kd->kompetensi_dasar_alias) ? $kd->kompetensi_dasar_alias : $kd->kompetensi_dasar;
+					//foreach($data_kd as $kd){
+					foreach($rencana->kd_nilai as $kd){
+						$kompetensi_dasar = ($kd->kompetensi_dasar->kompetensi_dasar_alias) ? $kd->kompetensi_dasar->kompetensi_dasar_alias : $kd->kompetensi_dasar->kompetensi_dasar;
 					?>
 					<th class="text-center"><a href="javascript:void(0)" class="tooltip-top" title="<?php echo strip_tags($kompetensi_dasar); ?>"><?php echo $kd->id_kompetensi; ?></a></th>
 					<?php
@@ -79,7 +80,7 @@ ksort($data_kd);
 			<tbody>
 				<tr>
 					<td>
-						<input class="form-control input-sm" type="text" name="nama_penilaian" value="{{$rencana->nama_penilaian}}">
+						<input class="form-control input-sm" type="text" disabled="disabled" value="{{$rencana->nama_penilaian}}">
 					</td>
 					<td>
 						<select id="pilih_bobot" class="form-control input-sm" name="bentuk_penilaian" disabled="disabled">
@@ -90,14 +91,15 @@ ksort($data_kd);
 						<input class="form-control input-sm bobot" type="text" name="bobot" value="{{$rencana->bobot}}">
 					</td>
 					<?php
+					$kd_id = [];
 					foreach($rencana->kd_nilai as $kd_nilai){
 						$kd_id[] = $kd_nilai->kompetensi_dasar_id;
 					}
-					foreach($data_kd as $kd){
+					foreach($rencana->kd_nilai as $kd){
 					?>
 					<td style="vertical-align:middle;">
-						<input type="hidden" name="id_kompetensi[]" value="{{$kd->id_kompetensi}}" />
-						<div class="text-center"><input type="checkbox" <?php echo (in_array($kd->kompetensi_dasar_id, $kd_id)) ? ' checked="checked"' : ''; ?> name="kd[]" value="<?php echo $kd->kompetensi_dasar_id; ?>" /></div>
+						<input type="hidden" name="id_kompetensi[{{$kd->kompetensi_dasar_id}}]" value="{{$kd->id_kompetensi}}" />
+						<div class="text-center"><input type="checkbox" checked="checked" value="<?php echo $kd->kompetensi_dasar_id; ?>" disabled="disabled" /></div>
 					</td>
 					<?php } ?>
 					<td><input class="form-control input-sm" type="text" name="keterangan_penilaian" value="{{$rencana->keterangan}}"></td>

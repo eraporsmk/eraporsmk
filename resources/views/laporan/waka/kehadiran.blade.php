@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title_postfix', 'Data Kehadiran Peserta Didik |')
+@section('title_postfix', 'Data Ketidakhadiran Peserta Didik |')
 
 @section('content_header')
-    <h1>Data Kehadiran Peserta Didik</h1>
+    <h1>Data Ketidakhadiran Peserta Didik</h1>
 @stop
 
 @section('content')
@@ -20,7 +20,7 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
-	<form action="{{ route('laporan.simpan_kehadiran') }}" method="post" class="form-horizontal" id="form">
+	<form action="{{ route('laporan.simpan_ketidakhadiran') }}" method="post" class="form-horizontal" id="form">
 		{{ csrf_field() }}
 		<div class="col">
 			<div class="col-sm-6">
@@ -89,7 +89,7 @@ $('#kelas').change(function(){
 		return false;
 	}
 	$.ajax({
-		url: '{{url('ajax/get-rombel')}}',
+		url: '{{route('ajax.get_rombel')}}',
 		type: 'post',
 		data: $("form#form").serialize(),
 		success: function(response){
@@ -121,7 +121,7 @@ $('#rombel').change(function(){
 		return false;
 	}
 	$.ajax({
-		url: '{{url('ajax/get-kehadiran')}}',
+		url: '{{route('ajax.get_ketidakhadiran')}}',
 		type: 'post',
 		data: $("form#form").serialize(),
 		success: function(response){

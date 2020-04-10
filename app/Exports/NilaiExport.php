@@ -22,19 +22,16 @@ class NilaiExport implements FromView
 		$agama_id = $this->agama_id;
 		if($agama_id){
 			$rencana_penilaian = Rencana_penilaian::with(['kd_nilai.nilai', 'pembelajaran', 'pembelajaran.rombongan_belajar','pembelajaran.anggota_rombel' => function($query) use ($agama_id){
-				//$query->with(['siswa' => function($sq) use ($agama_id){
-					//$sq->where('agama_id', $agama_id);
-				///}]);
+				$query->order();
 				$callback = function($sq) use ($agama_id) {
 					$sq->where('agama_id', $agama_id);
 				};
 				$query->whereHas('siswa', $callback)->with(['siswa' => $callback]);
-				$query->order();
 			}])->where('rencana_penilaian_id', '=', $this->rencana_penilaian_id)->first();
 		} else {
 			$rencana_penilaian = Rencana_penilaian::with(['kd_nilai.nilai', 'pembelajaran', 'pembelajaran.rombongan_belajar','pembelajaran.anggota_rombel' => function($query) use ($agama_id){
-				$query->with('siswa');
 				$query->order();
+				$query->with('siswa');
 			}])->where('rencana_penilaian_id', '=', $this->rencana_penilaian_id)->first();
 		}
 		return view('penilaian.export', [

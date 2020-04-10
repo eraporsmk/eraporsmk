@@ -18,6 +18,12 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
+	@if(!$status)
+	<div class="callout callout-danger lead">
+		Proses Pengiriman nilai tidak dapat dilakukan. <br />
+		Tidak terhubung ke database Dapodik
+	</div>
+	@else
 	<div class="callout callout-success lead">
 		Proses pengiriman nilai dari eRaporSMK ke Dapodik, hanya bisa dilakukan di rombongan belajar yang terkunci status penilaiannya. Rekapitulasinya adalah sebagai berikut:
 	</div>
@@ -78,6 +84,7 @@
 			</tr>
 		</tfoot>
 	</table>
+	@endif
 @Stop
 @section('js')
 <script>

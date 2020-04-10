@@ -38,7 +38,7 @@
   <tr>
     <td style="width: 30%;padding:20px;">Kabupaten/Kota</td>
     <td style="width: 5%">:</td>
-    <td style="width: 65%">{{$get_siswa->sekolah->kabupaten}}</td>
+    <td style="width: 65%">{{str_replace('Kab. ','',$get_siswa->sekolah->kabupaten)}}</td>
   </tr>
   <tr>
     <td style="width: 30%;padding:20px;">Provinsi</td>

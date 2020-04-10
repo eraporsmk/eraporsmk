@@ -28,10 +28,11 @@ class ConfigController extends Controller
     public function index(){
 		$user = auth()->user();
 		$jenis_gtk = CustomHelper::jenis_gtk('guru');
-		$data['all_guru']= Guru::where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();
+		$jenis_gtk = array_merge($jenis_gtk,[97]);
+		$data['all_guru']= Guru::with(['gelar_depan', 'gelar_belakang'])->where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();
 		$data['all_data'] = Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'asc')->get();
 		$data['sekolah_id'] = $user->sekolah_id;
-		$data['sekolah'] = Sekolah::find($user->sekolah_id);
+		//$data['sekolah'] = Sekolah::find($user->sekolah_id);
 		return view('config', $data);
     }
 	public function simpan(Request $request){

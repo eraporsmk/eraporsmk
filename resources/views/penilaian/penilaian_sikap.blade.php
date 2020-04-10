@@ -149,7 +149,7 @@ $('a.confirm').bind('click',function(e) {
 		if (willDelete) {
 		$.get(url).done(function(response) {
 				var data = $.parseJSON(response);
-				swal(data.text, {icon: data.icon,}).then((result) => {
+				swal(data.title, {icon: data.icon,}).then((result) => {
 					ini.remove();
 				});
 			});

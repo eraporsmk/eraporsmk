@@ -36,7 +36,10 @@
 						<td>{{$bobot->metode->nama}}</td>
 						<td>{{$bobot->pembelajaran->rombongan_belajar->nama}}</td>
 						<td>{{$bobot->pembelajaran->nama_mata_pelajaran}}</td>
-						<td><input type="text" class="form-control" value="{{$bobot->bobot}}" name="bobot[{{$bobot->bobot_keterampilan_id}}]" /></td>
+						<td>
+							<input type="hidden" class="form-control" value="{{$bobot->pembelajaran->pembelajaran_id}}" name="pembelajaran_id[]" />
+							<input type="text" class="form-control" value="{{$bobot->bobot}}" name="bobot[{{$bobot->bobot_keterampilan_id}}]" />
+						</td>
 					</tr>
 				@endforeach
 				@else

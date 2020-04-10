@@ -3,11 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\Uuid;
+//use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Kompetensi_dasar extends Model
 {
-    use Uuid;
+    //use Uuid;
 	use SoftDeletes;
     public $incrementing = false;
 	protected $table = 'ref.kompetensi_dasar';

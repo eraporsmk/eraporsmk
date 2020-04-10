@@ -21,6 +21,7 @@ use Session;
 use Artisan;
 use CustomHelper;
 use App\Kurikulum;
+use App\Kd_nilai;
 class ReferensiController extends Controller
 {
     public function __construct()
@@ -34,12 +35,7 @@ class ReferensiController extends Controller
 	public function list_mata_pelajaran(){
 		$user = auth()->user();
 		$query = Mata_pelajaran_kurikulum::with('mata_pelajaran')->with('kurikulum')->whereIn('mata_pelajaran_kurikulum.kurikulum_id', function($query){
-			$user = auth()->user();
-			$semester = CustomHelper::get_ta();
-			$query->select('kurikulum_id')
-			->from(with(new Rombongan_belajar)->getTable())
-			->where('sekolah_id', '=', $user->sekolah_id)
-			->where('semester_id', '=', $semester->semester_id);
+			$query->select('kurikulum_id')->from(with(new Rombongan_belajar)->getTable())->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'));
 		})->orderBy('mata_pelajaran_kurikulum.kurikulum_id')->orderBy('mata_pelajaran_id')->orderBy('tingkat_pendidikan_id');
 		return Datatables::of($query)->make(true);
 	}
@@ -49,9 +45,8 @@ class ReferensiController extends Controller
 	}
 	public function list_ekskul(){
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
-		$query = Ekstrakurikuler::with('guru')->where('ekstrakurikuler.sekolah_id', '=', $user->sekolah_id)
-		->where('ekstrakurikuler.semester_id', '=', $semester->semester_id);
+		$query = Ekstrakurikuler::with(['guru', 'rombongan_belajar'])->where('ekstrakurikuler.sekolah_id', session('sekolah_id'))
+		->where('ekstrakurikuler.semester_id', session('semester_id'));
 		return Datatables::of($query)
 		->addColumn('anggota', function ($item) {
 			$return  = '<div class="text-center"><a href="'.url('rombel/anggota/'.$item->rombongan_belajar->rombongan_belajar_id).'" class="btn btn-primary btn-sm toggle-modal"><i class="fa fa-eye"></i> Anggota Ekskul</a></div>';
@@ -66,41 +61,41 @@ class ReferensiController extends Controller
 	}
 	public function metode(){
 		/*$user = auth()->user();
-		$query = Teknik_penilaian::where('sekolah_id', '=', $user->sekolah_id);
+		$query = Teknik_penilaian::where('sekolah_id', session('sekolah_id'));
 		if(!$query->count()){
 			$insert_teknik = array(
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 1,
 					'nama'			=> 'Tes Tertulis',
 					'last_sync'		=> date('Y-m-d H:i:s'),
 				),
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 1,
 					'nama'			=> 'Tes Lisan',
 					'last_sync'		=> date('Y-m-d H:i:s'),
 				),
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 1,
 					'nama'			=> 'Penugasan',
 					'last_sync'		=> date('Y-m-d H:i:s'),
 				),
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 2,
 					'nama'			=> 'Portofolio',
 					'last_sync'		=> date('Y-m-d H:i:s'),
 				),
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 2,
 					'nama'			=> 'Kinerja',
 					'last_sync'		=> date('Y-m-d H:i:s'),
 				),
 				array(
-					'sekolah_id' 	=> $user->sekolah_id,
+					'sekolah_id' 	=> session('sekolah_id'),
 					'kompetensi_id'	=> 2,
 					'nama'			=> 'Proyek',
 					'last_sync'		=> date('Y-m-d H:i:s'),
@@ -154,7 +149,7 @@ class ReferensiController extends Controller
 					'nama'	=> $request['nama_metode'],
 				],
 				[
-					'sekolah_id' => $user->sekolah_id,
+					'sekolah_id' => session('sekolah_id'),
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
@@ -339,12 +334,11 @@ class ReferensiController extends Controller
     }
 	public function kd(){
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
 		$params = array(
-			'all_pembelajaran' => Pembelajaran::select(['mata_pelajaran_id', 'nama_mata_pelajaran'])->where('sekolah_id', '=', $user->sekolah_id)
-			->where('semester_id', '=', $semester->semester_id)
-			->where('guru_id', '=', $user->guru_id)
-			->orWhere('guru_pengajar_id', '=', $user->guru_id)
+			'all_pembelajaran' => Pembelajaran::select(['mata_pelajaran_id', 'nama_mata_pelajaran'])->where('sekolah_id', session('sekolah_id'))
+			->where('semester_id', session('semester_id'))
+			->where('guru_id', $user->guru_id)
+			->orWhere('guru_pengajar_id', $user->guru_id)
 			->orderBy('mata_pelajaran_id', 'asc')
 			->groupBy('mata_pelajaran_id')
 			->groupBy('nama_mata_pelajaran')
@@ -392,6 +386,7 @@ class ReferensiController extends Controller
 				'kelas_13'			=> $kelas_13,
 			],
 			[
+				'kompetensi_dasar_id'	=> Str::uuid(),
 				'kompetensi_dasar'	=> $request['kompetensi_dasar'],
 				'user_id' 			=> $user->user_id,
 				'aktif'				=> 1,
@@ -409,14 +404,40 @@ class ReferensiController extends Controller
 	public function list_kd(Request $request){
 		//dd($request);
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
-		$user = auth()->user();
-		$query = Kompetensi_dasar::with('mata_pelajaran')->whereHas('pembelajaran', function($query) use($user, $semester){
-			$query->where('pembelajaran.sekolah_id', '=', $user->sekolah_id)
-			->where('pembelajaran.semester_id', '=', $semester->semester_id)
-			->where('pembelajaran.guru_id', '=', $user->guru_id)
-			->orWhere('pembelajaran.guru_pengajar_id', '=', $user->guru_id);
-		})->orderBy('ref.kompetensi_dasar.mata_pelajaran_id', 'asc')->orderBy('id_kompetensi', 'asc');
+		$rombongan_belajar = Rombongan_belajar::with('kurikulum')->whereHas('pembelajaran', function($query) use ($user){
+			$query->whereNotNull('kelompok_id');
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->where('guru_id', $user->guru_id);
+			$query->orWhere('guru_pengajar_id', $user->guru_id);
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->whereNotNull('kelompok_id');
+		})->select('kurikulum_id')->groupBy('kurikulum_id')->get();
+		$kurikulum_id = [];
+		if($rombongan_belajar){
+			foreach($rombongan_belajar as $rombel){
+				if (strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
+					$kurikulum_id[] = 2017;
+				} 
+				if (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false) {
+					$kurikulum_id[] = 2006;
+				}
+				if (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false && strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
+					$kurikulum_id[] = 2013;
+				}
+			}
+		}
+		$query = Kompetensi_dasar::with('mata_pelajaran')->whereHas('pembelajaran', function($query) use($user){
+			$query->whereNotNull('kelompok_id');
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->where('guru_id', $user->guru_id);
+			$query->orWhere('guru_pengajar_id', $user->guru_id);
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->whereNotNull('kelompok_id');
+		})->whereIn('kurikulum', $kurikulum_id)->orderBy('aktif', 'desc')->orderBy('kompetensi_id')->orderBy('ref.kompetensi_dasar.mata_pelajaran_id')->orderByRaw("cast(NULLIF(regexp_replace(id_kompetensi, '\D', '', 'g'), '') AS integer)")->orderBy('kelas_10')->orderBy('kelas_11')->orderBy('kelas_12')->orderBy('kelas_13');
 		return Datatables::of($query)
 		->filter(function ($query) use ($request) {
 			if ($request->has('mata_pelajaran_id')) {
@@ -428,6 +449,21 @@ class ReferensiController extends Controller
 			if ($request->has('filter_kompetensi')) {
 				$query->where('kompetensi_id', request('filter_kompetensi'));
 			}
+			if (request()->has('search')) {
+				$search = request('search')['value'];
+				if($search){
+					$query->where('id_kompetensi', 'ilike', '%'.$search.'%');
+					$query->orWhere('kompetensi_dasar', 'ilike', '%'.$search.'%');
+					$query->orWhere('kurikulum', 'ilike', '%'.$search.'%');
+					$query->orWhereHas('mata_pelajaran', function($q) use ($search) { 
+						$q->where('mata_pelajaran_id', 'ilike', '%'.$search.'%');
+					});
+				}
+			}
+		})
+		->addColumn('isi_kd', function ($item) {
+			$return  = ($item->kompetensi_dasar_alias) ? $item->kompetensi_dasar_alias : $item->kompetensi_dasar;
+			return $return;
 		})
 		->addColumn('kelas', function ($item) {
 			if($item->kelas_10){
@@ -464,11 +500,12 @@ class ReferensiController extends Controller
 								 <li><a href="'.url('referensi/edit-kd/'.$item->kompetensi_dasar_id).'" class="toggle-modal tooltip-left" title="Tambah/Ubah Ringkasan Kompetensi"><i class="fa fa-pencil"></i>Ubah Ringkasan</a></li>
 								 <li><a href="'.url('referensi/delete-kd/'.$item->kompetensi_dasar_id).'" class="confirm tooltip-left" title="Hapus Ringkasan Kompetensi"><i class="fa fa-power-off"></i>Hapus</a></li>
 								 <li><a data-status="'.$item->aktif.'" href="'.url('referensi/toggle-aktif/'.$item->kompetensi_dasar_id).'" class="confirm_aktif tooltip-left" title="'.$title_aktif.'"><i class="fa '.$icon_aktif.'"></i>'.$title_aktif.'</a></li>
+								 <li><a href="'.url('referensi/duplikat/'.$item->kompetensi_dasar_id).'" class="confirm tooltip-left" title="Hapus Data Ganda"><i class="fa fa-power-off"></i>Hapus Data Ganda</a></li>
                             </ul>
                         </div></div>';
 			return $return;
 		})
-		->rawColumns(['kompetensi_dasar', 'kompetensi_dasar_alias', 'status', 'tindakan'])
+		->rawColumns(['isi_kd', 'kelas', 'status', 'tindakan'])
 		->make(true);
 	}
 	public function edit_kd($id){
@@ -518,6 +555,39 @@ class ReferensiController extends Controller
 		}
 		echo json_encode($output);
 	}
+	public function duplikat_kd($id){
+		$dontDeleteThisRow = Kompetensi_dasar::find($id);
+		$delete = Kompetensi_dasar::where(function($query) use ($dontDeleteThisRow){
+			$query->where('id_kompetensi', $dontDeleteThisRow->id_kompetensi);
+			$query->where('kompetensi_id', $dontDeleteThisRow->kompetensi_id);
+			$query->where('mata_pelajaran_id', $dontDeleteThisRow->mata_pelajaran_id);
+			$query->where('kelas_10', $dontDeleteThisRow->kelas_10);
+			$query->where('kelas_11', $dontDeleteThisRow->kelas_11);
+			$query->where('kelas_12', $dontDeleteThisRow->kelas_12);
+			$query->where('kelas_13', $dontDeleteThisRow->kelas_13);
+			$query->where('kurikulum', $dontDeleteThisRow->kurikulum);
+			$query->where('kompetensi_dasar_id', '!=', $dontDeleteThisRow->kompetensi_dasar_id);
+		})->delete();
+		if($delete){
+			$kd_nilai = Kd_nilai::whereHas('kompetensi_dasar', function($query) use ($dontDeleteThisRow){
+				$query->where('id_kompetensi', $dontDeleteThisRow->id_kompetensi);
+				$query->where('kompetensi_id', $dontDeleteThisRow->kompetensi_id);
+				$query->where('mata_pelajaran_id', $dontDeleteThisRow->mata_pelajaran_id);
+				$query->where('kelas_10', $dontDeleteThisRow->kelas_10);
+				$query->where('kelas_11', $dontDeleteThisRow->kelas_11);
+				$query->where('kelas_12', $dontDeleteThisRow->kelas_12);
+				$query->where('kelas_13', $dontDeleteThisRow->kelas_13);
+				$query->where('kurikulum', $dontDeleteThisRow->kurikulum);
+				$query->where('kompetensi_dasar_id', '!=', $dontDeleteThisRow->kompetensi_dasar_id);
+			})->update(['kompetensi_dasar_id' => $dontDeleteThisRow->kompetensi_dasar_id]);
+			$output['text'] = 'Berhasil menghapus data ganda';
+			$output['icon'] = 'success';
+		} else {
+			$output['text'] = 'Data ganda tidak ditemukan';
+			$output['icon'] = 'error';
+		}
+		echo json_encode($output);
+	}
 	public function ukk(){
 		return view('referensi.list_ukk');
     }
@@ -561,7 +631,7 @@ class ReferensiController extends Controller
 	public function add_ukk(){
 		$user = auth()->user();
 		$params = array(
-			'all_jurusan' => Jurusan_sp::where('sekolah_id', '=', $user->sekolah_id)->get(),
+			'all_jurusan' => Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get(),
 		);
 		return view('referensi.add_ukk')->with($params);
 	}
@@ -584,7 +654,7 @@ class ReferensiController extends Controller
 			$nama_unit		= $request['nama_unit'];
 			$kode_unit	= array_filter($kode_unit);
 			foreach($kode_unit as $key => $unit){
-				$find = Unit_ukk::where('paket_ukk_id', '=', $paket_ukk_id)->where('kode_unit', '=', $unit)->first();
+				$find = Unit_ukk::where('paket_ukk_id', $paket_ukk_id)->where('kode_unit', $unit)->first();
 				if(!$find){
 					$insert_data = array(
 						'paket_ukk_id' 	=> $paket_ukk_id,
@@ -608,7 +678,7 @@ class ReferensiController extends Controller
 				$nomor_paket 	= array_filter($nomor_paket);
 				foreach($nomor_paket as $key => $paket){
 					//$nama = strtolower($nama_paket_id[$key]);
-					$find = Paket_ukk::where('jurusan_id', '=', $jurusan_id)->where('kurikulum_id', '=', $kurikulum_id)->where('nomor_paket', '=', $paket)->first();
+					$find = Paket_ukk::where('jurusan_id', $jurusan_id)->where('kurikulum_id', $kurikulum_id)->where('nomor_paket', $paket)->first();
 					if(!$find){
 						$insert_data = array(
 							'jurusan_id'		=> $jurusan_id,

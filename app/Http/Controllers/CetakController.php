@@ -57,11 +57,15 @@ class CetakController extends Controller
 		$general_title = strtoupper($anggota_rombel->siswa->nama);
 		return $pdf->stream($general_title.'-SERTIFIKAT.pdf');  
 	}
-	public function rapor_pts($rombongan_belajar_id){
+	public function rapor_uts($rombongan_belajar_id){
 		$callback = function($query){
 			$query->with('nilai');
 		};
 		$rombongan_belajar = Rombongan_belajar::with('wali')->with(['siswa' => function($query){
+			$query->whereHas('anggota_rombel', function($q){
+				$q->where('semester_id', session('semester_id'));
+			});
+			$query->with('agama');
 			$query->with(['anggota_rombel' => function($q){
 				$q->with('catatan_wali');
 			}]);
@@ -71,7 +75,7 @@ class CetakController extends Controller
 			$query->orderBy('nama');
 		}])->with(['pembelajaran' => function($query) use ($callback){
 			$query->with('kelompok')->orderBy('kelompok_id', 'asc')->orderBy('no_urut', 'asc');
-			$query->whereHas('rapor_pts', $callback)->with(['rapor_pts'=> $callback]);
+			$query->whereHas('rapor_pts', $callback)->with(['rapor_pts'=> $callback, 'rapor_pts']);
 		}])->with('semester')->with('jurusan')->with('kurikulum')->find($rombongan_belajar_id);
 		if (strpos($rombongan_belajar->kurikulum->nama_kurikulum, 'REV') !== false) {
 			$kur = 2017;
@@ -94,19 +98,44 @@ class CetakController extends Controller
 			$data['semester'] = $rombongan_belajar->semester;
 			$rapor_cover = view('cetak.pts.cover', $data);
 			$pdf->getMpdf()->WriteHTML($rapor_cover);
+			$get_pembelajaran=[];
 			foreach($rombongan_belajar->pembelajaran as $pembelajaran){
-				$all_nilai[$pembelajaran->kelompok->nama_kelompok][$siswa->peserta_didik_id][] = array(
-					'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
-					'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
-					'angka'	=> number_format($pembelajaran->rapor_pts->nilai()->where('anggota_rombel_id', $siswa->anggota_rombel->anggota_rombel_id)->avg('nilai'),0),
-					'terbilang' => CustomHelper::terbilang(number_format($pembelajaran->rapor_pts->nilai()->where('anggota_rombel_id', $siswa->anggota_rombel->anggota_rombel_id)->avg('nilai'),0)),
-				);
+				if(in_array($pembelajaran->mata_pelajaran_id, CustomHelper::mapel_agama())){
+					if(CustomHelper::filter_pembelajaran_agama($siswa->agama->nama, $pembelajaran->nama_mata_pelajaran)){
+						$get_pembelajaran[$pembelajaran->pembelajaran_id] = $pembelajaran;
+					}
+				} else {
+					$get_pembelajaran[$pembelajaran->pembelajaran_id] = $pembelajaran;
+				}
+			}
+			//dd($rombongan_belajar->pembelajaran);
+			if($get_pembelajaran){
+				foreach($get_pembelajaran as $pembelajaran){
+					//$get_mapel_agama = CustomHelper::filter_pembelajaran_agama($pembelajaran->pembelajaran_id, $pembelajaran->rombongan_belajar_id);
+					$rasio_p = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
+					foreach($pembelajaran->rapor_pts as $rapor_pts){
+						$nilai[$pembelajaran->pembelajaran_id][$siswa->peserta_didik_id][] = $rapor_pts->nilai()->where('anggota_rombel_id', $siswa->anggota_rombel->anggota_rombel_id)->avg('nilai');
+					}
+					if(count($pembelajaran->rapor_pts) > 1){
+						$nilai_siswa = (array_sum($nilai[$pembelajaran->pembelajaran_id][$siswa->peserta_didik_id]) * $rasio_p) / 100;
+					} else {
+						$nilai_siswa = array_sum($nilai[$pembelajaran->pembelajaran_id][$siswa->peserta_didik_id]);
+					}
+					$all_nilai[$pembelajaran->kelompok->nama_kelompok][$siswa->peserta_didik_id][] = array(
+						'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
+						'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+						'angka'	=> number_format($nilai_siswa,0),//number_format($pembelajaran->rapor_pts->nilai()->where('anggota_rombel_id', $siswa->anggota_rombel->anggota_rombel_id)->avg('nilai'),0),
+						'terbilang' => CustomHelper::terbilang(number_format($nilai_siswa,0)),//CustomHelper::terbilang(number_format($pembelajaran->rapor_pts->nilai()->where('anggota_rombel_id', $siswa->anggota_rombel->anggota_rombel_id)->avg('nilai'),0)),
+					);
+				}
+			} else {
+				$all_nilai[$pembelajaran->kelompok->nama_kelompok][$siswa->peserta_didik_id][] = [];
 			}
 			$data['all_nilai'] = $all_nilai;
-			$pdf->getMpdf()->AddPage('P','','','','',5,5,5,5,5,5,'', 'Legal');
+			$pdf->getMpdf()->AddPage('P','','','','',5,5,5,5,5,5,'', 'A4');
 			$rapor_nilai = view('cetak.pts.rapor_nilai_'.$kur, $data);
 			$pdf->getMpdf()->WriteHTML($rapor_nilai);
-			$pdf->getMpdf()->AddPage('P','','1','','',10,10,10,10,5,5,'', 'Legal');
+			$pdf->getMpdf()->AddPage('P','','1','','',10,10,10,10,5,5,'', 'A4');
 		}
 		return $pdf->stream('rapor_pts.pdf');  
 	}
@@ -171,8 +200,7 @@ class CetakController extends Controller
 	public function rapor_nilai($query, $id){
 		if($query){
 			$user = auth()->user();
-			$semester = CustomHelper::get_ta();
-			$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $semester->semester_id)->where('tingkat', 13)->first();
+			$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->where('tingkat', 13)->first();
 			$get_siswa = Anggota_rombel::with(['siswa' => function($query){
 				$query->with('agama')->with(['get_kecamatan' => function($query){
 					$query->with('get_kabupaten');
@@ -187,9 +215,9 @@ class CetakController extends Controller
 						$query->where('anggota_rombel_id', $id);
 					};
 					$query->with('kelompok');
-					$query->whereHas('nilai_akhir_pengetahuan', $callback);
+					//$query->whereHas('nilai_akhir_pengetahuan', $callback);
 					$query->with(['nilai_akhir_pengetahuan' => $callback]);
-					$query->whereHas('nilai_akhir_keterampilan', $callback);
+					//$query->whereHas('nilai_akhir_keterampilan', $callback);
 					$query->with(['nilai_akhir_keterampilan' => $callback]);
 					$query->whereNotNull('kelompok_id');
 					$query->orderBy('kelompok_id', 'asc');
@@ -207,6 +235,7 @@ class CetakController extends Controller
 				}]);
 			}])->with('kenaikan')->with(['all_nilai_ekskul' => function($query){
 				$query->with('ekstrakurikuler');
+				$query->with('rombongan_belajar');
 			}])->with('kehadiran')->with('all_prakerin')->with('catatan_wali')->find($id);
 			$tanggal_rapor = CustomHelper::get_setting('tanggal_rapor');
 			$tanggal_rapor = date('Y-m-d', strtotime($tanggal_rapor));
@@ -215,6 +244,8 @@ class CetakController extends Controller
 				'tanggal_rapor'	=> $tanggal_rapor,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
 			);
+			//return view('cetak.rapor_nilai', $params);
+			//return view('cetak.rapor_catatan', $params);
 			$pdf = PDF::loadView('cetak.blank', $params, [], [
 				'format' => 'A4',
 				'margin_left' => 15,
@@ -229,11 +260,12 @@ class CetakController extends Controller
 			$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
 			$pdf->getMpdf()->SetFooter($general_title.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
 			$rapor_nilai = view('cetak.rapor_nilai', $params);
-			$rapor_catatan = view('cetak.rapor_catatan', $params);
-			$rapor_karakter = view('cetak.rapor_karakter', $params);
+			//dd($params);
 			$pdf->getMpdf()->WriteHTML($rapor_nilai);
 			$pdf->getMpdf()->WriteHTML('<pagebreak />');
+			$rapor_catatan = view('cetak.rapor_catatan', $params);
 			$pdf->getMpdf()->WriteHTML($rapor_catatan);
+			$rapor_karakter = view('cetak.rapor_karakter', $params);
 			$pdf->getMpdf()->WriteHTML('<pagebreak />');
 			$pdf->getMpdf()->WriteHTML($rapor_karakter);
 			return $pdf->stream($general_title.'-NILAI.pdf');

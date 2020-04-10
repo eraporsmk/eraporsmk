@@ -8,6 +8,9 @@ use App\Providers\HelperServiceProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
 use App\Kompetensi_dasar;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+use File;
 class AmbilData extends Command
 {
     /**
@@ -44,26 +47,81 @@ class AmbilData extends Command
     {
         $arguments = $this->arguments();
 		$host_server = $arguments['server'];//.$arguments['aksi'];
+		if($arguments['aksi'] == 'wilayah'){
+			$host_server = config('erapor.url_server').'sinkronisasi/wilayah';
+		}
 		$satuan = $arguments['satuan'];
-		$curl = Curl::to($host_server)
-		->withHeader('x-api-key:'.$arguments['sekolah_id'])
-		->withOption('USERPWD', "admin:1234")
-		->returnResponseObject()
-        ->withData($arguments)
-        ->post();
-		$response = json_decode($curl->content);
-		if($curl->status == 200){
-			$function_name = str_replace('-', '_', $arguments['aksi']);
-			self::{$function_name}($response->dapodik, $satuan);
-		} elseif($curl->status == 403 || $curl->status == 404  || $curl->status == 401  || $curl->status == 405) {
+		try {
+			if($arguments['aksi'] == 'count_kd'){
+				$host_server = config('erapor.url_server').'sinkronisasi/get-kd';
+				$client = new Client(); //GuzzleHttp\Client
+				$curl = $client->post($host_server, [	
+					'form_params' => $arguments
+				]);
+				if($curl->getStatusCode() == 200){
+					$response = json_decode($curl->getBody());
+					$limit = 500;
+					if($response->count > $limit){
+						$i=1;
+						for ($counter = 0; $counter <= $response->count; $counter += $limit) {
+							$arguments['offset'] = $counter;
+							$host_server = config('erapor.url_server').'sinkronisasi/kd';
+							$client = new Client();
+							$curl_paging = $client->post($host_server, [	
+								'form_params' => $arguments
+							]);
+							$response_paging = json_decode($curl_paging->getBody());
+							if (!File::isDirectory(storage_path('kd'))) {
+								File::makeDirectory(storage_path('kd'));
+							}
+							Storage::disk('public')->put('kd/kd_json_'.$i.'.json', $curl_paging->getBody());
+							$i++;
+						}
+						$json_files = Storage::disk('public')->files('kd');
+						$function_name = str_replace('-', '_', $arguments['aksi']);
+						self::{$function_name}($json_files, $response->count, $satuan);
+					} else {
+						$function_name = str_replace('-', '_', $arguments['aksi']);
+						self::{$function_name}($response->dapodik, 0, $satuan);
+					}
+					//dd($response);
+				} else {
+					$result['status'] = 0;
+					$result['message'] = $response->error;
+					$result['icon'] = 'error';
+					echo json_encode($result);
+				}
+			//echo $curl;
+			//echo $curl->content;
+			//dd($curl);
+			} else {
+				$curl = Curl::to($host_server)
+				->withHeader('x-api-key:'.$arguments['sekolah_id'])
+				->withOption('USERPWD', "admin:1234")
+				->returnResponseObject()
+				->withData($arguments)
+				->withTimeout(0)
+				->post();
+				$response = json_decode($curl->content);
+				if($curl->status == 200){
+					$function_name = str_replace('-', '_', $arguments['aksi']);
+					self::{$function_name}($response->dapodik, $satuan);
+				} elseif($curl->status == 403 || $curl->status == 404  || $curl->status == 401  || $curl->status == 405) {
+					$result['status'] = 0;
+					$result['message'] = $response->error;
+					$result['icon'] = 'error';
+					echo json_encode($result);
+				} else {
+					dd($curl);
+					$result['status'] = 0;
+					$result['message'] = $host_server;//'Server tidak merespon';
+					$result['icon'] = 'error';
+					echo json_encode($result);
+				}
+			}
+		} catch (\Exception $e) {
 			$result['status'] = 0;
-			$result['message'] = $response->error;
-			$result['icon'] = 'error';
-			echo json_encode($result);
-		} else {
-			dd($curl);
-			$result['status'] = 0;
-			$result['message'] = $host_server;//'Server tidak merespon';
+			$result['message'] = 'Server tidak merespon. Silahkan ulangi beberapa saat lagi.';
 			$result['icon'] = 'error';
 			echo json_encode($result);
 		}
@@ -74,7 +132,7 @@ class AmbilData extends Command
 		$result['status'] = 1;
 		$result['data'] = 'sekolah';
 		$result['aksi'] = 'ptk';
-		$result['progress'] = 10;
+		$result['progress'] = 0;
 		$result['server']	= 'erapor_server';
 		$result['satuan']	= $satuan;
 		$result['message'] = 'Sinkron sekolah berhasil diproses';
@@ -89,7 +147,7 @@ class AmbilData extends Command
 		$result['status'] = 1;
 		$result['data'] = 'rombongan_belajar';
 		$result['aksi'] = 'rombongan-belajar';
-		$result['progress'] = 20;
+		$result['progress'] = 10;
 		$result['server']	= 'erapor_server';
 		$result['satuan']	= $satuan;
 		$result['message'] = 'Sinkron PTK berhasil diproses';
@@ -113,7 +171,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'rombongan_belajar', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 30;
+		$result['progress'] = 20;
 		$result['data'] = 'siswa_aktif';
 		$result['aksi'] = 'peserta-didik-aktif';
 		$result['server']	= 'erapor_server';
@@ -128,7 +186,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'siswa_aktif', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 40;
+		$result['progress'] = 30;
 		$result['data'] = 'siswa_keluar';
 		$result['aksi'] = 'peserta-didik-keluar';
 		$result['server']	= 'erapor_server';
@@ -143,7 +201,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'siswa_keluar', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 50;
+		$result['progress'] = 40;
 		$result['data'] = 'pembelajaran';
 		$result['aksi'] = 'pembelajaran';
 		$result['server']	= 'erapor_server';
@@ -158,7 +216,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'pembelajaran', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 55;
+		$result['progress'] = 45;
 		$result['data'] = 'ekskul';
 		$result['aksi'] = 'ekstrakurikuler';
 		$result['server']	= 'erapor_server';
@@ -173,7 +231,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'ekskul', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 60;
+		$result['progress'] = 50;
 		$result['data'] = 'anggota_ekskul';
 		$result['aksi'] = 'anggota-ekskul';
 		$result['server']	= 'erapor_server';
@@ -188,7 +246,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'anggota_ekskul', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 75;
+		$result['progress'] = 60;
 		$result['data'] = 'dudi';
 		$result['aksi'] = 'dudi';
 		$result['server']	= 'erapor_server';
@@ -203,7 +261,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'dudi', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 80;
+		$result['progress'] = 70;
 		$result['data'] = 'jurusan';
 		$result['aksi'] = 'jurusan';
 		$result['server']	= 'erapor_server';
@@ -218,7 +276,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'jurusan', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 85;
+		$result['progress'] = 80;
 		$result['data'] = 'kurikulum';
 		$result['aksi'] = 'kurikulum';
 		$result['server']	= 'erapor_server';
@@ -233,7 +291,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'kurikulum', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 90;
+		$result['progress'] = 85;
 		$result['data'] = 'mata_pelajaran';
 		$result['aksi'] = 'mata-pelajaran';
 		$result['server']	= 'erapor_server';
@@ -248,7 +306,7 @@ class AmbilData extends Command
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'mata_pelajaran', 'data' => $array)]);
 		$result['status'] = 1;
-		$result['progress'] = 95;
+		$result['progress'] = 90;
 		$result['data'] = 'mapel_kur';
 		$result['aksi'] = 'mata-pelajaran-kurikulum';
 		$result['server']	= 'erapor_server';
@@ -262,10 +320,10 @@ class AmbilData extends Command
 	private function mata_pelajaran_kurikulum($response, $satuan){
 		$array = json_decode(json_encode($response), true);
 		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'mapel_kur', 'data' => $array)]);
-		$result['status'] = 0;//$post_login;
-		$result['progress'] = 97;
-		$result['data'] = 'kompetensi_dasar';
-		$result['aksi'] = 'count_kd';
+		$result['status'] = 1;//$post_login;
+		$result['progress'] = 94;
+		$result['data'] = 'wilayah';
+		$result['aksi'] = 'wilayah';
 		$result['server']	= 'erapor_dashboard';
 		$result['satuan']	= $satuan;
 		if($satuan){
@@ -276,17 +334,76 @@ class AmbilData extends Command
 		}
 		echo json_encode($result);
 	}
-	private function count_kd($response, $satuan){
-		$jumlah_lokal = Kompetensi_dasar::count();
+	private function wilayah($response, $satuan){
+		$array = json_decode(json_encode($response), true);
+		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'wilayah', 'data' => $array)]);
+		$result['status'] = 1;
+		$result['data'] = 'kompetensi_dasar';
+		$result['aksi'] = 'count_kd';
+		$result['progress'] = 97;
+		$result['server']	= 'erapor_dashboard';
+		$result['satuan']	= $satuan;
+		if($satuan){
+			$result['message'] = 'Sinkronisasi Wilayah berhasil diproses';
+			$result['status'] = 0;
+		} else {
+			$result['message'] = 'Proses Sinkronisasi berhasil diproses';
+		}
+		echo json_encode($result);
+	}
+	private function count_kd($json_files, $count, $satuan){
+		if($json_files){
+			$i=0;
+			foreach($json_files as $json_file){
+				if(Storage::disk('public')->exists($json_file)){
+					$response = Storage::disk('public')->get($json_file);
+					$array = json_decode($response);
+					$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'count_kd', 'data' => $array->dapodik, 'count' => $count, 'page' => $i)]);
+					$i++;
+					Storage::disk('public')->delete($json_file);
+				}
+			}
+		}
+		$result['status'] = 0;
+		$result['data'] = 'count_kd';
+		$result['aksi'] = 'count_kd';
+		$result['progress'] = 99;
+		$result['server']	= 'erapor_dashboard';
+		$result['satuan']	= $satuan;
+		if($satuan){
+			$result['message'] = 'Sinkronisasi Kompetensi Dasar berhasil diproses';
+			$result['status'] = 0;
+		} else {
+			$result['message'] = 'Proses Sinkronisasi berhasil diproses';
+		}
+		echo json_encode($result);
+	}
+	private function count_kd_old($response, $satuan){
+		/*$jumlah_lokal = Kompetensi_dasar::count();
 		$record['table'] = 'referensi kompetensi dasar';
 		$record['jumlah'] = $response;
 		$record['inserted'] = $jumlah_lokal;
 		Storage::disk('public')->put('proses_kompetensi_dasar.json', json_encode($record));
 		if($response > $jumlah_lokal){
-			$this->call('kd:start');
+			//$this->call('kd:start');
 		}
 		$result['status'] = 0;
 		$result['message'] = 'Sinkron Kompetensi Dasar berhasil diproses';
+		echo json_encode($result);*/
+		$array = json_decode(json_encode($response), true);
+		$this->call('sinkronisasi:prosesdata',['response' => array('query' => 'count_kd', 'data' => $array)]);
+		$result['status'] = 0;
+		$result['data'] = 'count_kd';
+		$result['aksi'] = 'count_kd';
+		$result['progress'] = 99;
+		$result['server']	= 'erapor_dashboard';
+		$result['satuan']	= $satuan;
+		if($satuan){
+			$result['message'] = 'Sinkronisasi Kompetensi Dasar berhasil diproses';
+			$result['status'] = 0;
+		} else {
+			$result['message'] = 'Proses Sinkronisasi berhasil diproses';
+		}
 		echo json_encode($result);
 	}
 	private function anggota_ekskul_by_rombel($response){

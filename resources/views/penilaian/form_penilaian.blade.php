@@ -90,6 +90,9 @@
 @section('box-footer')
 		<div class="form-group" id="simpan" style="display:none;">
 			<input class="btn btn-primary" type="submit" value="Simpan">
+			@if($query == 'remedial')
+			<a class="btn btn-danger reset_remedial">Reset Remedial</a>
+			@endif
 		</div>
 	</form>
 @stop
@@ -313,6 +316,31 @@ $( "#form" ).submit(function(e) {
 			swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
 				if(data.redirect){
 					window.location.replace('{{url('penilaian')}}'+data.redirect);
+				}
+			});
+		}
+	});
+});
+$('.reset_remedial').click(function(){
+	swal({
+		title: "Anda Yakin?",
+		text: "Semua penilaian remedial di pembelajaran terpilih akan dihapus!",
+		icon: "warning",
+		buttons: true,
+		dangerMode: true,
+		closeOnClickOutside: false,
+	}).then((willDelete) => {
+		if (willDelete) {
+			$.ajax({
+				url:'{{route('penilaian.reset_remedial')}}',
+				type:'post',
+				data: $('#form').serialize(),
+				success: function(data){
+					//var data = $.parseJSON(response);
+					//console.log(response);
+					swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
+						window.location.replace('{{route('penilaian.form_penilaian', ['kompetensi_id' => $query])}}');
+					});
 				}
 			});
 		}

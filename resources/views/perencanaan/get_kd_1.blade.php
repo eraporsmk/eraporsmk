@@ -1,3 +1,14 @@
+<?php
+if($rombongan_belajar->kunci_nilai){
+?>
+<div class="alert alert-danger alert-dismissible">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<h4><i class="icon fa fa-info"></i> Informasi!</h4>
+	Status penilaian tidak aktif. Untuk menambah perencanaan, silahkan menghubungi wali kelas.
+</div>
+<?php
+} else {
+?>
 <link rel="stylesheet" href="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.css') }}">
 <script src="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.js') }}"></script>
 @if($all_kd->count())
@@ -84,8 +95,9 @@ var bobot = $('#bobot');
 var bobot_value = $('#bobot_value').val();
 $('#bobot').val(bobot_value);
 console.log(bobot_value);
-<?php if($bobot){?>
-$("input#bobot").prop('disabled', true);
-<?php } else { ?>
-$("input#bobot").prop('disabled', false);
+	<?php if($bobot){?>
+	$("input#bobot").prop('disabled', true);
+	<?php } else { ?>
+	$("input#bobot").prop('disabled', false);
+	<?php } ?>
 <?php } ?>

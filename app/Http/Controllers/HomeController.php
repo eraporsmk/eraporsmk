@@ -22,6 +22,8 @@ use App\Kd_nilai;
 use App\Nilai_rapor;
 use Yajra\Datatables\Datatables;
 use App\Jurusan_sp;
+use App\Remedial;
+use Session;
 class HomeController extends Controller
 {
     /**
@@ -40,8 +42,8 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index(){
+		//dd(session('sekolah_id'));
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
 		$guru = 0;
 		$siswa = 0;
 		$rencana_penilaian = 0;
@@ -50,18 +52,18 @@ class HomeController extends Controller
 		$rombongan_belajar = '';
 		$all_jurusan = '';
 		if($user->hasRole('admin')){
-			$guru 	= Guru::where('sekolah_id', '=', $user->sekolah_id)->whereNotNull('guru_id_dapodik')->count();
+			$guru 	= Guru::where('sekolah_id', session('sekolah_id'))->whereNotNull('guru_id_dapodik')->count();
 			$siswa 	= Anggota_rombel::whereHas('siswa')->whereHas('rombongan_belajar', function($query){
-				$query->where('jenis_rombel', '=', 1);
-			})->where('sekolah_id', '=', $user->sekolah_id)->where('semester_id', '=', $semester->semester_id)->count();
-			$rencana_penilaian = Rencana_penilaian::whereHas('pembelajaran', function($query) use ($user, $semester){
-				$query->where('sekolah_id', '=', $user->sekolah_id);
-				$query->where('semester_id', '=', $semester->semester_id);
+				$query->where('jenis_rombel', 1);
+			})->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->count();
+			$rencana_penilaian = Rencana_penilaian::whereHas('pembelajaran', function($query){
+				$query->where('sekolah_id', session('sekolah_id'));
+				$query->where('semester_id', session('semester_id'));
 			})->count();
-			$penilaian = Kd_nilai::whereHas('rencana_penilaian', function ($q) use ($user, $semester) {
-				$q->whereHas('pembelajaran', function($query) use ($user, $semester){
-					$query->where('sekolah_id', '=', $user->sekolah_id);
-					$query->where('semester_id', '=', $semester->semester_id);
+			$penilaian = Kd_nilai::whereHas('rencana_penilaian', function ($q){
+				$q->whereHas('pembelajaran', function($query){
+					$query->where('sekolah_id', session('sekolah_id'));
+					$query->where('semester_id', session('semester_id'));
 				});
 			})->count();
 		}
@@ -76,14 +78,16 @@ class HomeController extends Controller
 			->withCount('rencana_keterampilan')
 			->withCount('nilai_akhir_pengetahuan')
 			->withCount('nilai_akhir_keterampilan')
-			->where('sekolah_id', '=', $user->sekolah_id)
-			->where('semester_id', '=', $semester->semester_id)
-			->where('guru_id', '=', $user->guru_id)
+			->withCount('rencana_pengetahuan_dinilai')
+			->withCount('rencana_keterampilan_dinilai')
+			->where('sekolah_id', $user->sekolah_id)
+			->where('semester_id', session('semester_id'))
+			->where('guru_id', $user->guru_id)
 			->whereNotNull('kelompok_id')
 			->whereNotNull('no_urut')
-			->orWhere('guru_pengajar_id', '=', $user->guru_id)
-			->where('sekolah_id', '=', $user->sekolah_id)
-			->where('semester_id', '=', $semester->semester_id)
+			->orWhere('guru_pengajar_id', $user->guru_id)
+			->where('sekolah_id', $user->sekolah_id)
+			->where('semester_id', session('semester_id'))
 			->whereNotNull('kelompok_id')
 			->whereNotNull('no_urut')
 			->orderBy('mata_pelajaran_id', 'asc')
@@ -100,42 +104,45 @@ class HomeController extends Controller
 					$query->withCount('rencana_keterampilan');
 					$query->withCount('nilai_akhir_pengetahuan');
 					$query->withCount('nilai_akhir_keterampilan');
+					$query->withCount('rencana_pengetahuan_dinilai');
+					$query->withCount('rencana_keterampilan_dinilai');
 					$query->whereNotNull('kelompok_id');
 					$query->whereNotNull('no_urut');
-				}])->where('sekolah_id', '=', $user->sekolah_id)
+				}])->where('sekolah_id', $user->sekolah_id)
 				->where('jenis_rombel', 1)
-				->where('semester_id', '=', $semester->semester_id)
-				->where('guru_id', '=', $user->guru_id)->first();
+				->where('semester_id', session('semester_id'))
+				->where('guru_id', $user->guru_id)->first();
 			}
 			if($user->hasRole('waka')){
 				$all_jurusan = Jurusan_sp::where('sekolah_id', $user->sekolah_id)->get();
 			}
 		}
 		if($user->hasRole('siswa')){
-			$user = User::with(['siswa', 'siswa.anggota_rombel' => function($query) use ($semester){
-				$query->with(['rombongan_belajar' => function($query){
-					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
+			$user = User::wherehas('siswa.anggota_rombel', function($query){
+				$query->whereHas('rombongan_belajar', function($query){
 					$query->where('jenis_rombel', 1);
+					$query->where('semester_id', session('semester_id'));
+				});
+			})->with(['siswa', 'siswa.anggota_rombel' => function($query){
+				$query->with(['rombongan_belajar' => function($query){
+					$query->where('jenis_rombel', 1);
+					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
 				}, 'rombongan_belajar.wali', 'rombongan_belajar.wali.gelar_depan', 'rombongan_belajar.wali.gelar_belakang']);
-				$query->where('semester_id', $semester->semester_id);
+				$query->where('semester_id', session('semester_id'));
 			}])->find($user->user_id);
 		}
 		$params = array(
 			'user' 				=> $user,
-			'sekolah' 			=> Sekolah::with(['guru' => function($query){
-				$query->with('gelar_depan');
-				$query->with('gelar_belakang');
-			}])->find($user->sekolah_id),
+			'pengguna'			=> $user,
 			'guru' 				=> $guru,
 			'siswa' 			=> $siswa,
 			'rencana_penilaian' => ($rencana_penilaian) ? $rencana_penilaian : 0,
 			'penilaian' 		=> ($penilaian) ? $penilaian : 0,
-			'semester'			=> $semester,
 			'all_pembelajaran'	=> $pembelajaran,
 			'rombongan_belajar'	=> $rombongan_belajar,
 			'all_jurusan'		=> $all_jurusan,
 		);
-        return view('home')->with($params);
+		return view('home')->with($params);
     }
 	public function proses(Request $request){
         $this->validate($request,[
@@ -165,6 +172,7 @@ class HomeController extends Controller
 		$user = auth()->user();
 		$rencana_penilaian = ($kompetensi_id == 1) ? 'rencana_pengetahuan' : 'rencana_keterampilan';
 		$pembelajaran = Pembelajaran::with([$rencana_penilaian, $rencana_penilaian.'.kd_nilai', $rencana_penilaian.'.kd_nilai.nilai'])->find($pembelajaran_id);
+		$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
 		$result = array();
 		foreach($pembelajaran->{$rencana_penilaian} as $rencana){
 			foreach($rencana->kd_nilai as $kd_nilai){
@@ -175,7 +183,7 @@ class HomeController extends Controller
 					$record['kompetensi_id'] = $rencana->kompetensi_id;
 					$record['rasio_p'] = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
 					$record['rasio_k'] = ($pembelajaran->rasio_k) ? $pembelajaran->rasio_k : 50;
-					$result[$nilai->anggota_rombel_id][$kd_nilai->kd_id] = $record;
+					$result[$nilai->anggota_rombel_id][$kd_nilai->kompetensi_dasar_id] = $record;
 				}
 			}
 		}
@@ -187,16 +195,23 @@ class HomeController extends Controller
 				$rasio_p = $v['rasio_p'];
 				$rasio_k = $v['rasio_k'];
 			}
-			if($kompetensi_id == 1){
-				$query = NilaiAkhirPengetahuan::where('pembelajaran_id', '=', $pembelajaran_id)->where('anggota_rombel_id', '=', $key)->where('kompetensi_id', '=', $kompetensi_id)->first();
-				} else {
-				$query = NilaiAkhirKeterampilan::where('pembelajaran_id', '=', $pembelajaran_id)->where('anggota_rombel_id', '=', $key)->where('kompetensi_id', '=', $kompetensi_id)->first();
+			$get_nilai_remedial = Remedial::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
+			$nilai_akhir = NULL;
+			if($get_nilai_remedial){
+				$nilai_akhir = $get_nilai_remedial->rerata_remedial;
+			} else {
+				if($kompetensi_id == 1){
+					$query = NilaiAkhirPengetahuan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
+					} else {
+					$query = NilaiAkhirKeterampilan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
+				}
+				$nilai_akhir = $query->nilai_akhir;
 			}
-			if($query->nilai_akhir){
-				$find_nilai_akhir = Nilai_akhir::where('pembelajaran_id', '=', $pembelajaran_id)->where('anggota_rombel_id', '=', $key)->where('kompetensi_id', '=', $kompetensi_id)->first();
+			if($nilai_akhir != NULL){
+				$find_nilai_akhir = Nilai_akhir::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
 				if($find_nilai_akhir){
 					$a++;
-					$find_nilai_akhir->nilai = $query->nilai_akhir;
+					$find_nilai_akhir->nilai = $nilai_akhir;
 					$find_nilai_akhir->last_sync = date('Y-m-d H:i:s');
 					$find_nilai_akhir->save();
 				} else {
@@ -206,7 +221,7 @@ class HomeController extends Controller
 						'pembelajaran_id'	=> $pembelajaran_id,
 						'anggota_rombel_id'	=> $key,
 						'kompetensi_id'		=> $kompetensi_id,
-						'nilai'				=> $query->nilai_akhir,
+						'nilai'				=> $nilai_akhir,
 						'last_sync'		=> date('Y-m-d H:i:s'),
 					);
 					Nilai_akhir::create($insert_nilai_akhir);
@@ -218,24 +233,24 @@ class HomeController extends Controller
 					'sekolah_id' 		=> $user->sekolah_id,
 					'last_sync'			=> date('Y-m-d H:i:s'),
 				);
-				$insert_rapor['total_nilai'] = $query->nilai_akhir;
+				$insert_rapor['total_nilai'] = $nilai_akhir;
 				if($kompetensi_id == 1){
-					$insert_rapor['nilai_p'] = $query->nilai_akhir;
+					$insert_rapor['nilai_p'] = $nilai_akhir;
 					$insert_rapor['rasio_p'] = $rasio_p;
 				} else {
-					$insert_rapor['nilai_k'] = $query->nilai_akhir;
+					$insert_rapor['nilai_k'] = $nilai_akhir;
 					$insert_rapor['rasio_k'] = $rasio_k;
 				}
 				if($find_nilai_rapor){
 					if($kompetensi_id == 1){
-						$find_nilai_rapor->nilai_p = $query->nilai_akhir;
+						$find_nilai_rapor->nilai_p = $nilai_akhir;
 						$find_nilai_rapor->rasio_p = $rasio_p;
-						$find_nilai_rapor->total_nilai = $find_nilai_rapor->nilai_p + $query->nilai_akhir;
+						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_p + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					} else {
-						$find_nilai_rapor->nilai_k = $query->nilai_akhir;
+						$find_nilai_rapor->nilai_k = $nilai_akhir;
 						$find_nilai_rapor->rasio_k = $rasio_k;
-						$find_nilai_rapor->total_nilai = $find_nilai_rapor->nilai_k + $query->nilai_akhir;
+						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_k + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					}
 				} else {
@@ -252,52 +267,39 @@ class HomeController extends Controller
 	}
 	public function progres_perencanaan_dan_penilaian(Request $request){
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
 		$callback = function($q){
 			$q->with('gelar_depan');
 			$q->with('gelar_belakang');
 		};
 		$query = Pembelajaran::select(['pembelajaran.*', 'rombongan_belajar.nama as nama_rombel'])->with(['guru' => $callback])
-		->with(['pengajar' => $callback])->with('rombongan_belajar')
-		->with(['rencana_pengetahuan' => function($query){
-			$query->with(['nilai' => function($query){
-				$query->select('kd_nilai.rencana_penilaian_id');
-				$query->groupBy('kd_nilai.rencana_penilaian_id');
-			}]);
-		}, 'rencana_keterampilan' => function($query){
-			$query->with(['nilai' => function($query){
-				$query->select('kd_nilai.rencana_penilaian_id');
-				$query->groupBy('kd_nilai.rencana_penilaian_id');
-			}]);
-		}])
+		->with(['pengajar' => $callback],'rombongan_belajar')
+		->withCount('rencana_pengetahuan')
+		->withCount('rencana_keterampilan')
 		->withCount('nilai_akhir_pengetahuan')
 		->withCount('nilai_akhir_keterampilan')
+		->withCount('rencana_pengetahuan_dinilai')
+		->withCount('rencana_keterampilan_dinilai')
 		->whereNotNull('kelompok_id')
 		->whereNotNull('no_urut')
-		->where('pembelajaran.sekolah_id', '=', $user->sekolah_id)
-		->where('pembelajaran.semester_id', '=', $semester->semester_id)
-		->join('rombongan_belajar', 'pembelajaran.rombongan_belajar_id', '=', 'rombongan_belajar.rombongan_belajar_id');
-		/*->orderBy('rombongan_belajar.tingkat')
-		->orderBy('rombongan_belajar.nama')
-		->orderBy('mata_pelajaran_id')
-		->orderBy('kelompok_id')
-		->orderBy('no_urut');*/
+		->where('pembelajaran.sekolah_id', $user->sekolah_id)
+		->where('pembelajaran.semester_id', session('semester_id'))
+		->join('rombongan_belajar', 'pembelajaran.rombongan_belajar_id', 'rombongan_belajar.rombongan_belajar_id');
 		return Datatables::of($query)
 		->orderColumn('nama_rombel', 'nama_mata_pelajaran $1')
 		->filter(function ($query) {
 			if (request()->has('filter_jurusan')) {
 				$query->whereIn('rombongan_belajar.rombongan_belajar_id',function($q) {
-					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('jurusan_id', '=', request('filter_jurusan'));
+					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('jurusan_id', request('filter_jurusan'));
 				});
 			}
 			if (request()->has('filter_tingkat')) {
 				$query->whereIn('rombongan_belajar.rombongan_belajar_id',function($q) {
-					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('tingkat', '=', request('filter_tingkat'));
+					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('tingkat', request('filter_tingkat'));
 				});
 			}
 			if (request()->has('filter_rombel')) {
 				$query->whereIn('rombongan_belajar.rombongan_belajar_id',function($q) {
-					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('rombongan_belajar.rombongan_belajar_id', '=', request('filter_rombel'));
+					$q->select('rombongan_belajar.rombongan_belajar_id')->from('rombongan_belajar')->where('rombongan_belajar.rombongan_belajar_id', request('filter_rombel'));
 				});
 			}
 		}, true)
@@ -314,49 +316,31 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_p', function ($item) {
-			$return  = $item->rencana_pengetahuan->count();
+			$return  = $item->rencana_pengetahuan_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_k', function ($item) {
-			$return  = $item->rencana_keterampilan->count();
+			$return  = $item->rencana_keterampilan_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_p', function ($item) {
-			if($item->rencana_pengetahuan->count()){
-				foreach($item->rencana_pengetahuan as $rencana_pengetahuan){
-					$return = $rencana_pengetahuan->nilai->count();
-				}
-			} else {
-				$return  = 0;
-			}
+			$return  = $item->rencana_pengetahuan_dinilai_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_k', function ($item) {
-			if($item->rencana_keterampilan->count()){
-				foreach($item->rencana_keterampilan as $rencana_keterampilan){
-					$return = $rencana_keterampilan->nilai->count();
-				}
-			} else {
-				$return  = 0;
-			}
+			$return  = $item->rencana_keterampilan_dinilai_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('generate_p', function ($item) {
-			if($item->rencana_pengetahuan->count()){
-				foreach($item->rencana_pengetahuan as $rencana_pengetahuan){
-					$count = $rencana_pengetahuan->nilai->count();
-				}
-			} else {
-				$count  = 0;
-			}
-			if($item->nilai_akhir_pengetahuan_count){
+			$count  = $item->nilai_akhir_pengetahuan_count;
+			if($count){
 				$class = 'danger';
 				$text = 'Perbaharui';
 			} else {
 				$text = 'Proses';
 				$class = 'success';
 			}
-			if($count){
+			if($item->rencana_pengetahuan_dinilai_count){
 				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
 			} else {
 				$return  = '-';
@@ -364,21 +348,15 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('generate_k', function ($item) {
-			if($item->rencana_keterampilan->count()){
-				foreach($item->rencana_keterampilan as $rencana_keterampilan){
-					$count = $rencana_keterampilan->nilai->count();
-				}
-			} else {
-				$count  = 0;
-			}
-			if($item->nilai_akhir_keterampilan_count){
+			$count  = $item->nilai_akhir_keterampilan_count;
+			if($count){
 				$class = 'danger';
 				$text = 'Perbaharui';
 			} else {
 				$text = 'Proses';
 				$class = 'success';
 			}
-			if($count){
+			if($item->rencana_keterampilan_dinilai_count){
 				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
 			} else {
 				$return  = '-';
@@ -390,15 +368,14 @@ class HomeController extends Controller
 	}
 	public function detil_nilai($pembelajaran_id){
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
 		$pembelajaran = Pembelajaran::with(['kd_nilai_p' => function($query){
-			$query->select(['kd_id', 'rencana_penilaian.pembelajaran_id']);
-			$query->groupBy(['kd_id', 'rencana_penilaian.pembelajaran_id']);
+			$query->select(['kompetensi_dasar_id', 'rencana_penilaian.pembelajaran_id']);
+			$query->groupBy(['kompetensi_dasar_id', 'rencana_penilaian.pembelajaran_id']);
 			$query->with('kompetensi_dasar');
 			$query->with('nilai_kd_pengetahuan');
 		}, 'kd_nilai_k' => function($query){
-			$query->select(['kd_id', 'rencana_penilaian.pembelajaran_id']);
-			$query->groupBy(['kd_id', 'rencana_penilaian.pembelajaran_id']);
+			$query->select(['kompetensi_dasar_id', 'rencana_penilaian.pembelajaran_id']);
+			$query->groupBy(['kompetensi_dasar_id', 'rencana_penilaian.pembelajaran_id']);
 			$query->with('kompetensi_dasar');
 			$query->with('nilai_kd_keterampilan');
 		}])->find($pembelajaran_id);

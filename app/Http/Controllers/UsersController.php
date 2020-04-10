@@ -7,7 +7,6 @@ use App\User;
 use App\Role;
 use App\Permission;
 use App\Role_user;
-use App\Providers\HelperServiceProvider;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +22,7 @@ use CustomHelper;
 use App\Rombongan_belajar;
 use App\Ekstrakurikuler;
 use Artisan;
+use Illuminate\Support\Facades\Validator;
 class UsersController extends Controller
 {
 	public $path;
@@ -60,10 +60,109 @@ class UsersController extends Controller
 		);
 		return view('users.profile')->with($params);
     }
+	public function update_profile(Request $request, $id){
+		$messages = [
+			'image.mimes'	=> 'Foto profile harus berekstensi jpg/png/jpeg',
+			'image.image'	=> 'Foto profile harus berekstensi jpg/png/jpeg',
+			'current_password.nullable' => 'Please enter current password',
+    		'password.nullable' => 'Please enter password',
+			'email.required'	=> 'Email tidak boleh kosong',
+			'password.required_with_all' => 'Kata sandi baru tidak boleh kosong',
+			'password_confirmation.same' => 'Konfirmasi sandi tidak sama dengan sandi baru',
+			'password_dapo.nullable' => 'Kata Sandi Lama Dapodik',
+			'password_dapo_confirmation.same' => 'Konfirmasi Kata Sandi Lama Dapodik tidak sama dengan Kata Sandi Lama Dapodik',
+		];
+		$validator = Validator::make(request()->all(), [
+			'image'					=> 'image|mimes:jpg,png,jpeg',
+			'name'					=> 'required',
+            'email'					=> 'required|email|unique:users,email,' . $id .',user_id',
+			'current_password'		=> 'nullable',
+			'password'				=> 'required_with_all:current_password,email',
+			'password_confirmation'	=> 'same:password',
+			'password_dapo'			=> 'nullable',
+			'password_dapo_confirmation'	=> 'same:password_dapo',
+		],
+		$messages
+		);
+		if ($validator->fails()) {
+			return redirect()->back()->withInput()->withErrors($validator->errors());
+		}
+		//JIKA FOLDERNYA BELUM ADA
+        if (!File::isDirectory($this->path)) {
+            //MAKA FOLDER TERSEBUT AKAN DIBUAT
+            File::makeDirectory($this->path);
+        }
+		//MENGAMBIL FILE IMAGE DARI FORM
+        $file = $request->file('image');
+		$current_password_post = $request->input('current_password');
+		$user = User::findOrFail($id);
+		if($current_password_post){
+			if(Hash::check($current_password_post, $user->password)){
+			//if(Hash::check($current_password_post, $current_password)){           
+				$user->password = Hash::make($request->input('password'));
+				$with = 'success';
+				$text = 'Profile pengguna berhasil diperbaharui.';
+			} else {
+				$with = 'error';
+				$text = "Silahkan masukkan sandi saat ini";
+			}
+		} else {
+			$with = 'success';
+			$text = 'Profile pengguna berhasil diperbaharui.';
+		}
+		$password_dapo = $request->input('password_dapo');
+		if($password_dapo){
+			$user->password_dapo = md5($password_dapo);
+		}
+		if($file){
+			$image_path = "storage/images/".$user->photo;
+			if(File::exists($image_path)) {
+				File::delete($image_path);
+			} else {
+				Artisan::call('storage:link');
+			}
+			//MEMBUAT NAME FILE DARI GABUNGAN TIMESTAMP DAN UNIQID()
+			$fileName = Carbon::now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+			//UPLOAD ORIGINAN FILE (BELUM DIUBAH DIMENSINYA)
+			Image::make($file)->save($this->path . '/' . $fileName);
+			
+			//LOOPING ARRAY DIMENSI YANG DI-INGINKAN
+			//YANG TELAH DIDEFINISIKAN PADA CONSTRUCTOR
+			foreach ($this->dimensions as $row) {
+				$image_dimensions = "storage/images/".$row.'/'.$user->photo;
+				if(File::exists($image_dimensions)) {
+					File::delete($image_dimensions);
+				}
+				//MEMBUAT CANVAS IMAGE SEBESAR DIMENSI YANG ADA DI DALAM ARRAY 
+				$canvas = Image::canvas($row, $row);
+				//RESIZE IMAGE SESUAI DIMENSI YANG ADA DIDALAM ARRAY 
+				//DENGAN MEMPERTAHANKAN RATIO
+				$resizeImage  = Image::make($file)->resize($row, $row, function($constraint) {
+					$constraint->aspectRatio();
+				});
+				
+				//CEK JIKA FOLDERNYA BELUM ADA
+				if (!File::isDirectory($this->path . '/' . $row)) {
+					//MAKA BUAT FOLDER DENGAN NAMA DIMENSI
+					File::makeDirectory($this->path . '/' . $row);
+				}
+				
+				//MEMASUKAN IMAGE YANG TELAH DIRESIZE KE DALAM CANVAS
+				$canvas->insert($resizeImage, 'center');
+				//SIMPAN IMAGE KE DALAM MASING-MASING FOLDER (DIMENSI)
+				$canvas->save($this->path . '/' . $row . '/' . $fileName);
+			}
+			$user->photo = $fileName;
+		}
+		$user->name = $request->input('name');
+        $user->email = strtolower($request->input('email'));
+		$user->save();
+		return redirect()->route('user.profile')->with($with, $text);
+	}
+	
 	public function list_user(Request $request){
 		$user = auth()->user();
-		$query = User::select(['users.user_id','users.name', 'users.email', 'users.last_login_at', 'users.password'])
-		->where('active', '=', 1)->where('sekolah_id', '=', $user->sekolah_id)->whereNotIn('user_id',function($query) {
+		$query = User::where('active', 1)->where('sekolah_id', $user->sekolah_id)->whereNotIn('user_id',function($query) {
 			$query->select('user_id')->from('role_user')->whereIn('role_id', [1, 2])->orderBy('role_id', 'ASC');
 		})->orderBy('users.name', 'ASC');
 		$datatables =  Datatables::of($query);
@@ -76,15 +175,17 @@ class UsersController extends Controller
 				}
 			}, true)
 			->addColumn('jenis_pengguna', function ($item) {
-				$find_role_user = DB::table('role_user')->join('roles', 'role_user.role_id', '=', 'roles.id')->where('user_id', $item->user_id)->get();
-				foreach($find_role_user as $role_user){
+				//dd($item->roles);
+				//$find_role_user = DB::table('role_user')->join('roles', 'role_user.role_id', '=', 'roles.id')->where('user_id', $item->user_id)->get();
+				$role = [];
+				foreach($item->roles as $role_user){
 					$role[] = $role_user->display_name;
 				}
 				$return  = implode(', ',$role);
 				return $return;
 			})
 			->addColumn('last_login', function ($item) {
-				$return  = ($item->last_login_at) ? HelperServiceProvider::TanggalIndo(date('Y-m-d', strtotime($item->last_login_at))).' '.date('H:i:s', strtotime($item->last_login_at)) : '';
+				$return  = ($item->last_login_at) ? CustomHelper::TanggalIndo(date('Y-m-d', strtotime($item->last_login_at))).' '.date('H:i:s', strtotime($item->last_login_at)) : '';
 				return $return;
 			})
 			->addColumn('hashedPassword', function ($item) {
@@ -215,13 +316,15 @@ class UsersController extends Controller
 	}
 	public function edit($id){
 		$user = User::with('roles')->find($id);
-		//dd($user);
 		if($user->hasRole('siswa')){
 			$role_disabled = array(5);
 			$roles = Role::find([5]);
 		} elseif($user->hasRole('guru')){
 			$role_disabled = array(4,10);
 			$roles = Role::find([3,4,7,8,9,10]);
+		} elseif($user->hasRole('tu')){
+			$role_disabled = array(3);
+			$roles = Role::find([3,4,7,8,9,11]);
 		} else {
 			$role_disabled = array(2);
 			$roles = Role::find([2]);
@@ -233,7 +336,7 @@ class UsersController extends Controller
 		}
 		$params = [
                 'title' => 'Edit Pengguna',
-                'user' => $user,
+                'pengguna' => $user,
                 'roles' => $roles,
 				'role_user' => $role_user,
 				'role_disabled'	=> $role_disabled,
@@ -251,96 +354,18 @@ class UsersController extends Controller
 		}
 		echo json_encode($output);
 	}
-	public function update_profile(Request $request, $id){
-		$messages = [
-    		'current_password.nullable' => 'Please enter current password',
-    		'password.nullable' => 'Please enter password',
-  		];
-		$validated = $this->validate($request, [
-            'image'					=> 'image|mimes:jpg,png,jpeg',
-			'name'					=> 'required',
-            'email'					=> 'required|email|unique:users,email,' . $id .',user_id',
-			'current_password'		=> 'nullable',
-			'password'				=> 'required_if:current_password,email',
-			'password_confirmation'	=> 'same:password',
-        ], $messages);
-		//JIKA FOLDERNYA BELUM ADA
-        if (!File::isDirectory($this->path)) {
-            //MAKA FOLDER TERSEBUT AKAN DIBUAT
-            File::makeDirectory($this->path);
-        }
-		//MENGAMBIL FILE IMAGE DARI FORM
-        $file = $request->file('image');
-		$current_password_post = $request->input('current_password');
-		$user = User::findOrFail($id);
-		if($current_password_post){
-			if(Hash::check($current_password_post, $user->password)){
-			//if(Hash::check($current_password_post, $current_password)){           
-				$user->password = Hash::make($request->input('password'));
-				$with = 'success';
-				$text = 'Profile pengguna berhasil diperbaharui.';
-			} else {
-				$with = 'error';
-				$text = "Silahkan masukkan sandi saat ini";
-			}
-		} else {
-			$with = 'success';
-			$text = 'Profile pengguna berhasil diperbaharui.';
-		}
-		if($file){
-			$image_path = "storage/images/".$user->photo;
-			if(File::exists($image_path)) {
-				File::delete($image_path);
-			} else {
-				Artisan::call('storage:link');
-			}
-			//MEMBUAT NAME FILE DARI GABUNGAN TIMESTAMP DAN UNIQID()
-			$fileName = Carbon::now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-			//UPLOAD ORIGINAN FILE (BELUM DIUBAH DIMENSINYA)
-			Image::make($file)->save($this->path . '/' . $fileName);
-			
-			//LOOPING ARRAY DIMENSI YANG DI-INGINKAN
-			//YANG TELAH DIDEFINISIKAN PADA CONSTRUCTOR
-			foreach ($this->dimensions as $row) {
-				$image_dimensions = "storage/images/".$row.'/'.$user->photo;
-				if(File::exists($image_dimensions)) {
-					File::delete($image_dimensions);
-				}
-				//MEMBUAT CANVAS IMAGE SEBESAR DIMENSI YANG ADA DI DALAM ARRAY 
-				$canvas = Image::canvas($row, $row);
-				//RESIZE IMAGE SESUAI DIMENSI YANG ADA DIDALAM ARRAY 
-				//DENGAN MEMPERTAHANKAN RATIO
-				$resizeImage  = Image::make($file)->resize($row, $row, function($constraint) {
-					$constraint->aspectRatio();
-				});
-				
-				//CEK JIKA FOLDERNYA BELUM ADA
-				if (!File::isDirectory($this->path . '/' . $row)) {
-					//MAKA BUAT FOLDER DENGAN NAMA DIMENSI
-					File::makeDirectory($this->path . '/' . $row);
-				}
-				
-				//MEMASUKAN IMAGE YANG TELAH DIRESIZE KE DALAM CANVAS
-				$canvas->insert($resizeImage, 'center');
-				//SIMPAN IMAGE KE DALAM MASING-MASING FOLDER (DIMENSI)
-				$canvas->save($this->path . '/' . $row . '/' . $fileName);
-			}
-			$user->photo = $fileName;
-		}
-		$user->name = $request->input('name');
-        $user->email = strtolower($request->input('email'));
-		$user->save();
-		return redirect()->route('user.profile')->with($with, $text);
-	}
 	public function update(Request $request, $id)
     {
         try {
+			//dd($id);
+			//dd($request->all());
             $user = User::findOrFail($id);
 			$this->validate($request, [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email,' . $id .',user_id',
 				//'email' => 'required|email|unique:users,email,' . $id,
             ]);
+			//dd($user);
 			$user->name = $request->input('name');
             $user->email = $request->input('email');
             $user->save();
@@ -373,10 +398,14 @@ class UsersController extends Controller
 				}
 			} elseif($user->hasRole('admin')){
 				$set_roles = array('2');
+			} elseif($user->hasRole('tu')){
+				if($set_roles){
+					$set_roles = array_merge($set_roles, ['3']);
+				} else {
+					$set_roles = array('3');
+				}
 			}
-			//dd($set_roles);
-            // Update role of the user
-            $roles = $user->roles;
+			$roles = $user->roles;
 
             foreach ($roles as $key => $value) {
                 $user->detachRole($value);
@@ -387,7 +416,7 @@ class UsersController extends Controller
 					$user->detachPermission($value);
 				}
 			}
-            foreach($set_roles as $role_id){
+			foreach($set_roles as $role_id){
 				$role = Role::find($role_id);
 				$user->attachRole($role);
 				$permission = Permission::where('name', '=', $role->name)->first();
@@ -396,11 +425,9 @@ class UsersController extends Controller
 					$user->syncPermissions([$permission->id]);
 				} else {
 					$permission = Permission::create(['name' => $role->name, 'display_name' => $role->display_name, 'description' => $role->description]);
-					//DB::table('permissions')->insert(['name' => $role->name, 'display_name' => $role->display_name, 'description' => $role->description]);
 				}
 				DB::table('permission_role')->updateOrInsert(['permission_id' => $permission->id, 'role_id' => $role->id]);
 			}
-			// Update permission of the user
 			return redirect()->route('users')->with('success', "The user <strong>$user->name</strong> has successfully been updated.");
         } catch (ModelNotFoundException $ex) {
             if ($ex instanceof ModelNotFoundException) {
@@ -425,7 +452,7 @@ class UsersController extends Controller
 	public function generate(){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$ajaran = CustomHelper::get_ta();
+		$ajaran = config('site.semester');//CustomHelper::get_ta();
 		$find_guru = Guru::whereNotIn('guru_id',function($query) use ($user) {
 			$query->select('guru_id')->from('users')->whereNotNull('guru_id')->where('sekolah_id', '=', $user->sekolah_id);
 		})->where('sekolah_id', '=', $user->sekolah_id)->get();
@@ -434,7 +461,7 @@ class UsersController extends Controller
 		$asesor = CustomHelper::jenis_gtk('asesor');
 		if($find_guru->count()){
 			foreach($find_guru as $guru){
-				$random = Str::random(6);
+				$random = Str::random(8);
 				$guru->email = ($guru->email != $user->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
 				$guru->email = ($guru->email != $sekolah->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
 				$guru->email = strtolower($guru->email);
@@ -491,8 +518,8 @@ class UsersController extends Controller
 		})->where('sekolah_id', '=', $user->sekolah_id)->get();
 		if($find_siswa->count()){
 			foreach($find_siswa as $siswa){
-				$random = Str::random(6);
-				$find_user = User::where('email', '=', $siswa->email)->first();
+				$random = Str::random(8);
+				$find_user = User::where('email', $siswa->email)->first();
 				$siswa->email = ($siswa->email != $user->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
 				$siswa->email = ($siswa->email != $sekolah->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
 				$siswa->email = (!$find_user) ? $siswa->email : strtolower($random).'@erapor-smk.net';

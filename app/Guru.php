@@ -20,6 +20,9 @@ class Guru extends Model
 	public function jenis_ptk(){
 		return $this->hasOne('App\Jenis_ptk', 'jenis_ptk_id', 'jenis_ptk_id');
 	}
+	public function bimbing_pd(){
+		return $this->hasOne('App\Bimbing_pd', 'guru_id', 'guru_id');
+	}
 	public function status_kepegawaian(){
 		return $this->hasOne('App\Status_kepegawaian', 'status_kepegawaian_id', 'status_kepegawaian_id');
 	}
@@ -44,7 +47,7 @@ class Guru extends Model
             'gelar_akademik_id', // Foreign key on history table...
             'guru_id', // Local key on suppliers table...
             'gelar_akademik_id' // Local key on users table...
-        )->where('posisi_gelar', 2)->where('gelar_ptk.gelar_akademik_id', '!=', 99999)->orderBy('kode', 'desc');
+        )->where('posisi_gelar', 2)->where('gelar_ptk.gelar_akademik_id', '<>', 99999)->orderBy('kode', 'desc');
 	}
 	public function dudi(){
 		return $this->hasOneThrough(

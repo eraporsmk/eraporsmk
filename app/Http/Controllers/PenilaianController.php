@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Semester;
-use App\Providers\HelperServiceProvider;
+use CustomHelper;
 use App\Nilai;
 use App\Rencana_penilaian;
 use App\Exports\NilaiExport;
@@ -17,11 +17,12 @@ use Yajra\Datatables\Datatables;
 use App\Remedial;
 use App\Sikap;
 use App\Ekstrakurikuler;
-use CustomHelper;
 use App\Nilai_ekstrakurikuler;
 use App\Rencana_ukk;
 use App\Nilai_ukk;
 use Session;
+use App\Guru;
+use App\Bimbing_pd;
 class PenilaianController extends Controller
 {
 	public function __construct()
@@ -30,13 +31,11 @@ class PenilaianController extends Controller
     }
     public function index($kompetensi_id){
 		$user = auth()->user();
-		$semester = Semester::where('periode_aktif', 1)->first();
 		if($kompetensi_id == 'ekskul'){
 			$params = array(
 				'user' => $user,
-				'semester'	=> $semester,
 				'title'	=> 'Ekstrakurikuler',
-				'all_ekskul' => Ekstrakurikuler::where('guru_id', $user->guru_id)->where('semester_id', $semester->semester_id)->get(),
+				'all_ekskul' => Ekstrakurikuler::where('guru_id', $user->guru_id)->where('semester_id', session('semester_id'))->get(),
 			);
 			return view('penilaian.ekstrakurikuler')->with($params);
 		} elseif($kompetensi_id == 'ukk'){
@@ -45,15 +44,21 @@ class PenilaianController extends Controller
 			};
 			$params = array(
 				'user' => $user,
-				'semester'	=> $semester,
 				'title'	=> 'UKK',
-				'all_rencana_ukk' => Rencana_ukk::whereHas('paket_ukk', $callback)->with(['paket_ukk' => $callback])->where('internal', $user->guru_id)->where('semester_id', $semester->semester_id)->get(),
+				'all_rencana_ukk' => Rencana_ukk::whereHas('paket_ukk', $callback)->with(['paket_ukk' => $callback])->where('internal', $user->guru_id)->where('semester_id', session('semester_id'))->get(),
 			);
 			return view('penilaian.penilaian_ukk')->with($params);
+		} elseif($kompetensi_id == 'prakerin'){
+			$params = array(
+				'user' => $user,
+				'title'	=> 'Prakerin',
+				'all_bimbing_pd' => Bimbing_pd::whereHas('akt_pd')->with(['akt_pd.dudi', 'akt_pd.anggota_akt_pd.siswa'])->where('guru_id', $user->guru_id)->get(),
+				//whereHas('paket_ukk', $callback)->with(['paket_ukk' => $callback])->where('internal', $user->guru_id)->where('semester_id', session('semester_id'))->get(),
+			);
+			return view('penilaian.penilaian_prakerin')->with($params);
 		} else {
 			$params = array(
 				'user' => $user,
-				'semester'	=> $semester,
 				'title'	=> ucfirst($kompetensi_id),
 				'kompetensi_id'	=> ($kompetensi_id == 'keterampilan') ? 2 : 1,
 				'query'	=> $kompetensi_id,
@@ -61,6 +66,24 @@ class PenilaianController extends Controller
 			return view('penilaian.form_penilaian')->with($params);
 		}
     }
+	public function reset_remedial(Request $request){
+		$pembelajaran_id = $request->pembelajaran_id;
+		$delete = Remedial::where('pembelajaran_id', $pembelajaran_id)->delete();
+		if($delete){
+			$output = [
+				'title'	=> 'Berhasil',
+				'icon'	=> 'success',
+				'text'	=> 'Remedial berhasil di reset',
+			];
+		} else {
+			$output = [
+				'title'	=> 'Gagal',
+				'icon'	=> 'error',
+				'text'	=> 'Remedial gagal di reset',
+			];
+		}
+		return response()->json($output);
+	}
 	public function list_sikap (){
 		$params = array(
 			'title'	=> 'Data Penilaian Sikap',
@@ -69,14 +92,18 @@ class PenilaianController extends Controller
     }
 	public function get_list_sikap(Request $request){
 		$user = auth()->user();
-		$semester = HelperServiceProvider::get_ta();
-		$callback = function($query) use ($user, $semester){
+		$guru = Guru::find($user->guru_id);
+		$callback = function($query) use ($user){
 			$query->with('rombongan_belajar');
 			$query->with('siswa');
 			$query->where('sekolah_id', '=', $user->sekolah_id);
-			$query->where('semester_id', '=', $semester->semester_id);
+			$query->where('semester_id', '=', session('semester_id'));
 		};
-		$query = Nilai_sikap::with('ref_sikap')->whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback])->where('guru_id', '=', $user->guru_id);
+		if($guru->jenis_ptk_id == 5 || $user->hasRole('waka')){
+			$query = Nilai_sikap::with('ref_sikap')->whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback]);
+		} else {
+			$query = Nilai_sikap::with('ref_sikap')->whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback])->where('guru_id', '=', $user->guru_id);
+		}
 		return Datatables::of($query)
 		->addColumn('nama_siswa', function ($item) {
 			$return  = $item->anggota_rombel->siswa->nama;
@@ -188,7 +215,7 @@ class PenilaianController extends Controller
 					exit;
 				}
 				$nilai_filter = array_filter($nilai);
-				if($nilai_filter){
+				if($rerata_remedial[$anggota_rombel_id]){
 					$insert_remedial = array(
 						'sekolah_id' 		=> $user->sekolah_id,
 						'nilai'				=> serialize($nilai_filter),
@@ -234,7 +261,7 @@ class PenilaianController extends Controller
 			foreach($siswa_id as $k=>$siswa){
 				foreach($kds as $key=>$kd) {
 					$nilai = ($kd[$k]) ? $kd[$k] : 0;
-					if($nilai){
+					//if($nilai){
 						$get_nilai = Nilai::where('kd_nilai_id', '=', $key)->where('anggota_rombel_id', '=', $siswa)->first();
 						if($get_nilai){
 							$update++;
@@ -255,7 +282,7 @@ class PenilaianController extends Controller
 							);
 							Nilai::create($insert_nilai);
 						}
-					}
+					//}
 				}
 			}
 			$redirect = ($kompetensi_id == 1) ? '/pengetahuan' : '/keterampilan';
@@ -294,9 +321,12 @@ class PenilaianController extends Controller
 	}
 	public function exportToExcel($id){
 		$rencana_penilaian = Rencana_penilaian::with(['pembelajaran.rombongan_belajar'])->where('rencana_penilaian_id', '=', $id)->first();
-		$get_mapel_agama = HelperServiceProvider::filter_agama_siswa($rencana_penilaian->pembelajaran_id, $rencana_penilaian->pembelajaran->rombongan_belajar_id);
+		$get_mapel_agama = CustomHelper::filter_agama_siswa($rencana_penilaian->pembelajaran_id, $rencana_penilaian->pembelajaran->rombongan_belajar_id);
 		$kompetensi = ($rencana_penilaian->kompetensi_id == 1) ? 'Pengetahuan' : 'Keterampilan';
-		$nama_file = 'Format Nilai '.$kompetensi.' eRaporSMK '.$rencana_penilaian->pembelajaran->nama_mata_pelajaran.' '.$rencana_penilaian->pembelajaran->rombongan_belajar->nama.'.xlsx';
+		$nama_mapel = CustomHelper::clean($rencana_penilaian->pembelajaran->nama_mata_pelajaran);
+		$nama_file = 'Format Nilai '.$kompetensi.' eRaporSMK '.$nama_mapel.' '.$rencana_penilaian->pembelajaran->rombongan_belajar->nama;
+		$nama_file = CustomHelper::clean($nama_file);
+		$nama_file = $nama_file.'.xlsx';
 		return (new NilaiExport)->query($id, $get_mapel_agama)->download($nama_file);
 	}
 	public function import_excel(Request $request){
@@ -305,13 +335,13 @@ class PenilaianController extends Controller
 		]);
 		if ($validator->passes()) {
 			$file = $request->file('file');
-			$nama_file = rand().$file->getClientOriginalName();
-			$file->move('excel',$nama_file);
+			//$nama_file = rand().$file->getClientOriginalName();
+			//$file->move('excel',$nama_file);
 			$Import = new NilaiImport();
-			$rows = Excel::import($Import, public_path('/excel/'.$nama_file));
-			if(File::exists(public_path('/excel/'.$nama_file))) {
-				File::delete(public_path('/excel/'.$nama_file));
-			}
+			$rows = Excel::import($Import, $file);
+			//if(File::exists(public_path('/excel/'.$nama_file))) {
+				//File::delete(public_path('/excel/'.$nama_file));
+			//}
 			return response()->json($Import);
 		}
 		return response()->json(['error'=>$validator->errors()->all()]);

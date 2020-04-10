@@ -11,11 +11,12 @@
 @section('body')
     <div class="login-box">
         <div class="login-logo">
-            <img src="{{url('vendor/img/logo.png')}}" alt="logo" class="text-center" width="100" />
+            <img src="{{asset('vendor/img/logo.png')}}" alt="logo" class="text-center" width="100" />
         </div>
         <!-- /.login-logo -->
 		{{-- dd($errors) --}}
         <div class="login-box-body">
+			{{--dd(config())--}}
             <p class="login-box-msg"><strong>e-Rapor SMK Versi {{CustomHelper::get_setting('app_version')}}</strong></p>
 			@if ($message = Session::get('success'))
 			  <div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
@@ -61,6 +62,15 @@
                         </span>
                     @endif
                 </div>
+				<div class="form-group">
+                    <select class="select2 form-control" name="semester_id" style="width: 100%;">
+					@foreach ($all_data as $tahun)
+						@foreach ($tahun->semester as $data)
+						<option value="{{ $data->semester_id }}" {{ (old('semester_id')) ? old('semester_id') == $data->semester_id : $data->periode_aktif == 1 ? "selected":"" }}>{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
+						@endforeach
+					@endforeach
+					</select>
+                </div>
                 <?php
 				/*<div class="row">
                     <div class="col-xs-8">
@@ -99,6 +109,7 @@
     <script src="{{ asset('vendor/adminlte/plugins/iCheck/icheck.min.js') }}"></script>
     <script>
         $(function () {
+			$('.select2').select2();
             $('input').iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue',

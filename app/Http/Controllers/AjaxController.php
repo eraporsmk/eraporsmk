@@ -32,10 +32,9 @@ class AjaxController extends Controller
     }
 	public function get_rombel_filter(Request $request){
 		$user = auth()->user();
-		$semester = CustomHelper::get_ta();
 		$jurusan_id = $request['jurusan_id'];
 		$tingkat = $request['tingkat'];
-		$data_rombel = Rombongan_belajar::where('sekolah_id', '=', $user->sekolah_id)->where('tingkat', '=', $tingkat)->where('semester_id', '=', $semester->semester_id)->where('jenis_rombel', '=', 1)->where('jurusan_id', $jurusan_id)->orderBy('nama')->get();
+		$data_rombel = Rombongan_belajar::where('sekolah_id', session('sekolah_id'))->where('tingkat', $tingkat)->where('semester_id', session('semester_id'))->where('jenis_rombel', 1)->where('jurusan_id', $jurusan_id)->orderBy('nama')->get();
 		if($data_rombel->count()){
 			foreach($data_rombel as $rombel){
 				$record= array();
@@ -55,60 +54,63 @@ class AjaxController extends Controller
 		$query = $request['query'];
 		$tingkat = $request['kelas'];
 		$semester_id = $request['semester_id'];
-		$guru_id = $request['semester_d'];
 		if($query == 'rencana_penilaian' || $query == 'pengetahuan' || $query == 'keterampilan' || $query == 'remedial'){
 			$data_rombel = Rombongan_belajar::whereHas('pembelajaran', function($query) use ($user, $semester_id){
-				$query->where('pembelajaran.sekolah_id', '=', $user->sekolah_id);
-				$query->where('pembelajaran.semester_id', '=', $semester_id);
-				$query->where('pembelajaran.guru_id', '=', $user->guru_id);
+				$query->where('pembelajaran.sekolah_id', session('sekolah_id'));
+				$query->where('pembelajaran.semester_id', $semester_id);
+				$query->where('pembelajaran.guru_id', $user->guru_id);
 				$query->whereNotNull('kelompok_id');
 				$query->whereNotNull('no_urut');
-				$query->orWhere('pembelajaran.sekolah_id', '=', $user->sekolah_id);
-				$query->where('pembelajaran.semester_id', '=', $semester_id);
-				$query->where('pembelajaran.guru_pengajar_id', '=', $user->guru_id);
+				$query->orWhere('pembelajaran.sekolah_id', session('sekolah_id'));
+				$query->where('pembelajaran.semester_id', $semester_id);
+				$query->where('pembelajaran.guru_pengajar_id', $user->guru_id);
 				$query->whereNotNull('kelompok_id');
 				$query->whereNotNull('no_urut');
 			})
-			->where('tingkat', '=', $tingkat)
-			->where('semester_id', '=', $semester_id)
-			->where('jenis_rombel', '=', 1)
+			->where('tingkat', $tingkat)
+			->where('semester_id', $semester_id)
+			->where('jenis_rombel', 1)
 			->orderBy('nama')
 			->orderBy('tingkat')
 			->get();
 		} else {
-			if($user->hasRole('waka')){
-				$data_rombel = Rombongan_belajar::where('sekolah_id', '=', $user->sekolah_id)->where('tingkat', '=', $tingkat)->where('semester_id', '=', $semester_id)->where('jenis_rombel', '=', 1)->orderBy('nama')->orderBy('tingkat')->get();
+			if($user->hasRole('waka') || $query == 'sikap'){
+				$data_rombel = Rombongan_belajar::where('sekolah_id', session('sekolah_id'))->where('tingkat', $tingkat)->where('semester_id', $semester_id)->where('jenis_rombel', 1)->orderBy('nama')->orderBy('tingkat')->get();
 			} elseif($user->hasRole('guru')) {
 				if($query == 'ukk'){
-					$data_rombel = Rombongan_belajar::where('tingkat', '=', $tingkat)
-					->where('sekolah_id', '=', $user->sekolah_id)
-					->where('semester_id', '=', $semester_id)
-					->where('jenis_rombel', '=', 1)
+					$data_rombel = Rombongan_belajar::where('tingkat', $tingkat)
+					->where('sekolah_id', session('sekolah_id'))
+					->where('semester_id', $semester_id)
+					->where('jenis_rombel', 1)
 					->orderBy('nama')
 					->orderBy('tingkat')
 					->get();
 				} else {
 					$data_rombel = Rombongan_belajar::whereHas('pembelajaran', function($query) use ($user, $semester_id){
-						$query->where('pembelajaran.sekolah_id', '=', $user->sekolah_id);
-						$query->where('pembelajaran.semester_id', '=', $semester_id);
-						$query->where('pembelajaran.guru_id', '=', $user->guru_id);
+						$query->where('pembelajaran.sekolah_id', session('sekolah_id'));
+						$query->where('pembelajaran.semester_id', $semester_id);
+						$query->where('pembelajaran.guru_id', $user->guru_id);
 						$query->whereNotNull('kelompok_id');
 						$query->whereNotNull('no_urut');
-						$query->orWhere('pembelajaran.sekolah_id', '=', $user->sekolah_id);
-						$query->where('pembelajaran.semester_id', '=', $semester_id);
-						$query->where('pembelajaran.guru_pengajar_id', '=', $user->guru_id);
+						$query->orWhere('pembelajaran.sekolah_id', session('sekolah_id'));
+						$query->where('pembelajaran.semester_id', $semester_id);
+						$query->where('pembelajaran.guru_pengajar_id', $user->guru_id);
 						$query->whereNotNull('kelompok_id');
 						$query->whereNotNull('no_urut');
 					})
-					->where('tingkat', '=', $tingkat)
-					->where('semester_id', '=', $semester_id)
-					->where('jenis_rombel', '=', 1)
+					->where('tingkat', $tingkat)
+					->where('semester_id', $semester_id)
+					->where('jenis_rombel', 1)
 					->orderBy('nama')
 					->orderBy('tingkat')
 					->get();
 				}
 			} else {
-				$data_rombel = Rombongan_belajar::where('sekolah_id', '=', $user->sekolah_id)->where('tingkat', '=', $tingkat)->where('semester_id', '=', $semester_id)->orderBy('nama')->orderBy('tingkat')->get();
+				$data_rombel = Rombongan_belajar::where(function($query) use ($tingkat, $semester_id){
+					$query->where('sekolah_id', session('sekolah_id'));
+					$query->where('tingkat', $tingkat);
+					$query->where('semester_id', $semester_id);
+				})->orderBy('nama')->orderBy('tingkat')->get();
 			}
 		}
 		if($data_rombel->count()){
@@ -132,30 +134,30 @@ class AjaxController extends Controller
 		$query = $request['query'];
 		if($user->hasRole('waka')){
 			if($query == 'rekap_nilai' || $query == 'analisis_nilai' || $query == 'analisis_remedial' || $query == 'capaian_kompetensi' || $query == 'prestasi_individu'){
-				$all_mapel = Pembelajaran::where('rombongan_belajar_id', '=', $rombongan_belajar_id)
+				$all_mapel = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar_id)
 				->whereNotNull('kelompok_id')
 				->whereNotNull('no_urut')
 				->orderBy('mata_pelajaran_id', 'asc')
 				->get();
 			} else {
-				$all_mapel = Pembelajaran::where('rombongan_belajar_id', '=', $rombongan_belajar_id)
-				->where('guru_id', '=', $user->guru_id)
+				$all_mapel = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar_id)
+				->where('guru_id', $user->guru_id)
 				->whereNotNull('kelompok_id')
 				->whereNotNull('no_urut')
-				->orWhere('rombongan_belajar_id', '=', $rombongan_belajar_id)
-				->where('guru_pengajar_id', '=', $user->guru_id)
+				->orWhere('rombongan_belajar_id', $rombongan_belajar_id)
+				->where('guru_pengajar_id', $user->guru_id)
 				->whereNotNull('kelompok_id')
 				->whereNotNull('no_urut')
 				->orderBy('mata_pelajaran_id', 'asc')
 				->get();
 			}
 		} else {
-			$all_mapel = Pembelajaran::where('rombongan_belajar_id', '=', $rombongan_belajar_id)
-			->where('guru_id', '=', $user->guru_id)
+			$all_mapel = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar_id)
+			->where('guru_id', $user->guru_id)
 			->whereNotNull('kelompok_id')
 			->whereNotNull('no_urut')
-			->orWhere('rombongan_belajar_id', '=', $rombongan_belajar_id)
-			->where('guru_pengajar_id', '=', $user->guru_id)
+			->orWhere('rombongan_belajar_id', $rombongan_belajar_id)
+			->where('guru_pengajar_id', $user->guru_id)
 			->whereNotNull('kelompok_id')
 			->whereNotNull('no_urut')
 			->orderBy('mata_pelajaran_id', 'asc')
@@ -180,7 +182,7 @@ class AjaxController extends Controller
 	public function get_teknik(Request $request){
 		$user = auth()->user();
 		$kompetensi_id = $request['kompetensi_id'];
-		$all_bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', '=', $kompetensi_id)->get();
+		$all_bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		if($all_bentuk_penilaian->count()){
 			foreach($all_bentuk_penilaian as $bentuk_penilaian){
 				$record= array();
@@ -211,36 +213,37 @@ class AjaxController extends Controller
 		} else {
 			$kurikulum = 2013;
 		}
-		$all_kd = Kompetensi_dasar::where('kompetensi_id', '=', $kompetensi_id)->where('mata_pelajaran_id', '=', $id_mapel)->where('kelas_'.$kelas, '=', 1)->where('aktif', '=', 1)->where('kurikulum', '=', $kurikulum)->get();
+		$all_kd = Kompetensi_dasar::where('kompetensi_id', $kompetensi_id)->where('mata_pelajaran_id', $id_mapel)->where('kelas_'.$kelas, 1)->where('aktif', 1)->where('kurikulum', $kurikulum)->orderByRaw('length(id_kompetensi) asc')->orderBy('id_kompetensi')->get();
 		$bobot = '';
 		$bentuk_penilaian = '';
 		if($kompetensi_id == 1){
-			$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', '=', $kompetensi_id)->get();
+			$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		} else {
-			$pembelajaran = Pembelajaran::where('rombongan_belajar_id', '=', $rombongan_belajar->rombongan_belajar_id)
-			->where('mata_pelajaran_id', '=', $id_mapel)
+			$pembelajaran = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)
+			->where('mata_pelajaran_id', $id_mapel)
 			->first();
 			if($pembelajaran){
-				$find_bobot_keterampilan = Bobot_keterampilan::where('pembelajaran_id', '=', $pembelajaran->pembelajaran_id)->where('metode_id', '=', $metode_id)->first();
+				$find_bobot_keterampilan = Bobot_keterampilan::where('pembelajaran_id', $pembelajaran->pembelajaran_id)->where('metode_id', $metode_id)->first();
 				if($find_bobot_keterampilan){
 					$bobot = $find_bobot_keterampilan->bobot;
 				}
 			}
 		}
 		$params = array(
+			'rombongan_belajar'	=> $rombongan_belajar,
 			'all_kd' => $all_kd,
 			'bobot' => $bobot,
 			'kompetensi_id' => $kompetensi_id,
 			'id_rombel'	=> $id_rombel,
 			'id_mapel'	=> $id_mapel,
 			'kelas'	=> $kelas,
-			'placeholder' => ($kompetensi_id == 1) ? 'UH/PTS/PAS dll...' : 'Kinerja/Proyek/Portofolio',
+			'placeholder' => ($kompetensi_id == 1) ? 'UH/UTS/UAS dll...' : 'Kinerja/Proyek/Portofolio',
 			'bentuk_penilaian' => $bentuk_penilaian,
 		);
 		return view('perencanaan.get_kd_'.$kompetensi_id)->with($params);
 	}
 	public function get_bobot($pembelajaran_id, $metode_id){
-		$find_bobot = Bobot_keterampilan::where('pembelajaran_id', '=', $pembelajaran_id)->where('metode_id', '=', $metode_id)->first();
+		$find_bobot = Bobot_keterampilan::where('pembelajaran_id', $pembelajaran_id)->where('metode_id', $metode_id)->first();
 		if($find_bobot){
 			echo $find_bobot->bobot;
 		}
@@ -249,7 +252,7 @@ class AjaxController extends Controller
 		$user = auth()->user();
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$kompetensi_id = $request['kompetensi_id'];
-		$get_rencana = Rencana_penilaian::where('pembelajaran_id', '=', $pembelajaran_id)->where('kompetensi_id', '=', $kompetensi_id)->get();
+		$get_rencana = Rencana_penilaian::where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->get();
 		if($get_rencana->count()){
 			foreach($get_rencana as $rencana){
 				$record= array();
@@ -314,10 +317,10 @@ class AjaxController extends Controller
 		}, 'one_anggota_rombel' => function($query) use ($request){
 			$query->with('siswa');
 			$query->with(['nilai_kd_pengetahuan' => function($query) use ($request){
-				$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
+				$query->where('pembelajaran_id', $request['pembelajaran_id']);
 			}]);
 			$query->with(['nilai_kd_keterampilan' => function($query) use ($request){
-				$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
+				$query->where('pembelajaran_id', $request['pembelajaran_id']);
 			}]);
 			$query->where('anggota_rombel_id', $request['siswa_id']);
 		}])->find($pembelajaran_id);
@@ -333,12 +336,12 @@ class AjaxController extends Controller
 		$nama_kompetensi = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
 		$pembelajaran = Pembelajaran::with('rombongan_belajar')->with(['kd_nilai_capaian' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
-			$q->where('rencana_penilaian.kompetensi_id', '=', $request['kompetensi_id']);
-			$q->where('kompetensi_dasar_id', '=', $request['kd']);
+			$q->where('rencana_penilaian.kompetensi_id', $request['kompetensi_id']);
+			$q->where('kompetensi_dasar_id', $request['kd']);
 		}, 'anggota_rombel' => function($query){
 			$query->where('jenis_rombel', 1);
 		}, 'anggota_rombel.siswa', 'anggota_rombel.nilai_kd_'.$nama_kompetensi => function($query) use ($request){
-			$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
+			$query->where('pembelajaran_id', $request['pembelajaran_id']);
 		}])->find($pembelajaran_id);
 		$params = array(
 			'pembelajaran'		=> $pembelajaran,
@@ -354,18 +357,19 @@ class AjaxController extends Controller
 		$pembelajaran = Pembelajaran::with(['kd_nilai' => function($q) use ($request, $nama_kompetensi){
 			$q->with('kompetensi_dasar');
 			$q->select(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id']);
-			$q->where('rencana_penilaian.kompetensi_id', '=', $request['kompetensi_id']);
+			$q->where('rencana_penilaian.kompetensi_id', $request['kompetensi_id']);
 			$q->groupBy(['kd_nilai.kompetensi_dasar_id', 'rencana_penilaian.kompetensi_id', 'rencana_penilaian.pembelajaran_id']);
 			$q->orderBy('kd_nilai.kompetensi_dasar_id', 'asc');
 		}, 'anggota_rombel', 'anggota_rombel.siswa', 'anggota_rombel.v_nilai_akhir_'.$nama_kompetensi => function($query) use ($request){
-			$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
+			$query->where('pembelajaran_id', $request['pembelajaran_id']);
 		}, 'anggota_rombel.nilai_remedial' => function($query) use ($request){
-			$query->where('pembelajaran_id', '=', $request['pembelajaran_id']);
-			$query->where('kompetensi_id', '=', $request['kompetensi_id']);
+			$query->where('pembelajaran_id', $request['pembelajaran_id']);
+			$query->where('kompetensi_id', $request['kompetensi_id']);
 		}])->find($pembelajaran_id);
 		$params = array(
 			'pembelajaran'	=> $pembelajaran,
 			'with'			=> $with,
+			'kompetensi_id'	=> $kompetensi_id,
 		);
 		return view('monitoring.result_analisis_remedial')->with($params);
 	}
@@ -373,7 +377,7 @@ class AjaxController extends Controller
 		$kompetensi_id = $request['aspek_penilaian'];
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$rombongan_belajar_id = $request['rombel_id'];
-		$pembelajaran = Pembelajaran::find($pembelajaran_id);
+		$pembelajaran = Pembelajaran::with('rombongan_belajar')->find($pembelajaran_id);
 		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
 		$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
 		$with_2 = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
@@ -382,30 +386,30 @@ class AjaxController extends Controller
 				$query->where('agama_id', $get_mapel_agama);
 			};
 			$all_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with(['nilai_remedial' => function($q) use ($kompetensi_id, $pembelajaran_id){
-				$q->where('kompetensi_id', '=', $kompetensi_id);
-				$q->where('pembelajaran_id', '=', $pembelajaran_id);
+				$q->where('kompetensi_id', $kompetensi_id);
+				$q->where('pembelajaran_id', $pembelajaran_id);
 			}])->with([$with_1 => function($q) use ($kompetensi_id, $pembelajaran_id){
 				$callback = function($sq) use ($kompetensi_id, $pembelajaran_id){
 					$sq->wherehas('rencana_penilaian', function($query) use ($kompetensi_id, $pembelajaran_id){
-						$query->where('kompetensi_id', '=', $kompetensi_id);
-						$query->where('pembelajaran_id', '=', $pembelajaran_id);
+						$query->where('kompetensi_id', $kompetensi_id);
+						$query->where('pembelajaran_id', $pembelajaran_id);
 					});
 				};
 				$q->with(['kd_nilai'], $callback);
 				$q->orderBy('kompetensi_dasar_id');
 			}])->with([$with_2 => function($q) use ($kompetensi_id, $pembelajaran_id){
-				$q->where('kompetensi_id', '=', $kompetensi_id);
-				$q->where('pembelajaran_id', '=', $pembelajaran_id);
-			}])->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+				$q->where('kompetensi_id', $kompetensi_id);
+				$q->where('pembelajaran_id', $pembelajaran_id);
+			}])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		} else {
 			$all_siswa = Anggota_rombel::with('siswa')->with(['nilai_remedial' => function($q) use ($kompetensi_id, $pembelajaran_id){
-				$q->where('kompetensi_id', '=', $kompetensi_id);
-				$q->where('pembelajaran_id', '=', $pembelajaran_id);
+				$q->where('kompetensi_id', $kompetensi_id);
+				$q->where('pembelajaran_id', $pembelajaran_id);
 			}])->with([$with_1 => function($q) use ($kompetensi_id, $pembelajaran_id){
 				$callback = function($sq) use ($kompetensi_id, $pembelajaran_id){
 					$sq->wherehas('rencana_penilaian', function($query) use ($kompetensi_id, $pembelajaran_id){
-						$query->where('kompetensi_id', '=', $kompetensi_id);
-						$query->where('pembelajaran_id', '=', $pembelajaran_id);
+						$query->where('kompetensi_id', $kompetensi_id);
+						$query->where('pembelajaran_id', $pembelajaran_id);
 					});
 					$sq->select(['kompetensi_dasar_id', 'id_kompetensi']);
 					$sq->groupBy(['kompetensi_dasar_id', 'id_kompetensi']);
@@ -414,18 +418,22 @@ class AjaxController extends Controller
 				$q->wherehas('kd_nilai', $callback);
 				$q->orderBy('kompetensi_dasar_id');
 			}])->with([$with_2 => function($q) use ($kompetensi_id, $pembelajaran_id){
-				$q->where('kompetensi_id', '=', $kompetensi_id);
-				$q->where('pembelajaran_id', '=', $pembelajaran_id);
-			}])->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+				$q->where('kompetensi_id', $kompetensi_id);
+				$q->where('pembelajaran_id', $pembelajaran_id);
+			}])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		}
 		$callback = function($q) use ($kompetensi_id, $pembelajaran_id){
 			$q->with('pembelajaran');
-			$q->where('kompetensi_id', '=', $kompetensi_id);
-			$q->where('pembelajaran_id', '=', $pembelajaran_id);
+			$q->where('kompetensi_id', $kompetensi_id);
+			$q->where('pembelajaran_id', $pembelajaran_id);
 		};
-		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback])->with('kompetensi_dasar')->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
+		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
+		//$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->orderBy('id_kompetensi')->get();
 		$params = array(
 			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+			'pembelajaran_id' => $pembelajaran->pembelajaran_id,
+			'rombongan_belajar' => $pembelajaran->rombongan_belajar,
+			'kompetensi_id'	=> $kompetensi_id,
 			'all_siswa' => $all_siswa,
 			'all_kd'	=> $all_kd,
 			'with_1'	=> $with_1,
@@ -436,7 +444,7 @@ class AjaxController extends Controller
 	}
 	public function get_siswa(Request $request){
 		$rombongan_belajar_id = $request['rombel_id'];
-		$get_siswa = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+		$get_siswa = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		if($get_siswa->count()){
 			foreach($get_siswa as $siswa){
 				$record= array();
@@ -460,11 +468,12 @@ class AjaxController extends Controller
 		*/
 		$rombongan_belajar_id = $request['kelas_ekskul'];
 		$ekskul = Ekstrakurikuler::where('rombongan_belajar_id', $rombongan_belajar_id)->first();
-		$get_siswa = Anggota_rombel::with('nilai_ekskul')->with(['siswa' => function($query){
-			$query->with(['kelas' => function($q){
+		$get_siswa = Anggota_rombel::with('nilai_ekskul')->with(['siswa' => function($query) use ($request){
+			$query->with(['kelas' => function($q) use ($request){
+				$q->where('rombongan_belajar.semester_id', $request->semester_id);
 				$q->where('jenis_rombel', 1);
 			}]);
-		}])->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+		}])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		$all_rombel = Rombongan_belajar::whereIn('rombongan_belajar_id',function($query) use ($rombongan_belajar_id) {
 			$query->select('rombongan_belajar_id')->from('anggota_rombel');
 			$query->whereIn('peserta_didik_id',function($q) use ($rombongan_belajar_id) {
@@ -474,7 +483,7 @@ class AjaxController extends Controller
 					$sq->where('rombongan_belajar_id', $rombongan_belajar_id);
 				});
 			});
-		})->where('jenis_rombel', 1)->orderBy('tingkat', 'ASC')->orderBy('kurikulum_id', 'ASC')->get();
+		})->where('semester_id', $request->semester_id)->where('jenis_rombel', 1)->orderBy('tingkat', 'ASC')->orderBy('kurikulum_id', 'ASC')->get();
 		$params = array(
 			'ekskul' 		=> $ekskul,
 			'all_siswa' 	=> $get_siswa,
@@ -490,10 +499,10 @@ class AjaxController extends Controller
 				$q->where('jenis_rombel', 1);
 			}]);
 			$query->whereIn('peserta_didik_id', function($q) use ($rombongan_belajar_id){
-				$q->select('peserta_didik_id')->from('anggota_rombel')->where('rombongan_belajar_id', '=', $rombongan_belajar_id);
+				$q->select('peserta_didik_id')->from('anggota_rombel')->where('rombongan_belajar_id', $rombongan_belajar_id);
 			});
 		};
-		$get_siswa = Anggota_rombel::with('nilai_ekskul')->whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', '=', $rombongan_belajar_id_ekskul)->order()->get();
+		$get_siswa = Anggota_rombel::with('nilai_ekskul')->whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', $rombongan_belajar_id_ekskul)->order()->get();
 		$params = array(
 			'all_siswa' 	=> $get_siswa,
 			'rombongan_belajar_id'	=> $rombongan_belajar_id,
@@ -504,7 +513,7 @@ class AjaxController extends Controller
 	public function get_sikap(Request $request){
 		$anggota_rombel_id = $request['siswa_id'];
 		$guru_id = $request['guru_id'];
-		$nilai_sikap = Nilai_sikap::with('ref_sikap')->where('anggota_rombel_id', '=', $anggota_rombel_id)->where('guru_id', '=', $guru_id)->get();
+		$nilai_sikap = Nilai_sikap::with('ref_sikap')->where('anggota_rombel_id', $anggota_rombel_id)->where('guru_id', $guru_id)->get();
 		$all_sikap = Sikap::whereHas('sikap')->with('sikap')->orderBy('sikap_id')->get();
 		$params = array(
 			'nilai_sikap' => $nilai_sikap,
@@ -520,18 +529,20 @@ class AjaxController extends Controller
 		$rombongan_belajar_id = $request['rombel_id'];
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$rencana_penilaian_id = $request['rencana_id'];
+		$rombongan_belajar = Rombongan_belajar::find($rombongan_belajar_id);
 		$all_kd_nilai = Rencana_penilaian::with(['kd_nilai','kd_nilai.kompetensi_dasar'])->find($rencana_penilaian_id);
 		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
 		if($get_mapel_agama){
 			$callback = function($query) use ($get_mapel_agama) {
 				$query->where('agama_id', $get_mapel_agama);
 			};
-			$all_anggota = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+			$all_anggota = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		} else {
-			$all_anggota = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', '=', $rombongan_belajar_id)->order()->get();
+			$all_anggota = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		}
-		$all_bobot = Rencana_penilaian::where('pembelajaran_id', '=', $pembelajaran_id)->where('kompetensi_id', '=', $kompetensi_id)->sum('bobot');
+		$all_bobot = Rencana_penilaian::where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->sum('bobot');
 		$params = array(
+			'rombongan_belajar'		=> $rombongan_belajar,
 			'all_kd_nilai' 			=> $all_kd_nilai,
 			'all_anggota' 			=> $all_anggota,
 			'all_bobot'				=> $all_bobot,
@@ -542,11 +553,18 @@ class AjaxController extends Controller
 		return view('penilaian.get_kd_nilai')->with($params);
 	}
 	public function get_rekap_nilai(Request $request){
-		$pembelajaran_id = $request['pembelajaran_id'];
-		$pembelajaran = Pembelajaran::with(['anggota_rombel', 'anggota_rombel.siswa', 'anggota_rombel.nilai_akhir_pengetahuan' => function($query) use ($pembelajaran_id){
-			$query->where('pembelajaran_id', '=', $pembelajaran_id);
-		}, 'anggota_rombel.nilai_akhir_keterampilan' => function($query) use ($pembelajaran_id){
-			$query->where('pembelajaran_id', '=', $pembelajaran_id);
+		$semester_id = $request->semester_id;
+		$pembelajaran_id = $request->pembelajaran_id;
+		$agama_id = CustomHelper::filter_agama_siswa($pembelajaran_id, $request->rombel_id);
+		$pembelajaran = Pembelajaran::with(['rombongan_belajar.anggota_rombel' => function($query) use ($agama_id){
+			$query->order();
+			$callback = function($sq) use ($agama_id) {
+				$sq->where('agama_id', $agama_id);
+			};
+		}, 'rombongan_belajar.anggota_rombel.nilai_akhir_pengetahuan' => function($query) use ($pembelajaran_id){
+			$query->where('pembelajaran_id', $pembelajaran_id);
+		}, 'rombongan_belajar.anggota_rombel.nilai_akhir_keterampilan' => function($query) use ($pembelajaran_id){
+			$query->where('pembelajaran_id', $pembelajaran_id);
 		}])->find($pembelajaran_id);
 		$params['pembelajaran'] = $pembelajaran;
 		$params['rasio_p'] = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
@@ -565,7 +583,7 @@ class AjaxController extends Controller
 	}
 	public function get_kurikulum(Request $request){
 		$jurusan_id = $request['jurusan_id'];
-		$get_kurikulum = Kurikulum::where('jurusan_id', '=', $jurusan_id)->get();
+		$get_kurikulum = Kurikulum::where('jurusan_id', $jurusan_id)->get();
 		if($get_kurikulum){
 			foreach($get_kurikulum as $kurikulum){
 				$record= array();
@@ -582,7 +600,7 @@ class AjaxController extends Controller
 	}
 	public function get_paket_tersimpan(Request $request){
 		$kode_kompetensi = $request['kode_kompetensi'];
-		$paket_ukk = Paket_ukk::where('kode_kompetensi', '=', $kode_kompetensi);
+		$paket_ukk = Paket_ukk::where('kode_kompetensi', $kode_kompetensi);
 		$params = array(
 			'paket_ukk'		=> $paket_ukk,
 		);
@@ -590,7 +608,7 @@ class AjaxController extends Controller
 	}
 	public function get_paket_by_jurusan(Request $request){
 		$jurusan_id = $request['jurusan_id'];
-		$get_paket_ukk = Paket_ukk::where('jurusan_id', '=', $jurusan_id)->where('status', 1)->get();
+		$get_paket_ukk = Paket_ukk::where('jurusan_id', $jurusan_id)->where('status', 1)->get();
 		if($get_paket_ukk->count()){
 			foreach($get_paket_ukk as $paket_ukk){
 				$record= array();
@@ -613,7 +631,7 @@ class AjaxController extends Controller
 			$all_nilai_sikap = Nilai_sikap::with('ref_sikap')->with(['guru' => function($query){
 				$query->with('gelar_depan');
 				$query->with('gelar_belakang');
-			}])->where('anggota_rombel_id', '=', $anggota_rombel_id)->where('sikap_id', $sikap)->get();
+			}])->where('anggota_rombel_id', $anggota_rombel_id)->where('sikap_id', $sikap)->get();
 			if($all_nilai_sikap->count()){
 				foreach($all_nilai_sikap as $nilai_sikap){
 					$opsi_sikap = ($nilai_sikap->opsi_sikap == 1) ? 'positif' : 'negatif';
@@ -706,7 +724,7 @@ class AjaxController extends Controller
 		);
 		return view('laporan.waka.catatan_akademik_result')->with($params);
 	}
-	public function get_kehadiran(Request $request){
+	public function get_ketidakhadiran(Request $request){
 		$guru_id = $request['guru_id'];
 		$rombongan_belajar = Rombongan_belajar::find($request['rombel_id']);
 		$get_siswa = Anggota_rombel::with('siswa')->with('kehadiran')->where('rombongan_belajar_id', $request['rombel_id'])->order()->get();
@@ -735,18 +753,20 @@ class AjaxController extends Controller
 		$guru_id = $request['guru_id'];
 		$rombongan_belajar = Rombongan_belajar::find($request['rombel_id']);
 		$callback = function($query) use ($request){
-				$query->where('semester_id', $request['semester_id']);
-				$query->whereIn('rombongan_belajar_id', function($q){
-					$q->select('rombongan_belajar_id')->from('rombongan_belajar')->where('jenis_rombel', 51);
-				});
-				$query->with(['kelas_ekskul' => function($q){
-					$q->with(['guru'  => function($sq){
-						$sq->with('gelar_depan');
-						$sq->with('gelar_belakang');
-					}]);
+			$query->where('semester_id', $request['semester_id']);
+			$query->whereIn('rombongan_belajar_id', function($q){
+				$q->select('rombongan_belajar_id')->from('rombongan_belajar')->where('jenis_rombel', 51);
+			});
+			$query->with(['kelas_ekskul' => function($q){
+				$q->with(['wali'  => function($sq){
+					$sq->with('gelar_depan');
+					$sq->with('gelar_belakang');
 				}]);
-				$query->with('nilai_ekskul');
-			};
+			}]);
+			$query->with(['nilai_ekskul' => function($query){
+				$query->with('ekstrakurikuler');
+			}]);
+		};
 			$get_siswa = Anggota_rombel::with('siswa')->whereHas('anggota_ekskul', $callback)->with(['anggota_ekskul' => $callback])->where('rombongan_belajar_id', $request['rombel_id'])->order()->get();
 		$params = array(
 			'get_siswa'	=> $get_siswa,
@@ -771,7 +791,7 @@ class AjaxController extends Controller
 		);
 		return view('laporan.waka.pkl_result')->with($params);
 	}
-	public function get_rapor_pts(Request $request){
+	public function get_rapor_uts(Request $request){
 		$data_pembelajaran = Pembelajaran::with(['guru' => function($query){
 			$query->with('gelar_depan');
 			$query->with('gelar_belakang');

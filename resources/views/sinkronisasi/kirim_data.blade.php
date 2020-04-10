@@ -66,7 +66,7 @@
 </div>
 <?php
 $max_input_vars = ini_get('max_input_vars');
-$last_sync = config('site.last_sync');
+$last_sync = config('global.last_sync');
 $status = checkdnsrr('php.net');
 $connect = ($status) ? 'bg-green' : 'bg-red';
 $text = ($status) ? 'TERHUBUNG' : 'TIDAK TERHUBUNG';
@@ -79,7 +79,8 @@ if($status){
 		$tombol = ($status) ? 'ajax' : 'disabled';
 	}
 }
-$table_sync = CustomHelper::table_sync();
+//$table_sync = CustomHelper::table_sync();
+$table_sync = config('erapor.table_sync');
 ?>
 <div class="row">
 	<div class="col-md-12">
@@ -126,20 +127,28 @@ $table_sync = CustomHelper::table_sync();
 					$i=1;
 					$total = 0;
 					$result = 0;
+					$no_semester = ['sekolah', 'jurusan_sp', 'guru', 'peserta_didik', 'dudi', 'mou', 'absensi', 'catatan_ppk', 'catatan_wali', 'deskripsi_mata_pelajaran', 'deskripsi_sikap', 'kd_nilai', 'nilai', 'nilai_akhir', 'nilai_ekstrakurikuler', 'nilai_sikap', 'nilai_ukk', 'prakerin', 'prestasi', 'nilai_remedial', 'rencana_penilaian', 'teknik_penilaian', 'bobot_keterampilan', 'nilai_rapor', 'kenaikan_kelas', 'ref.kompetensi_dasar', 'users', 'role_user'];
+					$no_sekolah = ['users', 'ref.kompetensi_dasar', 'role_user'];
 					foreach($table_sync as $sync){
-						if(Schema::hasTable($sync)){
 							$query = DB::table($sync);
-							if($sync == 'ref_kompetensi_dasar'){
-								$query->whereNotNull('user_id');
-							} elseif (Schema::hasColumn($sync, 'last_sync')) {
-								$query->where('last_sync', '>=', $last_sync);
-								//$query->whereDate('last_sync', '>=', $last_sync_date);
-								//$query->whereTime('last_sync', '>=', $last_sync_time);
+							if($sync == 'ref.kompetensi_dasar'){
+								$query->whereIn('user_id', function($q){
+									$q->select('user_id')->from('users');
+								});
 							}
-							if (Schema::hasColumn($sync, 'semester_id')){
+							$query->where('last_sync', '>=', $last_sync);
+							if (!in_array($sync, $no_semester)) {
+							//if($sync != 'sekolah'){
 								$query->where('semester_id', '=', $semester->semester_id);
 							}
-							if (Schema::hasColumn($sync, 'sekolah_id')){
+							//if (Schema::hasColumn($sync, 'last_sync')) {
+								
+							//}
+							//if (Schema::hasColumn($sync, 'semester_id')){
+								
+							//}
+							//if (Schema::hasColumn($sync, 'sekolah_id')){
+							if (!in_array($sync, $no_sekolah)) {
 								$query->where('sekolah_id', '=', $user->sekolah_id);
 							}
 							$result = $query->count();
@@ -154,8 +163,7 @@ $table_sync = CustomHelper::table_sync();
 					<?php 
 								$i++;
 							}
-						} 
-					}
+						}
 					if($total){?>
 					<tr>
 						<td colspan="2" class="text-right"><strong>T O T A L</strong></td>
@@ -178,7 +186,8 @@ var timer;
 function refreshProgress() {
 	$.ajax({
 		//url: "<?php echo url('checker.php?file='.session()->getId()); ?>",
-		url: "<?php echo url('checker.php?file=sinkronisasi'); ?>",
+		//url: "<?php echo url('checker.php?file=sinkronisasi'); ?>",
+		url: "<?php echo route('checker', ['file' => 'sinkronisasi']); ?>",
 		success:function(data){
 			console.log(data);
 			if(data.query == 'kirim'){

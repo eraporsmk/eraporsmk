@@ -7,7 +7,7 @@ use App\Sekolah;
 use App\User;
 use App\Role;
 use App\Role_user;
-use App\Providers\HelperServiceProvider;
+use CustomHelper;
 use App\Mst_wilayah;
 use App\Guru;
 use App\Gelar_ptk;
@@ -30,6 +30,7 @@ use App\Kurikulum;
 use App\Akt_pd;
 use App\Anggota_akt_pd;
 use App\Bimbing_pd;
+use App\Kompetensi_dasar;
 use Illuminate\Support\Facades\Storage;
 class ProsesData extends Command
 {
@@ -66,14 +67,18 @@ class ProsesData extends Command
     {
         $arguments = $this->arguments();
 		$function = $arguments['response']['query'];
-		self::{$function}($arguments['response']['data']);
+		if($function == 'count_kd'){
+			self::{$function}($arguments['response']['data'], $arguments['response']['count'], $arguments['response']['page']);
+		} else {
+			self::{$function}($arguments['response']['data']);
+		}
 		//echo $arguments['response']['query'];
-		//HelperServiceProvider::test($arguments);
+		//CustomHelper::test($arguments);
     }
 	private function sekolah($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$query = HelperServiceProvider::array_to_object($response);
+		$query = CustomHelper::array_to_object($response);
 		$data = $query->kepala_sekolah;
 		$random = Str::random(6);
 		$data->email = ($data->email) ? $data->email : strtolower($random).'@erapor-smk.net';
@@ -121,6 +126,56 @@ class ProsesData extends Command
 				$insert_jur_sp
 			);
 		}
+		if($query->wilayah->id_level_wilayah == 4){
+			if($query->wilayah->parrent_recursive){
+				$kecamatan = $query->wilayah->parrent_recursive->nama;
+				if($query->wilayah->parrent_recursive->parrent_recursive){
+					$kabupaten = $query->wilayah->parrent_recursive->parrent_recursive->nama;
+				} else {
+					$get_kabupaten = Mst_wilayah::find($kecamatan->mst_kode_wilayah);
+					$kabupaten = $get_kabupaten->nama;
+				}
+				if($query->wilayah->parrent_recursive->parrent_recursive->parrent_recursive){
+					$provinsi = $query->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama;
+				} else {
+					$get_provinsi = Mst_wilayah::find($kabupaten->mst_kode_wilayah);
+					$provinsi = $get_provinsi->nama;
+				}
+			}
+		} else {
+			$kecamatan = $query->wilayah->nama;
+			if($query->wilayah->parrent_recursive){
+				$kabupaten = $query->wilayah->parrent_recursive->nama;
+				if($query->wilayah->parrent_recursive->parrent_recursive){
+					$provinsi = $query->wilayah->parrent_recursive->parrent_recursive->nama;
+				} else {
+					$get_provinsi = Mst_wilayah::find($kabupaten->mst_kode_wilayah);
+					$provinsi = $get_provinsi->nama;
+				}
+			} else {
+				$get_kabupaten = Mst_wilayah::find($kecamatan->mst_kode_wilayah);
+				$kabupaten = $get_kabupaten->nama;
+			}
+		}
+		//dd($query);
+		$sekolah->npsn = $query->npsn;
+		$sekolah->nama = $query->nama;
+		$sekolah->nss = $query->nss;
+		$sekolah->alamat = $query->alamat_jalan;
+		$sekolah->desa_kelurahan = $query->desa_kelurahan;
+		$sekolah->kecamatan = $kecamatan;
+		$sekolah->kode_wilayah = $query->kode_wilayah;
+		$sekolah->kabupaten = $kabupaten;
+		$sekolah->provinsi = $provinsi;
+		$sekolah->kode_pos = $query->kode_pos;
+		$sekolah->lintang = $query->lintang;
+		$sekolah->bujur = $query->bujur;
+		$sekolah->no_telp = $query->nomor_telepon;
+		$sekolah->no_fax = $query->nomor_fax;
+		$sekolah->email = $query->email;
+		$sekolah->website = $query->website;
+		$sekolah->status_sekolah = $query->status_sekolah;
+		$sekolah->last_sync = date('Y-m-d H:i:s');
 		$sekolah->guru_id = $create_guru->guru_id;
 		$sekolah->sinkron = 1;
 		$sekolah->save();
@@ -128,7 +183,7 @@ class ProsesData extends Command
 	private function guru($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$jumlah = count((array)$dapodik);
 		$i=1;
 		$record['table'] = 'guru';
@@ -197,22 +252,22 @@ class ProsesData extends Command
 	private function rombongan_belajar($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'rombongan belajar';
 		$record['jumlah'] = $jumlah;
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_rombongan_belajar.json', json_encode($record));
-		
+		$rombongan_belajar_id = [];
 		foreach($dapodik as $data){
+			$rombongan_belajar_id[] = $data->rombongan_belajar_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_rombongan_belajar.json', json_encode($record));
 			$get_jurusan_id = Jurusan_sp::where('jurusan_sp_id_dapodik', '=', $data->jurusan_sp->jurusan_sp_id)->first();
 			$get_wali = Guru::where('guru_id_dapodik', '=', $data->ptk_id)->first();
 			$insert_rombel = array(
-				'sekolah_id' 			=> $sekolah->sekolah_id,
+				'sekolah_id' 			=> session('sekolah_id'),
 				'jurusan_id' 			=> $data->jurusan_sp->jurusan_id,
 				'jurusan_sp_id' 		=> $get_jurusan_id->jurusan_sp_id,
 				'kurikulum_id' 			=> $data->kurikulum_id,
@@ -224,25 +279,28 @@ class ProsesData extends Command
 				'last_sync'				=> date('Y-m-d H:i:s'),
 			);
 			Rombongan_belajar::updateOrCreate(
-				['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => $semester->semester_id],
+				['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => session('semester_id')],
 				$insert_rombel
 			);
 			$i++;
+		}
+		if($rombongan_belajar_id){
+			Rombongan_belajar::where('jenis_rombel', 1)->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->whereNotIn('rombel_id_dapodik', $rombongan_belajar_id)->delete();
 		}
 	}
 	private function siswa_aktif($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'peserta didik aktif';
 		$record['jumlah'] = $jumlah;
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_siswa_aktif.json', json_encode($record));
-		
+		$anggota_rombel_id = [];
 		foreach($dapodik as $data){
+			$anggota_rombel_id[] = $data->anggota_rombel_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_siswa_aktif.json', json_encode($record));
 			$random = Str::random(6);
@@ -250,10 +308,11 @@ class ProsesData extends Command
 			$data->email = ($data->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 			$data->email = ($data->email != $sekolah->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 			$data->email = strtolower($data->email);
+			$kecamatan = Mst_wilayah::find($data->kode_wilayah);
 			$insert_siswa = array(
-				'sekolah_id'		=> $sekolah->sekolah_id,
+				'sekolah_id'		=> session('sekolah_id'),
 				'nama' 				=> $data->nama,
-				'no_induk' 			=> ($data->registrasi_peserta_didik) ? ($data->registrasi_peserta_didik->nipd) ? $data->registrasi_peserta_didik->nipd : 0 : 0,
+				'no_induk' 			=> ($data->nipd) ? $data->nipd : 0,
 				'nisn' 				=> $data->nisn,
 				'jenis_kelamin' 	=> ($data->jenis_kelamin) ? $data->jenis_kelamin : 0,
 				'tempat_lahir' 		=> ($data->tempat_lahir) ? $data->tempat_lahir : 0,
@@ -265,12 +324,12 @@ class ProsesData extends Command
 				'rt' 				=> ($data->rt) ? $data->rt : 0,
 				'rw' 				=> ($data->rw) ? $data->rw : 0,
 				'desa_kelurahan' 	=> ($data->desa_kelurahan) ? $data->desa_kelurahan : 0,
-				'kecamatan' 		=> ($data->wilayah->nama) ? $data->wilayah->nama : 0,
+				'kecamatan' 		=> ($kecamatan) ? $kecamatan->nama : 0,
 				'kode_pos' 			=> ($data->kode_pos) ? $data->kode_pos : 0,
 				'no_telp' 			=> ($data->nomor_telepon_seluler) ? $data->nomor_telepon_seluler : 0,
-				'sekolah_asal' 		=> ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->sekolah_asal : 0,
-				'diterima_kelas' 	=> 0,
-				'diterima' 			=> ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->tanggal_masuk_sekolah : 0,
+				'sekolah_asal' 		=> ($data->sekolah_asal) ? $data->sekolah_asal : 0,
+				//'diterima_kelas' 	=> 0,
+				'diterima' 			=> ($data->tanggal_masuk_sekolah) ? $data->tanggal_masuk_sekolah : 0,
 				'kode_wilayah' 		=> $data->kode_wilayah,
 				'email' 			=> $data->email,
 				'nama_ayah' 		=> ($data->nama_ayah) ? $data->nama_ayah : 0,
@@ -284,33 +343,36 @@ class ProsesData extends Command
 				'active' 			=> 1,
 				'last_sync'			=> date('Y-m-d H:i:s'),
 			);
-			$password = 12345678;
 			$create_siswa = Siswa::updateOrCreate(
 				['peserta_didik_id_dapodik' => $data->peserta_didik_id],
 				$insert_siswa
 			);
-			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->anggota_rombel->rombongan_belajar_id)->first();
+			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
 			if($find_rombel){
 				$insert_anggota_rombel = array(
-					'sekolah_id'				=> $sekolah->sekolah_id,
+					'sekolah_id'				=> session('sekolah_id'),
 					'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 					'peserta_didik_id' 			=> $create_siswa->peserta_didik_id,
 					'last_sync'					=> date('Y-m-d H:i:s'),
 				);
 				$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-					['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'semester_id' => $semester->semester_id],
+					['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => session('semester_id')],
 					$insert_anggota_rombel
 				);
 			}
 			$i++;
 		}
+		if($anggota_rombel_id){
+			Anggota_rombel::whereHas('rombongan_belajar', function($query){
+				$query->where('jenis_rombel', 1);
+			})->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->whereNotIn('anggota_rombel_id_dapodik', $anggota_rombel_id)->delete();
+		}
 	}
 	private function siswa_keluar($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'peserta didik keluar';
 		$record['jumlah'] = $jumlah;
@@ -322,33 +384,34 @@ class ProsesData extends Command
 			Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
 			$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->onlyTrashed()->first();
 			if($find_siswa){
-				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $find_siswa->peserta_didik_id)->where('semester_id', '=', $semester->semester_id)->onlyTrashed()->first();
+				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $find_siswa->peserta_didik_id)->where('semester_id', '=', session('semester_id'))->onlyTrashed()->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->anggota_rombel->rombongan_belajar_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
-							'sekolah_id'				=> $sekolah->sekolah_id,
+							'sekolah_id'				=> session('sekolah_id'),
 							'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 							'peserta_didik_id' 			=> $find_siswa->peserta_didik_id,
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
 						$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-							['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'semester_id' => $semester->semester_id],
+							['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => session('semester_id')],
 							$insert_anggota_rombel
 						);
 						$create_anggota_rombel->delete();
 					}
 				}
 			} else {
+				$kecamatan = Mst_wilayah::find($data->kode_wilayah);
 				$random = Str::random(6);
 				$data->nisn = ($data->nisn) ? $data->nisn : mt_rand();
 				$data->email = ($data->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 				$data->email = ($data->email != $sekolah->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 				$data->email = strtolower($data->email);
 				$insert_siswa = array(
-					'sekolah_id'		=> $sekolah->sekolah_id,
+					'sekolah_id'		=> session('sekolah_id'),
 					'nama' 				=> $data->nama,
-					'no_induk' 			=> ($data->registrasi_peserta_didik) ? ($data->registrasi_peserta_didik->nipd) ? $data->registrasi_peserta_didik->nipd : 0 : 0,
+					'no_induk' 			=> ($data->nipd) ? $data->nipd : 0,
 					'nisn' 				=> $data->nisn,
 					'jenis_kelamin' 	=> ($data->jenis_kelamin) ? $data->jenis_kelamin : 0,
 					'tempat_lahir' 		=> ($data->tempat_lahir) ? $data->tempat_lahir : 0,
@@ -360,12 +423,12 @@ class ProsesData extends Command
 					'rt' 				=> ($data->rt) ? $data->rt : 0,
 					'rw' 				=> ($data->rw) ? $data->rw : 0,
 					'desa_kelurahan' 	=> ($data->desa_kelurahan) ? $data->desa_kelurahan : 0,
-					'kecamatan' 		=> ($data->wilayah->nama) ? $data->wilayah->nama : 0,
+					'kecamatan' 		=> ($kecamatan) ? $kecamatan->nama : 0,
 					'kode_pos' 			=> ($data->kode_pos) ? $data->kode_pos : 0,
 					'no_telp' 			=> ($data->nomor_telepon_seluler) ? $data->nomor_telepon_seluler : 0,
-					'sekolah_asal' 		=> ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->sekolah_asal : 0,
+					'sekolah_asal' 		=> ($data->sekolah_asal) ? $data->sekolah_asal : 0,
 					'diterima_kelas' 	=> 0,
-					'diterima' 			=> ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->tanggal_masuk_sekolah : date('Y-m-d'),
+					'diterima' 			=> ($data->tanggal_masuk_sekolah) ? $data->tanggal_masuk_sekolah : date('Y-m-d'),
 					'kode_wilayah' 		=> $data->kode_wilayah,
 					'email' 			=> $data->email,
 					'nama_ayah' 		=> ($data->nama_ayah) ? $data->nama_ayah : 0,
@@ -384,18 +447,18 @@ class ProsesData extends Command
 					['peserta_didik_id_dapodik' => $data->peserta_didik_id],
 					$insert_siswa
 				);
-				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $create_siswa->peserta_didik_id)->where('semester_id', '=', $semester->semester_id)->first();
+				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $create_siswa->peserta_didik_id)->where('semester_id', '=', session('semester_id'))->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->anggota_rombel->rombongan_belajar_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
-							'sekolah_id'				=> $sekolah->sekolah_id,
+							'sekolah_id'				=> session('sekolah_id'),
 							'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 							'peserta_didik_id' 			=> $create_siswa->peserta_didik_id,
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
 						$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-							['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'semester_id' => $semester->semester_id],
+							['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => session('semester_id')],
 							$insert_anggota_rombel
 						);
 						$create_anggota_rombel->delete();
@@ -408,23 +471,23 @@ class ProsesData extends Command
 	}
 	private function pembelajaran($response){
 		$user = auth()->user();
-		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
+		//$sekolah = Sekolah::find($user->sekolah_id);
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'pembelajaran';
 		$record['jumlah'] = $jumlah;
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
-		
+		$pembelajaran_id = [];
 		foreach($dapodik as $data){
+			$pembelajaran_id[] = $data->pembelajaran_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
 			$get_guru = Guru::where('guru_id_dapodik', '=', $data->ptk_terdaftar->ptk_id)->first();
 			$insert_pembelajaran = array(
-				'sekolah_id'				=> $sekolah->sekolah_id,
+				'sekolah_id'				=> $user->sekolah_id,
 				'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
 				'guru_id'					=> $get_guru->guru_id,
 				'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
@@ -434,31 +497,34 @@ class ProsesData extends Command
 				'last_sync'					=> date('Y-m-d H:i:s'),
 			);
 			Pembelajaran::updateOrCreate(
-				['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => $semester->semester_id],
+				['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => session('semester_id')],
 				$insert_pembelajaran
 			);
 			$i++;
+		}
+		if($pembelajaran_id){
+			Pembelajaran::where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->whereNotIn('pembelajaran_id_dapodik', $pembelajaran_id)->delete();
 		}
 	}
 	private function ekskul($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'ekstrakurikuler';
 		$record['jumlah'] = $jumlah;
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_ekskul.json', json_encode($record));
-		
+		$ekskul_id = [];
 		foreach($dapodik as $data){
+			$ekskul_id[] = $data->ID_kelas_ekskul;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_ekskul.json', json_encode($record));
 			$get_wali = Guru::where('guru_id_dapodik', $data->rombongan_belajar->wali_kelas->ptk_id)->first();
 			if($get_wali){
 				$insert_rombel = array(
-					'sekolah_id' 			=> $sekolah->sekolah_id,
+					'sekolah_id' 			=> session('sekolah_id'),
 					'kurikulum_id' 			=> $data->rombongan_belajar->kurikulum_id,
 					'nama' 					=> $data->rombongan_belajar->nama,
 					'guru_id' 				=> $get_wali->guru_id,
@@ -469,11 +535,11 @@ class ProsesData extends Command
 					'last_sync'				=> date('Y-m-d H:i:s'),
 				);
 				$create_rombel = Rombongan_belajar::updateOrCreate(
-					['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => $semester->semester_id],
+					['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => session('semester_id')],
 					$insert_rombel
 				);
 				$insert_ekskul = array(
-					'sekolah_id'	=> $sekolah->sekolah_id,
+					'sekolah_id'	=> session('sekolah_id'),
 					'guru_id' => $get_wali->guru_id,
 					'nama_ekskul' => $data->nm_ekskul,
 					'is_dapodik' => 1,
@@ -482,19 +548,21 @@ class ProsesData extends Command
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				);
 				Ekstrakurikuler::updateOrCreate(
-					['id_kelas_ekskul' => $data->ID_kelas_ekskul, 'semester_id' => $semester->semester_id],
+					['id_kelas_ekskul' => $data->ID_kelas_ekskul, 'semester_id' => session('semester_id')],
 					$insert_ekskul
 				);
 			}
 			$i++;
 		}
+		if($ekskul_id){
+			Ekstrakurikuler::where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->whereNotIn('id_kelas_ekskul', $ekskul_id)->delete();
+		}
 	}
 	private function anggota_ekskul($response){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
-		$semester = HelperServiceProvider::get_ta();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'anggota ekstrakurikuler';
 		$record['jumlah'] = $jumlah;
@@ -509,15 +577,15 @@ class ProsesData extends Command
 				$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->first();
 				if($find_siswa){
 					$insert_anggota_ekskul = array(
-						'sekolah_id'				=> $sekolah->sekolah_id,
-						'semester_id' 				=> $semester->semester_id, 
+						'sekolah_id'				=> session('sekolah_id'),
+						'semester_id' 				=> session('semester_id'), 
 						'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 						'peserta_didik_id' 			=> $find_siswa->peserta_didik_id,
 						'anggota_rombel_id_dapodik'	=> $data->anggota_rombel_id,
 						'last_sync'			=> date('Y-m-d H:i:s'),
 					);
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester->semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => session('semester_id')],
 						$insert_anggota_ekskul
 					);
 					$i++;
@@ -529,7 +597,7 @@ class ProsesData extends Command
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
 		$record['table'] = 'relasi dunia usaha dan industri (DUDI)';
 		$record['jumlah'] = $jumlah;
@@ -572,7 +640,7 @@ class ProsesData extends Command
 				'nomor_mou'			=> $data->nomor_mou,
 				'judul_mou'			=> $data->judul_mou,
 				'tanggal_mulai'		=> $data->tanggal_mulai,
-				'tanggal_selesai'	=> $data->tanggal_selesai,
+				'tanggal_selesai'	=> ($data->tanggal_selesai) ? $data->tanggal_selesai : date('Y-m-d'),
 				'nama_dudi'			=> $data->nama_dudi,
 				'npwp_dudi'			=> $data->npwp_dudi,
 				'nama_bidang_usaha'	=> $data->nama_bidang_usaha,
@@ -651,7 +719,7 @@ class ProsesData extends Command
 	private function jurusan($response){
 		$user = auth()->user();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$count_erapor = Jurusan::count();
 		$count_server = count($response);
 		$record['table'] = 'referensi jurusan';
@@ -691,7 +759,7 @@ class ProsesData extends Command
 	private function kurikulum($response){
 		$user = auth()->user();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$count_erapor = Kurikulum::count();
 		$count_server = $jumlah = count($response);
 		$record['table'] = 'referensi kurikulum';
@@ -728,7 +796,7 @@ class ProsesData extends Command
 	private function mata_pelajaran($response){
 		$user = auth()->user();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$count_erapor = Mata_pelajaran::count();
 		$count_server = $jumlah;
 		$record['table'] = 'referensi mata pelajaran';
@@ -769,14 +837,13 @@ class ProsesData extends Command
 	private function mapel_kur($response){
 		$user = auth()->user();
 		$jumlah = count($response);
-		$dapodik = HelperServiceProvider::array_to_object($response);
+		$dapodik = CustomHelper::array_to_object($response);
 		$count_erapor = Mata_pelajaran_kurikulum::count();
 		$count_server = $jumlah;
 		$record['table'] = 'referensi mata pelajaran kurikulum';
 		$record['jumlah'] = $count_server;
 		$record['inserted'] = $count_erapor;
 		Storage::disk('public')->put('proses_mapel_kur.json', json_encode($record));
-		
 		$i=1;
 		foreach($dapodik as $data){
 			$record['inserted'] = $i;
@@ -801,6 +868,88 @@ class ProsesData extends Command
 				['kurikulum_id' => $data->kurikulum_id, 'mata_pelajaran_id' => $data->mata_pelajaran_id, 'tingkat_pendidikan_id' => $data->tingkat_pendidikan_id],
 				$insert_mata_pelajaran_kurikulum
 			);
+			$i++;
+		}
+	}
+	private function wilayah($response){
+		$user = auth()->user();
+		$jumlah = count($response);
+		$dapodik = CustomHelper::array_to_object($response);
+		$count_erapor = Mst_wilayah::count();
+		$count_server = $jumlah;
+		$record['table'] = 'referensi wilayah';
+		$record['jumlah'] = $count_server;
+		$record['inserted'] = $count_erapor;
+		Storage::disk('public')->put('proses_wilayah.json', json_encode($record));
+		$i=1;
+		foreach($dapodik as $data){
+			$record['inserted'] = $i;
+			Storage::disk('public')->put('proses_wilayah.json', json_encode($record));
+			$find_induk = Mst_wilayah::find($data->mst_kode_wilayah);
+			if($find_induk){
+				$insert_wilayah = array(
+					'nama'				=> $data->nama,
+					'id_level_wilayah'	=> $data->id_level_wilayah,
+					'mst_kode_wilayah'	=> $data->mst_kode_wilayah,
+					'negara_id'			=> $data->negara_id,
+					'asal_wilayah'		=> $data->asal_wilayah,
+					'kode_bps'			=> $data->kode_bps,
+					'kode_dagri'		=> $data->kode_dagri,
+					'kode_keu'			=> $data->kode_keu,
+					'created_at'		=> $data->created_at,
+					'updated_at'		=> $data->updated_at,
+					'deleted_at'		=> $data->deleted_at,
+					'last_sync'			=> $data->last_sync
+				);
+				Mst_wilayah::updateOrCreate(
+					['kode_wilayah' => $data->kode_wilayah],
+					$insert_wilayah
+				);
+				$i++;
+			}
+		}
+	}
+	private function count_kd($response, $count, $page){
+		$user = auth()->user();
+		$jumlah = $count;
+		$dapodik = CustomHelper::array_to_object($response);
+		$count_erapor = Kompetensi_dasar::count();
+		$count_server = $jumlah;
+		$record['table'] = 'referensi kompetensi_dasar';
+		$record['jumlah'] = $count_server;
+		$record['inserted'] = $count_erapor;
+		Storage::disk('public')->put('proses_kompetensi_dasar.json', json_encode($record));
+		$i=($page) ? $page * 500 : 1;
+		$record['page'] = $page;
+		foreach($dapodik as $data){
+			$record['inserted'] = $i;
+			Storage::disk('public')->put('proses_kompetensi_dasar.json', json_encode($record));
+			$find = Kompetensi_dasar::find($data->kompetensi_dasar_id);
+			if(!$find){
+				Kompetensi_dasar::updateOrCreate(
+					[
+						'kompetensi_dasar_id' 		=> $data->kompetensi_dasar_id,
+					],
+					[
+						'id_kompetensi'				=> $data->id_kompetensi,
+						'kompetensi_id'				=> $data->kompetensi_id,
+						'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
+						'kelas_10'					=> $data->kelas_10,
+						'kelas_11'					=> $data->kelas_11,
+						'kelas_12'					=> $data->kelas_12,
+						'kelas_13'					=> $data->kelas_13,
+						'aktif'						=> $data->aktif,
+						'kurikulum'					=> $data->kurikulum,
+						'id_kompetensi_nas'			=> $data->id_kompetensi_nas,
+						'kompetensi_dasar'			=> trim($data->kompetensi_dasar),
+						'kompetensi_dasar_alias'	=> $data->kompetensi_dasar_alias,
+						'created_at'				=> $data->created_at,
+						'updated_at'				=> $data->updated_at,
+						'deleted_at'				=> $data->deleted_at,
+						'last_sync'					=> $data->last_sync,
+					]
+				);
+			}
 			$i++;
 		}
 	}

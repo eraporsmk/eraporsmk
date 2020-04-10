@@ -61,7 +61,7 @@
 		</tr>
 	@foreach($pembelajaran->kd_nilai_p as $kd_nilai_p)
 		<tr>
-			<td>{{$kd_nilai_p->kompetensi_dasar_id}}</td>
+			<td>'{{$kd_nilai_p->kompetensi_dasar->id_kompetensi}}</td>
 			<td>{{($kd_nilai_p->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai_p->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai_p->kompetensi_dasar->kompetensi_dasar}}</td>
 			<td>{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 			@foreach($rombongan_belajar->anggota_rombel as $siswa)
@@ -92,7 +92,7 @@
 		</tr>
 	@foreach($pembelajaran->kd_nilai_k as $kd_nilai_k)
 		<tr>
-			<td>{{$kd_nilai_k->kompetensi_dasar_id}}</td>
+			<td>'{{$kd_nilai_k->kompetensi_dasar->id_kompetensi}}</td>
 			<td>{{($kd_nilai_k->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai_k->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai_k->kompetensi_dasar->kompetensi_dasar}}</td>
 			<td>{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 			@foreach($rombongan_belajar->anggota_rombel as $siswa)

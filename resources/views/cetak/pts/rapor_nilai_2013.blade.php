@@ -65,7 +65,7 @@ body{font-size:11px !important;}
     <td><?php echo $data['rombel']->nama; ?></td>
   </tr>
 </table><br />
-<div class="strong" align="center">DAFTAR NILAI<br />PENILAIAN TENGAH SEMESTER</div>
+<div class="strong" align="center">DAFTAR NILAI<br />UJIAN TENGAH SEMESTER</div>
 <p>&nbsp;</p>
 <table <?php echo $border; ?> class="<?php echo $class; ?>">
     <thead>

@@ -15,7 +15,7 @@
 			<label for="ajaran_id" class="col-sm-3 control-label">Tahun Ajaran</label>
 			<div class="col-sm-9">
 				<input type="hidden" id="semester_id" name="semester_id" value="{{$semester->semester_id}}" />
-				<input type="text" class="form-control" value="2018/2019 (SMT 2)" readonly />
+				<input type="text" class="form-control" value="{{$semester->nama}} (SMT {{$semester->semester}})" readonly />
 			</div>
 		</div>
 		<div class="form-group">

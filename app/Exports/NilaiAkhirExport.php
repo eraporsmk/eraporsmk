@@ -6,8 +6,8 @@ use App\Pembelajaran;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\Exportable;
-
-class NilaiAkhirExport implements FromView
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+class NilaiAkhirExport implements FromView, ShouldAutoSize
 {
 	use Exportable;
     /**
@@ -22,7 +22,9 @@ class NilaiAkhirExport implements FromView
 	public function view(): View
     {
 		$pembelajaran_id = $this->pembelajaran_id;
-		$pembelajaran = Pembelajaran::with(['anggota_rombel', 'anggota_rombel.siswa', 'anggota_rombel.nilai_akhir_pengetahuan' => function($query) use ($pembelajaran_id){
+		$pembelajaran = Pembelajaran::with(['anggota_rombel' => function($query){
+			$query->order();
+		}, 'anggota_rombel.siswa', 'anggota_rombel.nilai_akhir_pengetahuan' => function($query) use ($pembelajaran_id){
 			$query->where('pembelajaran_id', '=', $pembelajaran_id);
 		}, 'anggota_rombel.nilai_akhir_keterampilan' => function($query) use ($pembelajaran_id){
 			$query->where('pembelajaran_id', '=', $pembelajaran_id);

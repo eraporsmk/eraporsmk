@@ -23,6 +23,9 @@ use App\Jenis_ptk;
 use Session;
 use App\Dudi;
 use App\Asesor;
+use Illuminate\Support\Facades\Validator;
+use Alert;
+use App\Agama;
 class GuruController extends Controller
 {
     public function __construct()
@@ -76,7 +79,7 @@ class GuruController extends Controller
 	public function list_guru($query){
 		$jenis_gtk = CustomHelper::jenis_gtk($query);
 		$user = auth()->user();
-		$query = Guru::with('gelar_depan')->with('gelar_belakang')->where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk);
+		$query = Guru::with('gelar_depan')->with('gelar_belakang')->where('sekolah_id', session('sekolah_id'))->whereIn('jenis_ptk_id', $jenis_gtk);
 		return DataTables::of($query)
 			->addColumn('set_nama', function ($item) {
 				if($item->gelar_depan->count()){
@@ -106,11 +109,14 @@ class GuruController extends Controller
             ->make(true);  
 	}
 	public function view($guru_id){
+		$user = auth()->user();
 		$tendik = CustomHelper::jenis_gtk('tendik');
 		$guru = CustomHelper::jenis_gtk('guru');
 		$instruktur = CustomHelper::jenis_gtk('instruktur');
 		$asesor = CustomHelper::jenis_gtk('asesor');
-		$data_guru = Guru::with('dudi')->with('jenis_ptk')->with('agama')->with('status_kepegawaian')->with('gelar_depan')->with('gelar_belakang')->find($guru_id);
+		$data_guru = Guru::with(['dudi' => function($query) use ($user){
+			$query->where('dudi.sekolah_id', session('sekolah_id'));
+		}])->with('jenis_ptk')->with('agama')->with('status_kepegawaian')->with('gelar_depan')->with('gelar_belakang')->find($guru_id);
 		$data['guru'] = $data_guru;
 		if(in_array($data_guru->jenis_ptk_id, $tendik)){
 			$title = 'Tenaga Kependidikan';
@@ -127,10 +133,26 @@ class GuruController extends Controller
 		$data['ref_gelar_belakang'] = Gelar::where('posisi_gelar','=',2)->get();
 		$data['title'] = 'Detil '.$title;
 		$data['modal_s'] = 'modal_s';
-		$data['data_dudi'] = Dudi::get();
+		$data['data_dudi'] = Dudi::where('sekolah_id', session('sekolah_id'))->get();
+		$data['ref_agama'] = Agama::get();
 		return view('guru.view', $data);
 	}
 	public function update_data(Request $request){
+		$messages = [
+			'email.required' => 'Email tidak boleh kosong',
+		];
+		$validator = Validator::make(request()->all(), [
+			'email' => 'required',
+		 ],
+		$messages
+		);
+		if ($validator->fails()) {
+			$output['title'] = 'Gagal';
+			$output['text'] = 'Email tidak boleh kosong';
+			$output['icon'] = 'error';
+			$output['sukses'] = 0;
+			return response()->json($output);
+		}
 		$guru_id = $request['guru_id'];
 		$guru = Guru::find($guru_id);
 		Gelar_ptk::where('guru_id', $guru_id)->delete();
@@ -142,7 +164,7 @@ class GuruController extends Controller
 					'sekolah_id'		=> $guru->sekolah_id,
 					'gelar_akademik_id'	=> $depan,
 					'guru_id'			=> $guru_id,
-					'ptk_id'			=> $guru->guru_id_dapodik,
+					'ptk_id'			=> ($guru->guru_id_dapodik) ? $guru->guru_id_dapodik : $guru_id,
 					'last_sync'			=> date('Y-m-d H:i:s'),
 				);
 				Gelar_ptk::create($insert_depan);
@@ -155,18 +177,37 @@ class GuruController extends Controller
 					'sekolah_id'		=> $guru->sekolah_id,
 					'gelar_akademik_id'	=> $belakang,
 					'guru_id'			=> $guru_id,
-					'ptk_id'			=> $guru->guru_id_dapodik,
+					'ptk_id'			=> ($guru->guru_id_dapodik) ? $guru->guru_id_dapodik : $guru_id,
 					'last_sync'			=> date('Y-m-d H:i:s'),
 				);
 				Gelar_ptk::create($insert_belakang);
 			}
 		}
-		$update_data = array(
-			'email' 			=> $request['email'],
-		);
-		$update = Guru::where('guru_id', '=', $request['guru_id'])->update($update_data);
+		//$update_data = array(
+			//'email' 			=> $request['email'],
+		//);
+		$update_data = $request->except(['_token', 'tanggal_lahir', 'dudi_id', 'gelar_depan', 'gelar_belakang']);
+		if($request->tanggal_lahir){
+			$update_data['tanggal_lahir'] = date('Y-m-d', strtotime($request->tanggal_lahir));
+		}
+		$update = Guru::where('guru_id', $request['guru_id'])->update($update_data);
 		if($update){
 			if($jenis_ptk_id == 98){
+				$messages = [
+					'dudi_id.required' => 'DUDI tidak boleh kosong',
+				];
+				$validator = Validator::make(request()->all(), [
+					'dudi_id' => 'required',
+				],
+				$messages
+				);
+				if ($validator->fails()) {
+					$output['title'] = 'Gagal';
+					$output['text'] = 'DUDI tidak boleh kosong';
+					$output['icon'] = 'error';
+					$output['sukses'] = 0;
+					return response()->json($output);
+				}
 				Asesor::updateOrCreate(
 					['guru_id' => $request['guru_id']],
 					[
@@ -176,7 +217,7 @@ class GuruController extends Controller
 					]
 				);
 			}
-			User::where('guru_id', '=', $request['guru_id'])->update(['email' => $request['email']]);
+			User::where('guru_id', $request['guru_id'])->update(['email' => $request['email']]);
 			$output['title'] = 'Sukses';
 			$output['text'] = 'Berhasil memperbaharui data guru';
 			$output['icon'] = 'success';
@@ -187,7 +228,7 @@ class GuruController extends Controller
 			$output['icon'] = 'error';
 			$output['sukses'] = 0;
 		}
-		echo json_encode($output);
+		return response()->json($output);
 	}
 	public function edit_gelar($guru_id){
 		$data['guru'] = Guru::find($guru_id);
@@ -221,15 +262,15 @@ class GuruController extends Controller
 			'file' => 'required|mimes:csv,xls,xlsx'
 		]);
 		$file = $request->file('file');
-		$nama_file = rand().$file->getClientOriginalName();
-		$file->move('import',$nama_file);
+		//$nama_file = rand().$file->getClientOriginalName();
+		//$file->move('import',$nama_file);
 		if($query == 'asesor'){
-			Excel::import(new AsesorImport, public_path('/import/'.$nama_file));
+			Excel::import(new AsesorImport, $file);
 		} else {
-			Excel::import(new InstrukturImport, public_path('/import/'.$nama_file));
+			Excel::import(new InstrukturImport, $file);
 		}
-		$filename = public_path().'/import/'.$nama_file;
-		File::delete($filename);
+		//$filename = public_path().'/import/'.$nama_file;
+		//File::delete($filename);
 		$output['title'] = 'Sukses';
 		$output['text'] = 'Berhasil memproses data '.$query;
 		$output['icon'] = 'success';

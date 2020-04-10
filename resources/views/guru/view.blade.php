@@ -6,6 +6,10 @@
 
 @section('content')
 <?php
+$disabled = 'disabled="disabled"';
+if($guru->jenis_ptk_id == 97 || $guru->jenis_ptk_id == 98){
+	$disabled = '';
+}
 $get_gelar_belakang = array();
 $get_gelar_depan = array();
 $get_kode_depan = array();
@@ -30,7 +34,7 @@ if($guru->gelar_belakang){
 		<tr>
 			<td width="30%">Nama</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{strtoupper(trim($guru->nama))}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" name="nama" class="form-control" value="{{strtoupper(trim($guru->nama))}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Gelar Depan</td>
@@ -67,62 +71,83 @@ if($guru->gelar_belakang){
 		<tr>
 			<td width="30%">NUPTK</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->nuptk}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="nuptk" value="{{$guru->nuptk}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">NIP</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->nip}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="nip" value="{{$guru->nip}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">NIK</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->nik}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="nik" value="{{$guru->nik}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Jenis Kelamin</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{($guru->jenis_kelamin == 'L') ? 'Laki-laki' : 'Perempuan'}}" disabled="disabled" /></td>
+			<td width="70%">
+				<select class="form-control select2" style="width:100%" name="jenis_kelamin" {{$disabled}}>
+					<option value="L" {{($guru->jenis_kelamin == 'L') ? 'selected="selected"' : ''}}>Laki-laki</option>
+					<option value="P" {{($guru->jenis_kelamin == 'P') ? 'selected="selected"' : ''}}>Perempuan</option>
+				</select>
+			</td>
 		</tr>
 		<tr>
-			<td width="30%">tempat_lahir</td>
+			<td width="30%">Tempat Lahir</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->tempat_lahir}}, {{CustomHelper::TanggalIndo($guru->tanggal_lahir)}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" name="tempat_lahir" class="form-control" value="{{$guru->tempat_lahir}}" {{$disabled}} /></td>
+		</tr>
+		<tr>
+			<td width="30%">Tanggal Lahir</td>
+			<td width="1">:</td>
+			<td width="70%"><input type="text" name="tanggal_lahir" class="form-control datepicker" value="{{date('d/m/Y', strtotime($guru->tanggal_lahir))}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Agama</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{($guru->agama) ? $guru->agama->nama : '-'}}" disabled="disabled" /></td>
+			<td width="70%">
+				<select name="agama_id" class="form-control select2" style="width:100%" {{$disabled}}>
+					@foreach($ref_agama as $agama)
+					<option value="{{$agama->id}}"{{($guru->agama_id == $agama->id) ? ' selected="selected"' : ''}}>{{$agama->nama}}</option>
+					@endforeach
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<td width="30%">Alamat</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->alamat}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="alamat" value="{{$guru->alamat}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
-			<td width="30%">RT/RW</td>
+			<td width="30%">RT</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->rt}}/{{$guru->rw}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="rt" value="{{$guru->rt}}" {{$disabled}} /></td>
+		</tr>
+		<tr>
+			<td width="30%">RW</td>
+			<td width="1">:</td>
+			<td width="70%"><input type="text" class="form-control" name="rw" value="{{$guru->rw}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Desa/Kelurahan</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->desa_kelurahan}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="desa_kelurahan" value="{{$guru->desa_kelurahan}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Kecamatan</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->kecamatan}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="kecamatan" value="{{$guru->kecamatan}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Kodepos</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->kode_pos}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="kode_pos" value="{{$guru->kode_pos}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Telp/HP</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" class="form-control" value="{{$guru->no_hp}}" disabled="disabled" /></td>
+			<td width="70%"><input type="text" class="form-control" name="no_hp" value="{{$guru->no_hp}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Email</td>
@@ -177,21 +202,28 @@ if($guru->gelar_belakang){
 @endsection
 
 @section('js')
+<link rel="stylesheet" href="{{asset('vendor/adminlte/plugins/datepicker/datepicker3.css')}}">
+<script src="{{asset('vendor/adminlte/plugins/datepicker/bootstrap-datepicker.js')}}"></script>
 <script type="text/javascript">
 $('.select2').select2();
+$('.datepicker').datepicker({
+	autoclose: true
+});
 $('.update_data').click(function(e){
 	e.preventDefault();
 	$.ajax({
 		url: '{{ route('guru.update_data') }}',
 		type: 'post',
 		data: $('#update_data').serialize(),
-		success: function(response){
-			var data = $.parseJSON(response);
+		success: function(data){
+			//var data = $.parseJSON(response);
 			if(data.sukses){
 				$('#modal_content').modal('toggle');
 				swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then((result) => {
 					$('#datatable').DataTable().ajax.reload(null, false);
 				});
+			} else {
+				swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false});
 			}
 		}
 	});

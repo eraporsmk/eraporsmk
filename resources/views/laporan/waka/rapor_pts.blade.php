@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title_postfix', 'Cetak Rapor PTS | ')
+@section('title_postfix', 'Cetak Rapor UTS | ')
 
 @section('content_header')
-    <h1>Cetak Rapor PTS</h1>
+    <h1>Cetak Rapor UTS</h1>
 @stop
 
 @section('content')
@@ -20,7 +20,7 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
-	<form action="{{ route('laporan.cetak_pts') }}" method="post" class="form-horizontal" id="form">
+	<form action="{{ route('laporan.cetak_uts') }}" method="post" class="form-horizontal" id="form">
 		{{ csrf_field() }}
 		<div class="col">
 			<div class="col-sm-6">
@@ -121,7 +121,7 @@ $('#rombel').change(function(){
 		return false;
 	}
 	$.ajax({
-		url: '{{url('ajax/get-rapor-pts')}}',
+		url: '{{route('ajax.get_rapor_uts')}}',
 		type: 'post',
 		data: $("form#form").serialize(),
 		success: function(response){

@@ -69,8 +69,8 @@
 	<tr>
 		<td style="width: 5%;">11.</td>
 		<td style="width: 35%;padding:5px;">Diterima di sekolah ini</td>
-		<td style="width: 5%">&nbsp;</td>
-		<td style="width: 58%">{{($get_siswa->siswa->diterima_kelas) ? : '-'}}</td>
+		<td style="width: 5%">:</td>
+		<td style="width: 58%">&nbsp;</td>
 	</tr>
 	<tr>
 		<td style="width: 5%;">&nbsp;</td>
@@ -164,7 +164,7 @@
 			Pas Foto<br>3 x 4
 		</td>
 		<td style="width: 15%;padding:5px;" rowspan="5">&nbsp;</td>
-		<td style="width: 50%;padding:5px;">{{$get_siswa->sekolah->kabupaten}}, {{CustomHelper::TanggalIndo($get_siswa->siswa->diterima)}}<br />Kepala Sekolah</td>
+		<td style="width: 50%;padding:5px;">{{str_replace('Kab. ','',$get_siswa->sekolah->kabupaten)}}, {{CustomHelper::TanggalIndo($get_siswa->siswa->diterima)}}<br />Kepala Sekolah</td>
 	</tr>
 	<tr>
 		<td style="width: 50%;padding:5px;">&nbsp;</td>

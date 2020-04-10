@@ -15,7 +15,7 @@ class Rapor_pts extends Model
 		return $this->hasMany('App\Pembelajaran', 'pembelajaran_id', 'pembelajaran_id');
 	}
 	public function rencana_penilaian(){
-		return $this->hasMany('App\Rencana_penilaian', 'rencana_penilaian_id', 'rencana_penilaian_id');
+		return $this->hasOne('App\Rencana_penilaian', 'rencana_penilaian_id', 'rencana_penilaian_id');
 	}
 	public function nilai(){
 		return $this->hasManyThrough(

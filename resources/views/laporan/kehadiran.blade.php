@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title_postfix', 'Data Kehadiran Peserta Didik |')
+@section('title_postfix', 'Data Ketidakhadiran Peserta Didik |')
 
 @section('content_header')
-    <h1>Data Kehadiran Peserta Didik</h1>
+    <h1>Data Ketidakhadiran Peserta Didik</h1>
 @stop
 @section('content_header_right')
 	<a href="{{url('laporan/unduh-kehadiran/'.$rombongan_belajar_id)}}" class="btn btn-success pull-right"><i class="fa fa-download"></i> Unduh Rekap</a>
@@ -22,7 +22,7 @@
         <strong>Error!</strong> {{ $message }}
       </div>
     @endif
-<form action="{{ route('laporan.simpan_kehadiran') }}" method="post" class="form-horizontal">
+<form action="{{ route('laporan.simpan_ketidakhadiran') }}" method="post" class="form-horizontal">
 	{{ csrf_field() }}
 	<input type="hidden" name="sekolah_id" value="{{$user->sekolah_id}}" />
 	<div class="table-responsive no-padding">

@@ -1,3 +1,17 @@
+<?php
+if($rombongan_belajar->kunci_nilai){
+?>
+<script>
+$('#simpan').remove();
+</script>
+<div class="alert alert-danger alert-dismissible">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<h4><i class="icon fa fa-info"></i> Informasi!</h4>
+	Status penilaian tidak aktif. Untuk menambah atau memperbaharui penilaian remedial, silahkan menghubungi wali kelas.
+</div>
+<?php
+} else {
+?>
 <div class="row">
 	<div class="col-md-6">
 		<table class="table table-bordered">
@@ -31,7 +45,8 @@
 		<tr>
 			@foreach($all_kd as $kd)
 				<?php
-				$kd_id[$kd->kd_id] = $kd->kd_id;
+				//dd($kd);
+				$kd_id[$kd->kompetensi_dasar_id] = $kd->kompetensi_dasar_id;
 				$kompetensi_dasar = ($kd->kompetensi_dasar->kompetensi_dasar_alias) ? $kd->kompetensi_dasar->kompetensi_dasar_alias : $kd->kompetensi_dasar->kompetensi_dasar;
 				?>
 				<th class="text-center">
@@ -42,7 +57,6 @@
 		</thead>
 		<tbody>
 		@foreach($all_siswa as $siswa)
-		{{--dd($siswa)--}}
 			<tr>
 				<td>
 					{{strtoupper($siswa->siswa->nama)}}
@@ -50,8 +64,9 @@
 				</td>
 				@foreach($siswa->{$with_1} as $nilai_kd)
 					<?php 
-					$kd_nilai[] = $nilai_kd->kd_id;
-					$nilai[$siswa->anggota_rombel_id][$nilai_kd->kd_id] = $nilai_kd->nilai_kd; 
+					//dd($nilai_kd);
+					$kd_nilai[] = $nilai_kd->kompetensi_dasar_id;
+					$nilai[$siswa->anggota_rombel_id][$nilai_kd->kompetensi_dasar_id] = $nilai_kd->nilai_kd; 
 					?>
 				@endforeach
 				<?php $set_rerata = 0; ?>
@@ -78,33 +93,7 @@
 					<td class="text-center"><?php echo ($nilai_perkd) ? '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_perkd,0).'" '.$aktif.' />' : '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_asli_perkd,0).'" '.$aktif.' />'; ?></td>
 					@endforeach
 					<?php
-					/*$nilai_asli = array_diff($kd_nilai, $kd_remedial);
-					if($nilai_asli){
-						foreach($nilai_asli as $asli){
-							$nilai_asal = $nilai[$siswa->anggota_rombel_id][$asli];
-							if($kkm > number_format($nilai_asal,0)){
-								$aktif = '';
-								$bg = 'bg-red';
-							} else {
-								$aktif = 'readonly';
-								$bg = 'bg-green';
-							}							
-							//echo '<td class="text-center">'.$nilai[$siswa->anggota_rombel_id][$asli].'</td>';
-					?>
-						<td class="text-center"><input type="text" name="nilai_remedial[{{$siswa->anggota_rombel_id}}][{{$asli}}]" size="10" class="{{$bg}} form-control input-sm" value="{{number_format($nilai_asal,0)}}" {{$aktif}} /></td>
-					<?php
-						}
-					} else {
-						if(count($all_kd) > count($nilai_remedial)){
-							$tambah = count($all_kd) - count($nilai_remedial);
-							for($i=1;$i<=$tambah;$i++){
-								//echo $tambah.'=>'.$i;
-								//dd($kd_remedial);
-								echo '<td class="text-center">-</td>';
-							}
-						}
-					}*/
-					$rerata_akhir = $siswa->nilai_remedial->rerata_akhir;
+					$rerata_akhir = ($siswa->{$with_2}) ? $siswa->{$with_2}->nilai_akhir : 0;//$siswa->nilai_remedial->rerata_akhir;
 					$rerata_remedial = $siswa->nilai_remedial->rerata_remedial;
 					if($kkm > $rerata_akhir){
 						$bg_rerata_akhir = 'text-red';
@@ -120,8 +109,9 @@
 				@else
 					<?php $link_delete = '-'; ?>
 					@foreach($all_kd as $kd)
-					<?php 
-					$nilai_perkd = (isset($nilai[$siswa->anggota_rombel_id][$kd->kd_id])) ? $nilai[$siswa->anggota_rombel_id][$kd->kd_id] : 0;
+					<?php
+					$kd_id_check[] = $kd->kompetensi_dasar_id;
+					$nilai_perkd = (isset($nilai[$siswa->anggota_rombel_id][$kd->kompetensi_dasar_id])) ? $nilai[$siswa->anggota_rombel_id][$kd->kompetensi_dasar_id] : 0;
 					$set_rerata += $nilai_perkd;
 					if($kkm > number_format($nilai_perkd,0)){
 						$aktif = '';
@@ -131,11 +121,12 @@
 						$bg = 'bg-green';
 					}
 					?>
-					<td class="text-center"><?php echo ($nilai_perkd) ? '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd->kd_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_perkd,0).'" '.$aktif.' />' : '<input type="hidden" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd->kd_id.']" value="0" />-'; ?></td>
+					<td class="text-center"><?php echo ($nilai_perkd) ? '<input type="text" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd->kompetensi_dasar_id.']" size="10" class="'.$bg.' form-control input-sm" value="'.number_format($nilai_perkd,0).'" '.$aktif.' />' : '<input type="hidden" name="nilai_remedial['.$siswa->anggota_rombel_id.']['.$kd->kompetensi_dasar_id.']" value="0" />-'; ?></td>
 					@endforeach
 					<?php
-					if($set_rerata){
-						$rerata_akhir = number_format($set_rerata / $all_kd->count(),0);
+					$a = ($siswa->{$with_2}) ? $siswa->{$with_2}->where('anggota_rombel_id', $siswa->anggota_rombel_id)->where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->first() : NULL;
+					if($set_rerata && $a){
+						$rerata_akhir = $a->nilai_akhir;//number_format($set_rerata / $all_kd->count(),0);
 						$rerata_remedial = 0;
 					} else {
 						$rerata_akhir = '';
@@ -246,3 +237,4 @@ $('#simpan').hide();
 $('#simpan').show();
 @endif
 </script>
+<?php } ?>

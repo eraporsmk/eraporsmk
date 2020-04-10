@@ -1,3 +1,14 @@
+<?php
+if($rombongan_belajar->kunci_nilai){
+?>
+<div class="alert alert-danger alert-dismissible">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<h4><i class="icon fa fa-info"></i> Informasi!</h4>
+	Status penilaian tidak aktif. Untuk menambah perencanaan, silahkan menghubungi wali kelas.
+</div>
+<?php
+} else {
+?>
 <link rel="stylesheet" href="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.css') }}">
 <script src="{{ asset('vendor/adminlte/plugins/tooltip/tooltip-viewport.js') }}"></script>
 @if($all_kd->count())
@@ -6,6 +17,7 @@ foreach($all_kd as $kompetensi_dasar){
 	$data_kd[str_replace('.','',$kompetensi_dasar->id_kompetensi)] = $kompetensi_dasar;
 }
 ksort($data_kd);
+//$data_kd = $all_kd;
 ?>
 <div class="table-responsive">
 	<table class="table table-striped table-bordered" id="clone">
@@ -71,3 +83,4 @@ if(bobot_value){
 	$("input#bobot").prop('disabled', false);
 }*/
 </script>
+<?php } ?>

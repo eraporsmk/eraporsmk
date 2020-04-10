@@ -4,9 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Ekstrakurikuler extends Model
 {
     use Uuid;
+	use SoftDeletes;
     public $incrementing = false;
 	protected $table = 'ekstrakurikuler';
 	protected $primaryKey = 'ekstrakurikuler_id';
@@ -24,7 +26,7 @@ class Ekstrakurikuler extends Model
 		return $this->hasOne('App\Anggota_rombel', 'rombongan_belajar_id', 'rombongan_belajar_id');
 	}
 	public function nilai_ekskul(){
-		return $this->belongsTo('App\Nilai_ekstrakurikuler', 'foreign_key', 'other_key');
+		return $this->belongsTo('App\Nilai_ekstrakurikuler', 'ekstrakurikuler_id', 'ekstrakurikuler_id');
 	}
 	public function nilai_ekskul1(){
 		//return $this->hasOne('App\Nilai_ekstrakurikuler', 'ekstrakurikuler_id', 'ekstrakurikuler_id');

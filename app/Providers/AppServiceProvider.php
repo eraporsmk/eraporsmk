@@ -7,7 +7,10 @@ use Illuminate\Contracts\Events\Dispatcher;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Support\Facades\Blade;
 use CustomHelper;
-
+use App\Setting;
+use App\Sekolah;
+use Illuminate\Support\Facades\Auth;
+use Config;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -30,8 +33,60 @@ class AppServiceProvider extends ServiceProvider
         //
     }*/
 	public function boot(Dispatcher $events){
-		$events->listen(BuildingMenu::class, function (BuildingMenu $event) {
+		//dd(config());
+		$with = '';
+		$ta = CustomHelper::get_ta();
+		$user = '';
+		view()->composer('*', function($view) use ($with){
+			$user = auth()->user();
 			$ta = CustomHelper::get_ta();
+			if ($view->getName() == 'adminlte::page' || $view->getName() == 'config' || $view->getName() == 'home') {
+        		//$view->with('variable', 'Set variable');
+				$user = auth()->user();
+				if($user){
+					$with = [
+						'user' => $user,
+						'sekolah'	=> Sekolah::with(['guru' => function($query){
+							$query->with('gelar_depan');
+							$query->with('gelar_belakang');
+						}])->find($user->sekolah_id),
+						'semester' => $ta,
+					];
+				}
+				$view->with($with);
+    		} else {
+				if($user){
+					$with = [
+						'user' => $user,
+						'semester' => $ta,
+						'sekolah'	=> Sekolah::with(['guru' => function($query){
+							$query->with('gelar_depan');
+							$query->with('gelar_belakang');
+						}])->find($user->sekolah_id),
+					];
+				}
+				$view->with($with);
+			}
+		});
+		config([
+			'global' => Setting::all([
+				'key','value'
+			])
+			->keyBy('key') // key every setting by its name
+			->transform(function ($setting) {
+				return $setting->value; // return only the value
+			})
+			->toArray(),
+			'site' => 
+				[
+					'app_name' 	=> 'e-Rapor SMK',
+					'semester' 	=> $ta,
+					'asd'		=> 'tambahan',
+				]
+		]);
+		//dd($ta);
+		//$ta = CustomHelper::get_ta();
+		$events->listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {
 			$url = parse_url(url('/'));
 			$event->menu->add('periode');
 			$event->menu->add([
@@ -47,13 +102,13 @@ class AppServiceProvider extends ServiceProvider
 					'icon'        => 'refresh',
 					'permission'  		=> 'admin',
 					'submenu' => [
-						[
+						/*[
 							'text' => 'eRapor 4.x.x',
 							'url'  => 'sinkronisasi/erapor4',
 							'icon' => 'refresh',
 							'label'       => 'Offline',
 							'label_color' => 'danger',
-						],
+						],*/
 						[
 							'text' => 'Ambil Data Dapodik',
 							'url'  => 'sinkronisasi/dapodik',
@@ -85,13 +140,6 @@ class AppServiceProvider extends ServiceProvider
 					'icon'        => 'refresh',
 					'permission'  		=> 'admin',
 					'submenu' => [
-						[
-							'text' => 'eRapor 4.x.x',
-							'url'  => 'sinkronisasi/erapor4',
-							'icon' => 'refresh',
-							'label'       => 'Offline',
-							'label_color' => 'danger',
-						],
 						[
 							'text' => 'Ambil Data Dapodik',
 							'url'  => 'sinkronisasi/dapodik',
@@ -169,7 +217,7 @@ class AppServiceProvider extends ServiceProvider
 						'text' => 'Referensi Rombel',
 						'url'  => 'rombel',
 						'icon' => 'hand-o-right',
-						'permission'	=> 'admin',
+						'permission'	=> ['admin', 'waka'],
 					],
 					[
 						'text' => 'Referensi Peserta Didik',
@@ -270,28 +318,32 @@ class AppServiceProvider extends ServiceProvider
 				'text'	=> 'Penilaian',
 				'url'  => '#',
 				'icon' => 'edit',
-				'permission'  => 'guru',
+				'permission'  => ['guru', 'tu'],
 				'submenu' => [
 					[
 						'text' => 'Penilaian Pengetahuan',
 						'url'  => 'penilaian/pengetahuan',
 						'icon' => 'hand-o-right',
+						'permission'  => 'guru',
 					],
 					[
 						'text' => 'Penilaian Keterampilan',
 						'url'  => 'penilaian/keterampilan',
 						'icon' => 'hand-o-right',
+						'permission'  => 'guru',
 					],
 					[
 						'text' => 'Penilaian Sikap',
 						'url'  => 'penilaian/list-sikap',
 						'icon' => 'hand-o-right',
 						'active' => ['penilaian/list-sikap', 'penilaian/sikap'],
+						'permission'  => 'guru',
 					],
 					[
 						'text' => 'Penilaian Remedial',
 						'url'  => 'penilaian/remedial',
 						'icon' => 'hand-o-right',
+						'permission'  => 'guru',
 					],
 					[
 						'text' => 'Penilaian UKK',
@@ -326,8 +378,8 @@ class AppServiceProvider extends ServiceProvider
 							'icon' => 'hand-o-right',
 						],
 						[
-							'text' => 'Kehadiran',
-							'url'  => 'laporan/kehadiran',
+							'text' => 'Ketidakhadiran',
+							'url'  => 'laporan/ketidakhadiran',
 							'icon' => 'hand-o-right',
 						],
 						[
@@ -347,9 +399,9 @@ class AppServiceProvider extends ServiceProvider
 							'active' => ['laporan/prestasi', 'laporan/tambah-prestasi'],
 						],
 						[
-							'text' => 'Cetak Rapor PTS',
-							'url'  => 'laporan/rapor-pts',
-							'active' => ['laporan/rapor-pts', 'laporan/cetak-pts'],
+							'text' => 'Cetak Rapor UTS',
+							'url'  => 'laporan/rapor-uts',
+							'active' => ['laporan/rapor-uts', 'laporan/cetak-uts'],
 							'icon' => 'print',
 						],
 						[
@@ -409,9 +461,9 @@ class AppServiceProvider extends ServiceProvider
 							'icon' => 'hand-o-right',
 						],
 						[
-							'text' => 'Cetak Rapor PTS',
-							'url'  => 'laporan/rapor-pts',
-							'active' => ['laporan/rapor-pts', 'laporan/cetak-pts'],
+							'text' => 'Cetak Rapor UTS',
+							'url'  => 'laporan/rapor-uts',
+							'active' => ['laporan/rapor-uts', 'laporan/cetak-uts'],
 							'icon' => 'print',
 						],
 						[
