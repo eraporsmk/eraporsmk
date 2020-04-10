@@ -27,8 +27,8 @@ class UpdateController extends Controller
             //MAKA FOLDER TERSEBUT AKAN DIBUAT
             File::makeDirectory($this->path);
         }
-		$files =   File::allFiles($this->path);
-		File::delete($files);
+		//$files =   File::allFiles($this->path);
+		//File::delete($files);
 		return view('update');
     }
 	public function update_versi(){
@@ -86,34 +86,43 @@ class UpdateController extends Controller
 		echo 'sukses';
 	}
 	public function periksa_pembaharuan(Request $request){
-		$version = config('global.app_version');
-		$client = new Client([
-			'base_uri' => 'https://api.github.com',
-			'timeout'  => 5.0,
-			'verify' => false
-		]);
-		$action = '/repos/eraporsmk/eraporsmk/releases/latest';
-		$curl = $client->get($action);
-		$version = '5.0.7';
-		if($curl->getStatusCode() == 200){
-			$response = json_decode($curl->getBody());
-			$versionAvailable = str_replace('v.', '', $response->tag_name);
-			if (version_compare($version, $versionAvailable, '<')) {
-				$output = [
-					'server' => TRUE,
-					'new_version' => TRUE,
-					'current_version' => $version,
-					'zipball_url' => $response->zipball_url,
-				];
+		try {
+			$version = config('global.app_version');
+			$client = new Client([
+				'base_uri' => 'https://api.github.com',
+				'timeout'  => 5.0,
+				'verify' => false
+			]);
+			$action = '/repos/eraporsmk/eraporsmk/releases/latest';
+			$curl = $client->get($action);
+			$version = '5.0.7';
+			if($curl->getStatusCode() == 200){
+				$response = json_decode($curl->getBody());
+				$versionAvailable = str_replace('v.', '', $response->tag_name);
+				if (version_compare($version, $versionAvailable, '<')) {
+					$output = [
+						'server' => TRUE,
+						'new_version' => $versionAvailable,
+						'current_version' => $version,
+						'zipball_url' => $response->zipball_url,
+					];
+				} else {
+					$output = [
+						'server' => TRUE,
+						'new_version' => FALSE,
+						'current_version' => $version,
+						'zipball_url' => NULL,
+					];
+				}
 			} else {
 				$output = [
-					'server' => TRUE,
+					'server' => FALSE,
 					'new_version' => FALSE,
 					'current_version' => $version,
 					'zipball_url' => NULL,
 				];
 			}
-		} else {
+		} catch (\Exception $e) {
 			$output = [
 				'server' => FALSE,
 				'new_version' => FALSE,
@@ -123,29 +132,116 @@ class UpdateController extends Controller
 		}
 		return response()->json($output);
 	}
-	public function proses_update($versionAvailable, $zipball_url){
-		$storageFolder = $this->path.'/'.$versionAvailable.'-'.now()->timestamp;
-		$storageFilename = $storageFolder.'.zip';
-		$downloadReleaseClient = new Client([
-			'base_uri' => 'https://api.github.com',
-			'verify' => false,
-			'sink' => $storageFilename,
-		]);
-		$downloadRelease = $downloadReleaseClient->get($zipball_url);
-		$this->unzipArchive($storageFilename, $storageFolder, false);
-		$this->createReleaseFolder($storageFolder, $versionAvailable);
+	public function download_updateTest(Request $request){
+		$output = [
+			'next' => 'unzip',
+		];
+		return response()->json($output);
 	}
-	private function unzipArchive($file, $targetDir, $deleteZipArchive = true): bool
-    {
+	public function download_update(Request $request){
+		try {
+			$versionAvailable = $request->get('versionAvailable');
+			$zipball_url = $request->get('zipball_url');
+			$storageFolder = $this->path.'/'.$versionAvailable.'-'.now()->timestamp;
+			$storageFilename = $storageFolder.'.zip';
+			$downloadReleaseClient = new Client([
+				'base_uri' => 'https://api.github.com',
+				'verify' => false,
+				'sink' => $storageFilename,
+			]);
+			$downloadRelease = $downloadReleaseClient->get($zipball_url, [
+				'progress' => function(
+					$downloadTotal,
+					$downloadedBytes,
+					$uploadTotal,
+					$uploadedBytes
+				) {
+					//do something
+					$record['downloadTotal'] = 17387450;
+					$record['downloadedBytes'] = $downloadedBytes;
+					$record['uploadTotal'] = $uploadTotal;
+					$record['uploadedBytes'] = $uploadedBytes;
+					Storage::disk('public')->put('download_upload.json', json_encode($record));
+				},
+			]);
+			$output = [
+				'next' => 'unzip',
+				'storageFilename' => $storageFilename,
+				'storageFolder' => $storageFolder,
+				'versionAvailable' => $versionAvailable,
+				'status' => NULL,
+			];
+		} catch (\Exception $e) {
+			$output = [
+				'next' => NULL,
+				'storageFilename' => NULL,
+				'storageFolder' => NULL,
+				'versionAvailable' => NULL,
+				'status' => 'Proses mengunduh berkas pembaharuan terhenti'
+			];
+		}
+		return response()->json($output);
+		//$this->unzipArchive($storageFilename, $storageFolder, false);
+		//$this->createReleaseFolder($storageFolder, $versionAvailable);
+	}
+	public function persentase(){
+		$json = Storage::disk('public')->get('download_upload.json');
+		$json_output = json_decode($json);
+		if($json_output){
+			$percent = ($json_output->downloadTotal) ? round($json_output->downloadedBytes / $json_output->downloadTotal * 100,2) : 0;
+		} else {
+			$percent = 0;
+		}
+		$output = [
+			'percent' => $percent
+		];
+		return response()->json($output);
+	}
+	public function unzipArchiveTest(){
+		$output = [
+			'status' => NULL,
+			'next' => 'proses',
+		];
+		return response()->json($output);
+	}
+	public function createReleaseFolderTest(){
+		$output = [
+			'status' => 'Berhasil memperbarui aplikasi',
+			'next' => NULL,
+		];
+		return response()->json($output);
+	}
+	public function unzipArchive(Request $request){
+		$file = $request->get('storageFilename');
+		$targetDir = $request->get('storageFolder');
+		$versionAvailable = $request->get('versionAvailable');
+		$output = [
+			'releaseFolder' => $targetDir,
+			'releaseName' => $versionAvailable,
+			'status' => NULL,
+			'next' => 'proses',
+		];
         if (empty($file) || ! File::exists($file)) {
-            throw new \InvalidArgumentException("Archive [{$file}] cannot be found or is empty.");
+			//throw new \InvalidArgumentException("Archive [{$file}] cannot be found or is empty.");
+			$output = [
+				'releaseFolder' => NULL,
+				'releaseName' => NULL,
+				'status' => 'Berkas pembaharuan tidak tersedia.',
+				'next' => FALSE,
+			];
         }
 
         $zip = new \ZipArchive();
         $res = $zip->open($file);
 
         if (! $res) {
-            throw new Exception("Cannot open zip archive [{$file}].");
+			//throw new Exception("Cannot open zip archive [{$file}].");
+			$output = [
+				'releaseFolder' => NULL,
+				'releaseName' => NULL,
+				'status' => 'Berkas pembaharuan tidak dapat di akses.',
+				'next' => FALSE,
+			];
         }
 
         if (empty($targetDir)) {
@@ -156,17 +252,17 @@ class UpdateController extends Controller
 
         $zip->close();
 
-        if ($extracted && $deleteZipArchive === true) {
+        if ($extracted) {
             File::delete($file);
         }
-
-        return true;
+		return response()->json($output);
 	}
-	private function createReleaseFolder(string $releaseFolder, $releaseName)
-    {
-        $folders = File::directories($releaseFolder);
-		dd($folders);
-        if (count($folders) === 1) {
+	public function createReleaseFolder(Request $request){
+		$releaseFolder = $request->get('releaseFolder');
+		$releaseName = $request->get('releaseName');
+		$folders = File::directories($releaseFolder);
+		Storage::disk('public')->delete('download_upload.json');
+		if (count($folders) === 1) {
             // Only one sub-folder inside extracted directory
             File::moveDirectory($folders[0], $this->path.'/'.$releaseName);
             File::deleteDirectory($folders[0]);
@@ -174,6 +270,7 @@ class UpdateController extends Controller
         } else {
             // Release (with all files and folders) is already inside, so we need to only rename the folder
             File::moveDirectory($releaseFolder, $this->path.'/'.$releaseName);
-        }
+		}
+		$this->update_versi();
     }
 }

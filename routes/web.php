@@ -27,12 +27,25 @@ Route::get('/generate-nilai/{pembelajaran_id}/{kompetensi_id}', array('as' => 'g
 Route::get('/progres-perencanaan-dan-penilaian', array('as' => 'progres_perencanaan_dan_penilaian', 'uses' => 'HomeController@progres_perencanaan_dan_penilaian'));
 Route::get('/detil-nilai/{pembelajaran_id}', array('as' => 'detil_nilai', 'uses' => 'HomeController@detil_nilai'));
 //home end
-Route::group(['prefix' => 'users', 'middleware' => ['role:admin']], function() {
-    Route::get('/', 'UsersController@index')->name('users');
-    Route::get('/list_user', 'UsersController@list_user')->name('list_user');
-    Route::get('/edit/{id}', 'UsersController@edit')->name('users.edit');
-    Route::get('/delete/{id}', 'UsersController@delete')->name('users.delete');
-    Route::put('/update/{id}', 'UsersController@update')->name('user.update');
+//admin area
+Route::group(['middleware' => ['role:admin']], function () {
+    Route::prefix('ajax')->group(function () {
+    });
+    Route::prefix('users')->group(function () {
+        Route::get('/', 'UsersController@index')->name('users');
+        Route::get('/list_user', 'UsersController@list_user')->name('list_user');
+        Route::get('/edit/{id}', 'UsersController@edit')->name('users.edit');
+        Route::get('/delete/{id}', 'UsersController@delete')->name('users.delete');
+        Route::put('/update/{id}', 'UsersController@update')->name('user.update');
+    });
+    Route::prefix('check-update')->group(function () {
+        Route::get('/', 'UpdateController@index')->name('updater.index');
+        Route::get('/periksa-pembaharuan', 'UpdateController@periksa_pembaharuan')->name('updater.check');
+        Route::get('/unduh', 'UpdateController@download_update')->name('updater.download');
+        Route::get('/extract', 'UpdateController@unzipArchive')->name('updater.extract');
+        Route::get('/proses', 'UpdateController@createReleaseFolder')->name('updater.proses');
+        Route::get('/persentase', 'UpdateController@persentase')->name('updater.persentase');
+    });
 });
 /*
 Route::get('/users', ['middleware' => ['role:admin'], 'uses' => 'UsersController@index'])->name('users');
@@ -125,33 +138,8 @@ Route::get('/pd/view/{siswa_id}', array('as' => 'siswa.view', 'uses' => 'SiswaCo
 Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
 Route::get('/konfigurasi', ['middleware' => ['role:admin'], 'uses' => 'ConfigController@index'])->name('konfigurasi');
 Route::get('/rekap-nilai', 'ConfigController@rekap_nilai')->name('download_rekap_nilai');
-#Route::get('/rekap-nilai', 'ConfigController@download')->name('download_rekap_nilai');
 Route::post('konfigurasi/simpan', 'ConfigController@simpan');
 Route::get('/changelog', 'ChangelogController@index')->name('changelog');
-Route::middleware('auth')->get('/check-update', 'UpdateController@index')->name('update_aplikasi');
-Route::middleware('role:admin')->get('/periksa-pembaharuan', 'UpdateController@periksa_pembaharuan')->name('periksa_pembaharuan');
-Route::middleware('role:admin')->get('/periksa-pembaharuana', function (\Codedge\Updater\UpdaterManager $updater) {
-
-    // Check if new version is available
-    if($updater->source()->isNewVersionAvailable()) {
-
-        // Get the current installed version
-        $updater->source()->getVersionInstalled();
-
-        // Get the new version available
-        $updater->source()->getVersionAvailable();
-
-        // Run the update process
-        $updater->source()->update();
-        
-    } else {
-        echo "No new version available.";
-    }
-
-});
-//Route::middleware('auth')->get('/check-update', function () {
-    //return view('update');
-//})->name('update_aplikasi');
 Route::get('/proses-update', 'UpdateController@proses_update')->name('proses_update');
 Route::get('/ekstrak', 'UpdateController@extract_to')->name('extract_to');
 Route::get('/update-versi', 'UpdateController@update_versi')->name('update_versi');

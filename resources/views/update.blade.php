@@ -8,21 +8,26 @@
 	<div id="update_notification" class="callout callout-info">
 		<h4>Memerika Pembaharuan</h4>
 		<p class="p1">Silahkan tunggu beberapa saat, aplikasi sedang memeriksa pembaharuan di server</p>
-		<p class="p2" style="display:none"><a id="check_update" href="updater.update" class="btn btn-lg btn-warning" style="text-decoration:none;">Proses Pembaharuan</a></p>
+		<p class="p2" style="display:none"><a id="check_update" href="javascript:void(0)" class="btn btn-lg btn-warning" style="text-decoration:none;">Proses Pembaharuan</a></p>
 	</div>
-	<div id="result"></div>
-	<table class="table table-bordered" id="result1" style="display:none;">
+	<input type="hidden" id="versionAvailable" value="">
+	<input type="hidden" id="zipball_url" value="">
+	<table class="table table-bordered" id="result" style="display:none;">
 		<tr>
-			<td>Mengunduh File Updater</td>
-			<td><span class="download"><p class="text-yellow"><strong>[PROSES]</strong></p></span></td>
+			<td width="30%">Mengunduh File Updater</td>
+			<td width="70%">
+				<div class="progress">
+					<div id="download" class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" style="width: 0%"></div>
+				</div>
+			</td>
 		</tr>
 		<tr>
 			<td>Mengekstrak File Updater</td>
-			<td><span class="extract_to"><p class="text-yellow"><strong>[PROSES]</strong></p></span></td>
+			<td><span class="extract_to"><p class="text-red"><strong>[MENUNGGU]</strong></p></span></td>
 		</tr>
 		<tr>
 			<td>Memproses Pembaharuan</td>
-			<td><span class="update_versi"><p class="text-yellow"><strong>[PROSES]</strong></p></span></td>
+			<td><span class="update_versi"><p class="text-red"><strong>[MENUNGGU]</strong></p></span></td>
 		</tr>
 	</table>
 	<div id="updater"></div>
@@ -35,13 +40,13 @@
 $(document).ready(function() {  
 	$.ajax({
 		type: 'GET',   
-		url: 'periksa-pembaharuan',
+		url: '{{route('updater.check')}}',
 		async: false,
 		success: function(response) {
-			console.log(response);
-			//return false;
 			if(response.server){
 				if(response.new_version){
+					$('#versionAvailable').val(response.new_version);
+					$('#zipball_url').val(response.zipball_url);
 					$('#update_notification h4').html('Pembaharuan Tersedia');
 					$('.callout-info').switchClass( "callout-info", "callout-success", 0, "easeInOutQuad" );
 					$('#update_notification .p1').html('Gunakan Tombol di bawah ini untuk memperbaharui aplikasi');
@@ -59,24 +64,49 @@ $(document).ready(function() {
 		}
 	});
 });
+function frame() {
+	$.ajax({
+		url: "{{route('updater.persentase')}}",
+		success:function(response){
+			$('#download').addClass('active');
+			if(response.percent){
+				$('#download.progress-bar').css('width',response.percent+'%');
+			}
+		}
+	});
+}
 $('#update_notification').find('a').click(function(e){
 	e.preventDefault();
-	var url = $(this).attr('href');
-	$.get(url).done(function(response) {
-		$('#result').html(response);
-		$('#sukses').show();
-		$.get('update-versi').done(function(response) {
-			swal({
-				title:'Sukses',
-				icon:'success',
-				content:'Berhasil memperbarui aplikasi',
-				button:'Muat Ulang Aplikasi',
-				closeOnClickOutside: false,
-			}).then((value) => {
-				window.location.replace('<?php echo url()->current(); ?>');
+	$('#result').show();
+	$('#spinner').remove();
+	var BarWidth = setInterval(frame, 1000);
+	var versionAvailable = $('#versionAvailable').val();
+	var zipball_url = $('#zipball_url').val();
+	$.get('{{route('updater.download')}}', {versionAvailable: versionAvailable, zipball_url: zipball_url }).done(function( data ) {
+		clearInterval(BarWidth);
+		$('#download.progress-bar').css('width','100%');
+		$('.extract_to').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
+		$.get('{{route('updater.extract')}}', {storageFilename: data.storageFilename, storageFolder: data.storageFolder, versionAvailable: data.new_version }).done(function( data_extract ) {
+			console.log(data_extract);
+			$('.extract_to').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
+			$('.update_versi').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
+			$.get('{{route('updater.proses')}}', {releaseFolder: data_extract.releaseFolder, releaseName: data_extract.releaseName }).done(function( data_proses ) {
+				$('.update_versi').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
+				swal({
+					title:'Sukses',
+					icon:'success',
+					content:'Berhasil memperbarui aplikasi',
+					button:'Muat Ulang Aplikasi',
+					closeOnClickOutside: false,
+				}).then((value) => {
+					window.location.replace('<?php echo url()->current(); ?>');
+				});
 			});
 		});
 	});
+	/*$.get(url).done(function(response) {
+		
+	});*/
 	return false;
 });
 /*$('#check_update').click(function(){
