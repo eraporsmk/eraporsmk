@@ -10,7 +10,7 @@
 @section('body')
     <div class="register-box">
         <div class="register-logo">
-            <img src="{{url('vendor/img/logo.png')}}" alt="logo" class="text-center" width="100" />
+            <img src="{{asset('vendor/img/logo.png')}}" alt="logo" class="text-center" width="100" />
         </div>
 
         <div class="register-box-body">
@@ -35,7 +35,7 @@
 
                 <div class="form-group has-feedback {{ $errors->has('name') ? 'has-error' : '' }}">
                     <input type="text" name="name" class="form-control" value="{{ old('name') }}"
-                           placeholder="{{ trans('adminlte::adminlte.full_name') }}">
+                           placeholder="NPSN">
                     <span class="glyphicon glyphicon-user form-control-feedback"></span>
                     @if ($errors->has('name'))
                         <span class="help-block">
@@ -55,7 +55,7 @@
                 </div>
                 <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
                     <input type="password" name="password" class="form-control" value="{{ old('password') }}"
-                           placeholder="{{ trans('adminlte::adminlte.password') }}">
+                           placeholder="Password Baru Dapodik">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                     @if ($errors->has('password'))
                         <span class="help-block">
