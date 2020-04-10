@@ -27,11 +27,20 @@ Route::get('/generate-nilai/{pembelajaran_id}/{kompetensi_id}', array('as' => 'g
 Route::get('/progres-perencanaan-dan-penilaian', array('as' => 'progres_perencanaan_dan_penilaian', 'uses' => 'HomeController@progres_perencanaan_dan_penilaian'));
 Route::get('/detil-nilai/{pembelajaran_id}', array('as' => 'detil_nilai', 'uses' => 'HomeController@detil_nilai'));
 //home end
+Route::group(['prefix' => 'users', 'middleware' => ['role:admin']], function() {
+    Route::get('/', 'UsersController@index')->name('users');
+    Route::get('/list_user', 'UsersController@list_user')->name('list_user');
+    Route::get('/edit/{id}', 'UsersController@edit')->name('users.edit');
+    Route::get('/delete/{id}', 'UsersController@delete')->name('users.delete');
+    Route::put('/update/{id}', 'UsersController@update')->name('user.update');
+});
+/*
 Route::get('/users', ['middleware' => ['role:admin'], 'uses' => 'UsersController@index'])->name('users');
 Route::get('/users/list_user', 'UsersController@list_user')->name('list_user');
 Route::get('/users/edit/{id}', ['as' => 'users.edit', 'uses' => 'UsersController@edit']);
 Route::get('/users/delete/{id}', ['as' => 'users.delete', 'uses' => 'UsersController@delete']);
 Route::put('/users/update/{id}', array('as' => 'user.update', 'uses' => 'UsersController@update'));
+*/
 Route::get('/users/profile', array('as' => 'user.profile', 'uses' => 'UsersController@profile'));
 Route::get('/users/reset-password/{id}', ['as' => 'user.reset_password', 'uses' => 'UsersController@reset_password']);
 Route::post('/users/update-profile/{id}', array('as' => 'update_profile', 'uses' => 'UsersController@update_profile'));

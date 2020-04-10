@@ -236,7 +236,7 @@ return [
              * Aborts the execution with a 403 code.
              */
             'abort' => [
-                'code' => 403
+                'code' => 503
             ],
             /**
              * Redirects the user to the given url.
