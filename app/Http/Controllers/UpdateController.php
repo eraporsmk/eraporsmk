@@ -27,8 +27,12 @@ class UpdateController extends Controller
             //MAKA FOLDER TERSEBUT AKAN DIBUAT
             File::makeDirectory($this->path);
         }
-		//$files =   File::allFiles($this->path);
-		//File::delete($files);
+		$files =   File::allFiles($this->path);
+		$folders = File::directories($this->path);
+		foreach($folders as $folder){
+			File::deleteDirectory($folder);
+		}
+		File::delete($files);
 		return view('update');
     }
 	public function update_versi(){
@@ -187,13 +191,14 @@ class UpdateController extends Controller
 	public function persentase(){
 		$json = Storage::disk('public')->get('download_upload.json');
 		$json_output = json_decode($json);
+		$downloadTotal = 0;
+		$percent = 0;
 		if($json_output){
 			$percent = ($json_output->downloadTotal) ? round($json_output->downloadedBytes / $json_output->downloadTotal * 100,2) : 0;
-		} else {
-			$percent = 0;
 		}
 		$output = [
-			'percent' => $percent
+			'percent' => $percent,
+			'downloadTotal' => $downloadTotal,
 		];
 		return response()->json($output);
 	}

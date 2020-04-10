@@ -83,28 +83,49 @@ $('#update_notification').find('a').click(function(e){
 	var versionAvailable = $('#versionAvailable').val();
 	var zipball_url = $('#zipball_url').val();
 	$.get('{{route('updater.download')}}', {versionAvailable: versionAvailable, zipball_url: zipball_url }).done(function( data ) {
-		console.log(data);
-		return false;
 		clearInterval(BarWidth);
 		$('#download.progress-bar').css('width','100%');
 		$('.extract_to').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
-		$.get('{{route('updater.extract')}}', {storageFilename: data.storageFilename, storageFolder: data.storageFolder, versionAvailable: data.new_version }).done(function( data_extract ) {
-			console.log(data_extract);
-			$('.extract_to').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
-			$('.update_versi').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
-			$.get('{{route('updater.proses')}}', {releaseFolder: data_extract.releaseFolder, releaseName: data_extract.releaseName }).done(function( data_proses ) {
-				$('.update_versi').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
-				swal({
-					title:'Sukses',
-					icon:'success',
-					content:'Berhasil memperbarui aplikasi',
-					button:'Muat Ulang Aplikasi',
-					closeOnClickOutside: false,
-				}).then((value) => {
-					window.location.replace('<?php echo url()->current(); ?>');
-				});
+		if(data.next){
+			$.get('{{route('updater.extract')}}', {storageFilename: data.storageFilename, storageFolder: data.storageFolder, versionAvailable: data.versionAvailable }).done(function( data_extract ) {
+				$('.extract_to').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
+				$('.update_versi').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
+				if(data.next){
+					$.get('{{route('updater.proses')}}', {releaseFolder: data_extract.releaseFolder, releaseName: data_extract.releaseName }).done(function( data_proses ) {
+						$('.update_versi').html('<p class="text-green"><strong>[BERHASIL]</strong></p>');
+						swal({
+							title:'Sukses',
+							icon:'success',
+							content:'Berhasil memperbarui aplikasi',
+							button:'Muat Ulang Aplikasi',
+							closeOnClickOutside: false,
+						}).then((value) => {
+							window.location.replace('<?php echo url()->current(); ?>');
+						});
+					});
+				} else {
+					swal({
+						title:'Gagal',
+						icon:'error',
+						content:data.status,
+						button:'Muat Ulang Aplikasi',
+						closeOnClickOutside: false,
+					}).then((value) => {
+						window.location.replace('<?php echo url()->current(); ?>');
+					});
+				}
 			});
-		});
+		} else {
+			swal({
+				title:'Gagal',
+				icon:'error',
+				content:data.status,
+				button:'Muat Ulang Aplikasi',
+				closeOnClickOutside: false,
+			}).then((value) => {
+				window.location.replace('<?php echo url()->current(); ?>');
+			});
+		}
 	});
 	/*$.get(url).done(function(response) {
 		
