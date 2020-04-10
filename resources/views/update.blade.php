@@ -83,6 +83,8 @@ $('#update_notification').find('a').click(function(e){
 	var versionAvailable = $('#versionAvailable').val();
 	var zipball_url = $('#zipball_url').val();
 	$.get('{{route('updater.download')}}', {versionAvailable: versionAvailable, zipball_url: zipball_url }).done(function( data ) {
+		console.log(data);
+		return false;
 		clearInterval(BarWidth);
 		$('#download.progress-bar').css('width','100%');
 		$('.extract_to').html('<p class="text-yellow"><strong>[PROSES]</strong></p>');
