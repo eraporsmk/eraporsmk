@@ -217,6 +217,63 @@ class UpdateController extends Controller
 		return response()->json($output);
 	}
 	public function unzipArchive(Request $request){
+		try{
+			$file = $request->get('storageFilename');
+			$targetDir = $request->get('storageFolder');
+			$versionAvailable = $request->get('versionAvailable');
+			$zipHandle = zip_open($file);
+			$archive = basename($file);
+			$update = 0;
+			while ($zip_item = zip_read($zipHandle) ){
+				$filename = zip_entry_name($zip_item);
+				$dirname = dirname($filename);
+
+				// Exclude these cases (1/2)
+				if(	substr($filename,-1,1) == '/' || dirname($filename) === $archive || substr($dirname,0,2) === '__') continue;
+
+				//Exclude root folder (if exist)
+				if( substr($dirname,0, strlen($archive)) === $archive )
+					$dirname = substr($dirname, (strlen($dirname)-strlen($archive)-1)*(-1));
+
+				// Exclude these cases (2/2)
+				// todo:check linux and windows test
+				//if($dirname === '.' ) continue;
+
+				$filename = $dirname.'/'.basename($filename); //set new purify path for current file
+
+				if ( !is_dir(base_path().'/'.$dirname) ){ //Make NEW directory (if exist also in current version continue...)
+					//File::makeDirectory(base_path().'/'.$dirname, $mode = 0755, true, true);
+				}
+
+				if ( !is_dir(base_path().'/'.$filename) ){ //Overwrite a file with its last version
+					$contents = zip_entry_read($zip_item, zip_entry_filesize($zip_item));
+					$contents = str_replace("\r\n", "\n", $contents);
+					//File::put(base_path().'/'.$filename, $contents);
+					unset($contents);
+				}
+				$update++;
+			}
+			zip_close($zipHandle);
+			if($update){
+				$output = [
+					'status' => NULL,
+					'next' => 'proses',
+				];
+			} else {
+				$output = [
+					'status' => 'Berkas pembaharuan tidak tersedia',
+					'next' => FALSE,
+				];
+			}
+		} catch (\Exception $e) {
+			$output = [
+				'next' => FALSE,
+				'status' => 'Berkas pembaharuan tidak dapat di akses'
+			];
+		}
+		return response()->json($output);
+	}
+	public function unzipArchiveOld(Request $request){
 		$file = $request->get('storageFilename');
 		$targetDir = $request->get('storageFolder');
 		$versionAvailable = $request->get('versionAvailable');
@@ -269,12 +326,14 @@ class UpdateController extends Controller
 		Storage::disk('public')->delete('download_upload.json');
 		if (count($folders) === 1) {
             // Only one sub-folder inside extracted directory
-            File::moveDirectory($folders[0], $this->path.'/'.$releaseName);
+			//File::moveDirectory($folders[0], $this->path.'/'.$releaseName);
+			File::moveDirectory($folders[0], base_path());
             File::deleteDirectory($folders[0]);
             File::deleteDirectory($releaseFolder);
         } else {
             // Release (with all files and folders) is already inside, so we need to only rename the folder
-            File::moveDirectory($releaseFolder, $this->path.'/'.$releaseName);
+			//File::moveDirectory($releaseFolder, $this->path.'/'.$releaseName);
+			File::moveDirectory($releaseFolder, base_path());
 		}
 		$this->update_versi();
     }

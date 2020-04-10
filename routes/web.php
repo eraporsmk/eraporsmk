@@ -43,8 +43,11 @@ Route::group(['middleware' => ['role:admin']], function () {
         Route::get('/periksa-pembaharuan', 'UpdateController@periksa_pembaharuan')->name('updater.check');
         Route::get('/unduh', 'UpdateController@download_update')->name('updater.download');
         Route::get('/extract', 'UpdateController@unzipArchive')->name('updater.extract');
-        Route::get('/proses', 'UpdateController@createReleaseFolder')->name('updater.proses');
+        Route::get('/proses', 'UpdateController@update_versi')->name('updater.proses');
         Route::get('/persentase', 'UpdateController@persentase')->name('updater.persentase');
+        //Route::get('/proses-update', 'UpdateController@proses_update')->name('proses_update');
+        //Route::get('/ekstrak', 'UpdateController@extract_to')->name('extract_to');
+        //Route::get('/update-versi', 'UpdateController@update_versi')->name('update_versi');
     });
 });
 /*
@@ -140,9 +143,6 @@ Route::get('/konfigurasi', ['middleware' => ['role:admin'], 'uses' => 'ConfigCon
 Route::get('/rekap-nilai', 'ConfigController@rekap_nilai')->name('download_rekap_nilai');
 Route::post('konfigurasi/simpan', 'ConfigController@simpan');
 Route::get('/changelog', 'ChangelogController@index')->name('changelog');
-Route::get('/proses-update', 'UpdateController@proses_update')->name('proses_update');
-Route::get('/ekstrak', 'UpdateController@extract_to')->name('extract_to');
-Route::get('/update-versi', 'UpdateController@update_versi')->name('update_versi');
 Route::get('/referensi/mata-pelajaran', 'ReferensiController@index')->name('mata_pelajaran');
 Route::get('/referensi/list-mata-pelajaran', 'ReferensiController@list_mata_pelajaran')->name('list_mata_pelajaran');
 Route::get('/referensi/ekskul', 'ReferensiController@ekskul')->name('ekskul');
