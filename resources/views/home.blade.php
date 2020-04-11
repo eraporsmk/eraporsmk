@@ -439,13 +439,13 @@ function turn_on_icheck(){
 $(document).ready( function () {
 	@role('admin')
 	console.log('admin');
-		$.get('{{url('updater.check')}}').done(function(response) {
-			if(response){
-				swal({title: 'Pembaharuan Tersedia', text: 'Versi '+response+' tersedia',icon: 'success', button: {text: "Proses", closeModal: true},closeOnClickOutside: false}).then((result) => {
-				window.location.replace('<?php echo route('update_aplikasi'); ?>');
-				});
-			}
-		});
+	$.get('{{route('updater.check')}}').done(function(response) {
+		if(response){
+			swal({title: 'Pembaharuan Tersedia', text: 'Versi '+response.new_version+' tersedia',icon: 'success', button: {text: "Proses", closeModal: true},closeOnClickOutside: false}).then((result) => {
+				window.location.replace('<?php echo route('updater.index'); ?>');
+			});
+		}
+	});
 	@endrole
 	$('.select2').select2();
 	$('a.generate_nilai').bind('click',function(e) {
