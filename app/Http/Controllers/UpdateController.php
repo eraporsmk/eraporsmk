@@ -137,12 +137,6 @@ class UpdateController extends Controller
 		}
 		return response()->json($output);
 	}
-	public function download_updateTest(Request $request){
-		$output = [
-			'next' => 'unzip',
-		];
-		return response()->json($output);
-	}
 	public function download_update(Request $request){
 		try {
 			$versionAvailable = $request->get('versionAvailable');
