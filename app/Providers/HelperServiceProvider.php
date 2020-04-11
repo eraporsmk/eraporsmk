@@ -61,8 +61,9 @@ class HelperServiceProvider extends ServiceProvider
 		return $data[$query];
 	}
 	public static function get_ta(){
+		$check = DB::select('select column_name from information_schema.columns where table_schema = ? and table_name = ?',['ref', 'semester']);
 		$user = auth()->user();
-		if(Schema::hasTable('settings')){
+		if($check){
 			if(isset($user->periode_aktif)){
 				return Semester::find($user->periode_aktif);
 			} else {
