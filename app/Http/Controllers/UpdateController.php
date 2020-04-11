@@ -90,7 +90,6 @@ class UpdateController extends Controller
 		echo 'sukses';
 	}
 	public function periksa_pembaharuan(Request $request){
-		//edit
 		try {
 			$version = config('global.app_version');
 			$client = new Client([
