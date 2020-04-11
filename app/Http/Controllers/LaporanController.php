@@ -472,7 +472,9 @@ class LaporanController extends Controller
 		$insert=0;
 		foreach($anggota_rombel_id as $key => $value){
 			if($status[$key]){
-				/*if($status[$key] == 3){
+				/*
+				dihapus check
+				if($status[$key] == 3){
 					$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
 					$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
 				} else {
