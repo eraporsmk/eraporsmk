@@ -244,7 +244,7 @@ class UpdateController extends Controller
 				// todo:check linux and windows test
 				//if($dirname === '.' ) continue;
 				$filename = $dirname.'/'.basename($filename); //set new purify path for current file
-				$filename = str_replace($dirname.'/','',$filename);
+				//$filename = str_replace($dirname.'/','',$filename);
 				//echo $dirname;
 				//dd($filename);
 				if ( !is_dir(base_path().'/'.$dirname) ){ //Make NEW directory (if exist also in current version continue...)
