@@ -65,7 +65,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 		'role' => \Laratrust\Middleware\LaratrustRole::class,
 		'permission' => \Laratrust\Middleware\LaratrustPermission::class,
-		'ability' => \Laratrust\Middleware\LaratrustAbility::class,
+        'ability' => \Laratrust\Middleware\LaratrustAbility::class,
+        'get.menu' => \App\Http\Middleware\GetMenu::class,
     ];
 
     /**

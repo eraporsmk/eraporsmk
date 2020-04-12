@@ -58,6 +58,7 @@
 		</div>
 		<div style="clear:both;"></div>
 		<div id="result"></div>
+		<button type="submit" class="btn-submit btn btn-success pull-right" style="display:none;">Simpan</button>
 	</form>
 @stop
 @section('js')
@@ -82,6 +83,7 @@ var checkJSON = function(m) {
 };
 $('.select2').select2();
 $('#kelas').change(function(){
+	$('.btn-submit').hide();
 	$("#rombel").val('');
 	$("#rombel").trigger('change.select2');
 	var ini = $(this).val();
@@ -126,6 +128,7 @@ $('#rombel').change(function(){
 		data: $("form#form").serialize(),
 		success: function(response){
 			$('#result').html(response);
+			$('.btn-submit').show();
 		}
 	});
 });

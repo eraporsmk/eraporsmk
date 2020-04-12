@@ -254,7 +254,10 @@ class CetakController extends Controller
 				$query->with(['nilai_karakter' => function($query){
 					$query->with('sikap');
 				}]);
-			}])->with('kenaikan')->with(['all_nilai_ekskul' => function($query){
+			}])->with(['kenaikan', 'all_nilai_ekskul' => function($query){
+				$query->whereHas('ekstrakurikuler', function($query){
+					$query->where('semester_id', session('semester_id'));
+				});
 				$query->with('ekstrakurikuler');
 				$query->with('rombongan_belajar');
 			}])->with('kehadiran')->with('all_prakerin')->with('catatan_wali')->find($id);

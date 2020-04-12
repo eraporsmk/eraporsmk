@@ -1,79 +1,45 @@
 <?php
 
-namespace App\Providers;
+namespace App\Http\Middleware;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Contracts\Events\Dispatcher;
-use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
-use Illuminate\Support\Facades\Blade;
-use CustomHelper;
-use App\Setting;
-use App\Sekolah;
+use Closure;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
-use Config;
-use File;
-class AppServiceProvider extends ServiceProvider
+use Illuminate\Support\Facades\Schema;
+use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
+use Illuminate\Support\Facades\Event;
+use App\Setting;
+use App\Semester;
+use App\Sekolah;
+class GetMenu
 {
     /**
-     * Register any application services.
+     * Handle an incoming request.
      *
-     * @return void
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
-    public function register()
+    public function handle($request, Closure $next)
     {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    /*public function boot()
-    {
-        //
-	}*/
-	public function boot(Dispatcher $events){
-		//
-	}
-	public function bootOld(Dispatcher $events){
-		//dd(config());
-		$with = '';
-		$ta = '';
-		$user = '';
-		view()->composer('*', function($view) use ($with){
-			$user = auth()->user();
-			$ta = CustomHelper::get_ta();
-			if ($view->getName() == 'adminlte::page' || $view->getName() == 'config' || $view->getName() == 'home') {
-        		//$view->with('variable', 'Set variable');
-				$user = auth()->user();
-				if($user){
-					$with = [
-						'user' => $user,
-						'sekolah'	=> Sekolah::with(['guru' => function($query){
-							$query->with('gelar_depan');
-							$query->with('gelar_belakang');
-						}])->find($user->sekolah_id),
-						'semester' => $ta,
-					];
-				}
-				$view->with($with);
-    		} else {
-				if($user){
-					$with = [
-						'user' => $user,
-						'semester' => $ta,
-						'sekolah'	=> Sekolah::with(['guru' => function($query){
-							$query->with('gelar_depan');
-							$query->with('gelar_belakang');
-						}])->find($user->sekolah_id),
-					];
-				}
-				$view->with($with);
-			}
-		});
-		if(Schema::hasTable('settings')){
+        $user = '';
+        $ta = '';
+        if (Auth::check()){
+            $user = Auth::user();
+            $ta = Semester::find($user->periode_aktif);
+            view()->composer('*', function($view) use ($user, $ta){
+                $with = [
+                    'user' => $user,
+                    'semester' => $ta,
+                    'sekolah'	=> Sekolah::with(['guru' => function($query){
+                        $query->with('gelar_depan');
+                        $query->with('gelar_belakang');
+                    }])->find($user->sekolah_id),
+                ];
+                $view->with($with);
+            });
+        }
+        if(Schema::hasTable('settings')){
 			config([
 				'global' => Setting::all([
 					'key','value'
@@ -87,12 +53,11 @@ class AppServiceProvider extends ServiceProvider
 					[
 						'app_name' 	=> 'e-Rapor SMK',
 						'semester' 	=> $ta,
-						'asd'		=> 'tambahan',
 					]
 			]);
-		}
-		$events->listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {
-			$url = parse_url(url('/'));
+        }
+        Event::listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {
+            $url = parse_url(url('/'));
 			$event->menu->add('periode');
 			$event->menu->add([
 				'text' => 'Beranda',
@@ -441,8 +406,8 @@ class AppServiceProvider extends ServiceProvider
 							'icon' => 'hand-o-right',
 						],
 						[
-							'text' => 'Kehadiran',
-							'url'  => 'laporan/kehadiran',
+							'text' => 'Ketidakhadiran',
+							'url'  => 'laporan/ketidakhadiran',
 							'icon' => 'hand-o-right',
 						],
 						[
@@ -568,6 +533,7 @@ class AppServiceProvider extends ServiceProvider
 					],
 				],
 			]);
-		});
-	}
+        });
+        return $next($request);
+    }
 }
