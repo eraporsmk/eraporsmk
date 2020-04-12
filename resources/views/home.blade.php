@@ -440,7 +440,7 @@ $(document).ready( function () {
 	@role('admin')
 	console.log('admin');
 		$.get('{{route('updater.check')}}').done(function(response) {
-			if(response){
+			if(response.new_version){
 				swal({title: 'Pembaharuan Tersedia', text: 'Versi '+response.new_version+' tersedia',icon: 'success', button: {text: "Proses", closeModal: true},closeOnClickOutside: false}).then((result) => {
 				window.location.replace('<?php echo route('updater.index'); ?>');
 				});

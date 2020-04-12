@@ -100,7 +100,6 @@ class UpdateController extends Controller
 			]);
 			$action = '/repos/eraporsmk/eraporsmk/releases/latest';
 			$curl = $client->get($action);
-			$version = '5.0.7';
 			if($curl->getStatusCode() == 200){
 				$response = json_decode($curl->getBody());
 				$versionAvailable = str_replace('v.', '', $response->tag_name);
