@@ -3,7 +3,8 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+//use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Gecche\Multidomain\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {

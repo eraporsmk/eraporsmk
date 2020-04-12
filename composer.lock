@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f89741f32f6f42068eee8638818f95f",
+    "content-hash": "4e08411b3f3865d4c479a400bec324dd",
     "packages": [
         {
             "name": "ammadeuss/laravel-html-dom-parser",
@@ -719,6 +719,67 @@
                 "trusted proxy"
             ],
             "time": "2020-02-22T01:51:47+00:00"
+        },
+        {
+            "name": "gecche/laravel-multidomain",
+            "version": "v1.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gecche/laravel-multidomain.git",
+                "reference": "6f98982e35352761b601530687952f5c2624693c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gecche/laravel-multidomain/zipball/6f98982e35352761b601530687952f5c2624693c",
+                "reference": "6f98982e35352761b601530687952f5c2624693c",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "~5.8.0"
+            },
+            "require-dev": {
+                "limedeck/phpunit-detailed-printer": "^4.2",
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "~3.8.0",
+                "orchestra/testbench-browser-kit": "~3.8.0",
+                "phpunit/phpunit": "^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Gecche\\Multidomain\\Foundation\\Providers\\DomainConsoleServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "classmap": [],
+                "psr-4": {
+                    "Gecche\\Multidomain\\": "src/"
+                },
+                "files": [
+                    "src/Foundation/helpers.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Giacomo Terreni",
+                    "email": "giacomo.terreni@gmail.com"
+                }
+            ],
+            "description": "Laravel App on a subdomains, multi-tenancy setting",
+            "keywords": [
+                "laravel",
+                "multi-tenants",
+                "multidomain",
+                "multitenancy",
+                "subdomains"
+            ],
+            "time": "2020-03-09T14:42:38+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

@@ -29,6 +29,7 @@ use App\Nilai_akhir;
 Use App\Nilai_rapor;
 use App\Nilai;
 use App\Rencana_penilaian;
+use Artisan;
 class TestController extends Controller
 {
 	public function __construct()
@@ -36,7 +37,20 @@ class TestController extends Controller
         $this->path = storage_path('backup');
     }
 	public function index(){
-		echo 'test<br />';
+		Artisan::call('config:clear');
+		Artisan::call('cache:clear');
+		Artisan::call('view:clear');
+		//echo session('semester_id');
+		dump(config());
+		$user = auth()->user();
+		DB::connection()->enableQueryLog();
+		$a = Pembelajaran::where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->count();
+		$queries = DB::getQueryLog();
+		//$b = DB::table('pembelajaran')->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->count();
+		echo $a;
+		//echo $a;
+		dump($queries);
+		dump($user);
 		//base_path()
 		dd(base_path());
 		/*

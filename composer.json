@@ -15,6 +15,7 @@
         "carlos-meneses/laravel-mpdf": "^2.1",
         "chumper/zipper": "^1.0",
         "fideloper/proxy": "^4.0",
+        "gecche/laravel-multidomain": "1.*",
         "guzzlehttp/guzzle": "^6.4",
         "intervention/image": "^2.4",
         "ixudra/curl": "^6.16",
