@@ -6,7 +6,6 @@
 ```bash
 git clone --depth=1 https://github.com/eraporsmk/eraporsmk.git project_name
 cd project_name
-rm -r .git
 ```
 - Install Dependencies
 ```bash
