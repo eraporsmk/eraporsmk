@@ -527,30 +527,32 @@ class LaporanController extends Controller
 	public function cetak_uts(Request $request){
 		$rencana_penilaian = $request->rencana_penilaian;
 		$insert=0;
-		foreach($rencana_penilaian as $pembelajaran_id => $rencana_penilaian_id){
-			$pembelajaran_id_array[] = $pembelajaran_id;
-			$rencana_penilaian_id_array[] = $rencana_penilaian_id;
-			$insert_rapor_pts = array(
-				'sekolah_id' => $request->sekolah_id,
-				'last_sync'	=> date('Y-m-d H:i:s'),
-			);
-			$insert_data = Rapor_pts::updateOrCreate(
-				[
-					'rombongan_belajar_id' => $request->rombongan_belajar_id,
-					'pembelajaran_id' => $pembelajaran_id,
-					'rencana_penilaian_id' => $rencana_penilaian_id
-				],
-				$insert_rapor_pts
-			);
-			if($insert_data){
-				$insert++;
+		if($rencana_penilaian){
+			foreach($rencana_penilaian as $pembelajaran_id => $rencana_penilaian_id){
+				$pembelajaran_id_array[] = $pembelajaran_id;
+				$rencana_penilaian_id_array[] = $rencana_penilaian_id;
+				$insert_rapor_pts = array(
+					'sekolah_id' => $request->sekolah_id,
+					'last_sync'	=> date('Y-m-d H:i:s'),
+				);
+				$insert_data = Rapor_pts::updateOrCreate(
+					[
+						'rombongan_belajar_id' => $request->rombongan_belajar_id,
+						'pembelajaran_id' => $pembelajaran_id,
+						'rencana_penilaian_id' => $rencana_penilaian_id
+					],
+					$insert_rapor_pts
+				);
+				if($insert_data){
+					$insert++;
+				}
 			}
+			Rapor_pts::where('rombongan_belajar_id', $request->rombongan_belajar_id)->whereIn('pembelajaran_id', $pembelajaran_id_array)->whereNotIn('rencana_penilaian_id', $rencana_penilaian_id_array)->delete();
 		}
-		Rapor_pts::where('rombongan_belajar_id', $request->rombongan_belajar_id)->whereIn('pembelajaran_id', $pembelajaran_id_array)->whereNotIn('rencana_penilaian_id', $rencana_penilaian_id_array)->delete();
 		if($insert){
 			Session::flash('success',"Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('error',"Tidak ada data disimpan");
 		}
 		return redirect('/laporan/rapor-uts');
 	}
