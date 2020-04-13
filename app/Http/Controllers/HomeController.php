@@ -24,6 +24,7 @@ use Yajra\Datatables\Datatables;
 use App\Jurusan_sp;
 use App\Remedial;
 use Session;
+use App\Setting;
 class HomeController extends Controller
 {
     /**
@@ -167,6 +168,32 @@ class HomeController extends Controller
 			$with = 'error';
 		}
 		return redirect()->route('home')->with($with, 'Status Penilaian di Rombongan Belajar '.$rombel->nama.' '. $text);
+	}
+	public function togglePenilaian(Request $request){
+		$user = auth()->user();
+		$status = $request->status;
+		$text = ($status) ? 'Status Penilaian berhasil di aktifkan' : 'Status Penilaian di nonaktifkan';
+		Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $user->periode_aktif)->update(['kunci_nilai' => $status]);
+		$status_penilaian = Setting::updateOrCreate(
+			['key' => 'status_penilaian'],
+			['value' => $status]
+		);
+		if($status_penilaian){
+			$output = [
+				'title' => 'Berhasil',
+				'icon' => 'success',
+				'success' => TRUE,
+				'message' => $text,
+			];
+		} else {
+			$output = [
+				'title' => 'Berhasil',
+				'icon' => 'error',
+				'success' => FALSE,
+				'message' => $text,
+			];
+		}
+		return response()->json($output);
 	}
 	public function generate_nilai($pembelajaran_id, $kompetensi_id){
 		$user = auth()->user();

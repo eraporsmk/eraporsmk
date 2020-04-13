@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Event;
 use App\Setting;
 use App\Semester;
 use App\Sekolah;
+use Illuminate\Support\Facades\DB;
 class GetMenu
 {
     /**
@@ -41,20 +42,15 @@ class GetMenu
         }
         if(Schema::hasTable('settings')){
 			config([
-				'global' => Setting::all([
-					'key','value'
-				])
-				->keyBy('key') // key every setting by its name
-				->transform(function ($setting) {
-					return $setting->value; // return only the value
-				})
-				->toArray(),
+                'global' => collect(DB::table('settings')->get())->keyBy('key')->transform(function ($setting) {
+                    return $setting->value;
+				})->toArray(),
 				'site' => 
 					[
 						'app_name' 	=> 'e-Rapor SMK',
 						'semester' 	=> $ta,
 					]
-			]);
+            ]);
         }
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) use ($ta) {
             $url = parse_url(url('/'));

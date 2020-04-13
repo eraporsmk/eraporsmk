@@ -8,6 +8,7 @@ class Setting extends Model
 {
 	public $timestamps = false;
     protected $table = 'settings';
+    protected $primaryKey = 'key';
     protected $fillable = ['key', 'value'];
     public function get($query, $key)
     {

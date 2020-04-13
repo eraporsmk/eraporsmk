@@ -1,8 +1,11 @@
 <div id="form">
 <legend><h3>Versi 5.0.8</h3></legend>
 <ol>
+<li><b style="color:blue">[Pembaharuan]</b> Tombol Status Penilaian di Dashboard Admin</li>
 <li><b style="color:green">[Perbaikan]</b> Cetak Rapor UTS</li>
 <li><b style="color:green">[Perbaikan]</b> Akses Menu sesuai Role</li>
+<li><b style="color:green">[Perbaikan]</b> Nilai Ekstrakurikuler ganda</li>
+<li><b style="color:green">[Perbaikan]</b> Menu Ketidakhadiran</li>
 </ol>
 <legend><h3>Versi 5.0.7</h3></legend>
 <ol>

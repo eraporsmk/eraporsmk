@@ -134,6 +134,16 @@ Selamat Datang {{ $user->name }}
 						<td>: {{config('global.db_version')}}</td>
 					</tr>
 					<tr>
+						<td>Status Penilaian</td>
+						<td>: <div class="btn-group" id="status" data-toggle="buttons">
+							<label class="btn btn-default btn-on btn-sm{{(config('global.status_penilaian') == 1) ? ' active' : ''}}">
+							<input class="status" type="radio" value="1" name="status"{{(config('global.status_penilaian') == 1) ? ' checked' : ''}}>AKTIF</label>
+							<label class="btn btn-default btn-off btn-sm{{(config('global.status_penilaian') == 0) ? ' active' : ''}}">
+							<input class="status" type="radio" value="0" name="status"{{(config('global.status_penilaian') == 0) ? ' checked' : ''}}>Non AKtif</label>
+						  </div>
+						</td>
+					</tr>
+					<tr>
 						<td>Group Diskusi</td>
 						<td>: <a href="https://www.facebook.com/groups/2003597939918600/" target="_blank" class="btn btn-sm btn-social btn-facebook"><i class="fa fa-facebook"></i>FB Group</a> <a href="http://t.me/eRaporSMK" target="_blank" class="btn btn-sm btn-social btn-info"><i class="fa fa-paper-plane"></i>Telegram</a></td>
 					</tr>
@@ -408,6 +418,9 @@ Selamat Datang {{ $user->name }}
 		<!--h3>Sedang dalam pengembangan</h3-->
 	@endrole
 @stop
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/button-switch.css') }}">
+@endsection
 @section('js')
 <script type="text/javascript">
 function turn_on_icheck(){
@@ -563,6 +576,43 @@ $(document).ready( function () {
 		table.draw();
         e.preventDefault();
     });
+	//$('.status').bind('change',function(e) {
+	//.change(function() {
+	$('input[type=radio][name=status]').change(function() {
+		// this will contain a reference to the checkbox
+		console.log(this.value)
+		var message;
+		var status = this.value;
+		if(this.value == 1){
+			message = 'Penilaian akan di aktifkan';
+		} else {
+			message = 'Penilaian akan di non aktifkan';
+		}
+		swal({
+			title: 'Anda Yakin?', 
+			text: message,
+			icon: "warning",
+			buttons: true,
+			dangerMode: true,
+			closeOnClickOutside: false,
+		}).then((result) => {
+			$.get("{{route('toggle_status_penilaian')}}", { status: status } ).done(function( data ) {
+				swal({
+					title: data.title, 
+					text: data.message,
+					icon: data.icon, 
+					closeOnClickOutside: false
+				})
+			});
+			/*
+			$.get(url).done(function(data) {
+				swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
+					window.location.replace('{{route('perencanaan_keterampilan')}}');
+				});
+			});
+			*/
+		});
+	});
 });
 </script>
 @stop

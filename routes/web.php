@@ -47,6 +47,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::get('/proses', 'UpdateController@update_versi')->name('updater.proses');
             Route::get('/persentase', 'UpdateController@persentase')->name('updater.persentase');
         });
+        Route::get('/status-penilaian', 'HomeController@togglePenilaian')->name('toggle_status_penilaian');
     });
     Route::get('/users/profile', array('as' => 'user.profile', 'uses' => 'UsersController@profile'));
     Route::get('/users/reset-password/{id}', ['as' => 'user.reset_password', 'uses' => 'UsersController@reset_password']);
