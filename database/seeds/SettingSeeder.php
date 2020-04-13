@@ -12,8 +12,8 @@ class SettingSeeder extends Seeder
     public function run()
     {
         $all_data = array(
-			array('key' => 'app_version', 'value' => '5.0.0'),
-			array('key' => 'db_version', 'value' => '4.0.0'),
+			array('key' => 'app_version', 'value' => '5.0.8'),
+			array('key' => 'db_version', 'value' => '4.0.1'),
 			array('key' => 'zona', 'value' => 1),
 			array('key' => 'tanggal_rapor', 'value' => date('Y-m-d')),
 			array('key' => 'last_sync', 'value' => date('Y-m-d')),
