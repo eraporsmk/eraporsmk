@@ -248,8 +248,10 @@ class UpdateController extends Controller
 				if ( !is_dir(base_path().'/'.$filename) ){ //Overwrite a file with its last version
 					$contents = zip_entry_read($zip_item, zip_entry_filesize($zip_item));
 					$contents = str_replace("\r\n", "\n", $contents);
-					File::put(base_path().'/'.$filename, $contents);
-					unset($contents);
+					if ( strpos($filename, 'database.php') === false ) {
+						File::put(base_path().'/'.$filename, $contents);
+						unset($contents);
+					}
 				}
 				$update++;
 			}
