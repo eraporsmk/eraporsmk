@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Otorisasi Gagal</title>
+        <title>Database Error</title>
 
         <!-- Fonts -->
         <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -50,8 +50,8 @@
     </head>
     <body>
         <div class="flex-center position-ref full-height">
-            <div class="code">401</div>
-			<div class="message" style="padding: 10px;">Pengguna tidak memiliki akses ke halaman ini.</div>
+            <div class="code">ERROR</div>
+			<div class="message" style="padding: 10px;">Database telah dimodifikasi secara ilegal. Silahkan install ulang aplikasi</div>
 		</div>
     </body>
 </html>
