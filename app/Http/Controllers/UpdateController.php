@@ -13,6 +13,7 @@ use App\Rombongan_belajar;
 use App\Anggota_rombel;
 use App\Ekstrakurikuler;
 use App\Siswa;
+use App\Semester;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 class UpdateController extends Controller
@@ -83,6 +84,8 @@ class UpdateController extends Controller
 		Setting::where('key', 'app_version')->update(['value' => '5.0.8']);
 		Setting::where('key', 'db_version')->update(['value' => '4.0.1']);
 		//Artisan::call('migrate');
+		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
+		Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
 		Artisan::call('config:clear');
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
