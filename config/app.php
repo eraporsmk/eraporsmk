@@ -53,7 +53,7 @@ return [
 	| 'url' => env('APP_URL', 'http://erapor.local:8005'),
     */
 
-    'url' => 'http://localhost:8155',
+    'url' => 'http://localhost:8154',
 
     'asset_url' => env('ASSET_URL', null),
 
@@ -82,7 +82,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'id',
 
     /*
     |--------------------------------------------------------------------------

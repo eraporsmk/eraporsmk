@@ -136,14 +136,13 @@ $table_sync = config('erapor.table_sync');
 									$q->select('user_id')->from('users');
 								});
 							}
-							$query->where('last_sync', '>=', $last_sync);
 							if (!in_array($sync, $no_semester)) {
 							//if($sync != 'sekolah'){
 								$query->where('semester_id', '=', $semester->semester_id);
 							}
-							//if (Schema::hasColumn($sync, 'last_sync')) {
-								
-							//}
+							if (Schema::hasColumn($sync, 'last_sync')) {
+								$query->where('last_sync', '>=', $last_sync);	
+							}
 							//if (Schema::hasColumn($sync, 'semester_id')){
 								
 							//}
