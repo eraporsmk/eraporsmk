@@ -89,6 +89,7 @@ class UpdateController extends Controller
 		Artisan::call('config:clear');
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
+		system('composer update');
 		File::put(base_path().'/version.txt', '5.0.8');
 		echo 'sukses';
 	}
