@@ -139,14 +139,14 @@ class HelperServiceProvider extends ServiceProvider
 			$produktif = array(4,5,9,10,13);
 			$non_produktif = array(1,2,3,6,7,8,11,12,99);
 			if(in_array($kelompok_id,$produktif)){
-				$kkm = 65;
+				$new_kkm = 65;
 			} elseif(in_array($kelompok_id,$non_produktif)) {
-				$kkm = 60;
+				$new_kkm = 60;
 			} else {
-				$kkm = 0;
+				$new_kkm = $kkm;
 			}
 		}
-		return $kkm;
+		return $new_kkm;
 	}
 	public static function get_nilai($anggota_rombel_id, $kd_nilai_id){
 		$get_nilai = Nilai::where('anggota_rombel_id', '=', $anggota_rombel_id)->where('kd_nilai_id', '=', $kd_nilai_id)->first();
