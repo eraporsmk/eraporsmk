@@ -275,7 +275,7 @@ class GetMenu
 						'text' => 'Penilaian UKK',
 						'url'  => 'perencanaan/ukk',
 						'icon' => 'hand-o-right',
-						'active' => ['perencanaan/ukk', 'perencanaan/tambah-ukk'],
+						'active' => ['perencanaan/ukk', 'perencanaan/tambah-ukk', 'perencanaan/edit-ukk/*'],
 						'permission'	=> 'kaprog',
 					],
 				],

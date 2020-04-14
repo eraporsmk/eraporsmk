@@ -111,15 +111,6 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/guru/view/{guru_id}', array('as' => 'guru.view', 'uses' => 'GuruController@view'));
         Route::post('/guru/update-data', array('as' => 'guru.update_data', 'uses' => 'GuruController@update_data'));
         Route::get('/guru/hapus/{query}/{guru_id}', array('as' => 'guru.hapus', 'uses' => 'GuruController@hapus'));
-        Route::get('/rombel', 'RombelController@index')->name('rombel');
-        Route::get('/rombel/list-rombel', 'RombelController@list_rombel')->name('list_rombel');
-        Route::get('/rombel/anggota/{rombel_id}', array('as' => 'rombel.anggota', 'uses' => 'RombelController@anggota'));
-        Route::get('/rombel/pembelajaran/{rombel_id}', array('as' => 'rombel.pembelajaran', 'uses' => 'RombelController@pembelajaran'));
-        Route::get('/rombel/keluarkan/{id}', array('as' => 'rombel.keluarkan', 'uses' => 'RombelController@keluarkan'));
-        Route::get('/rombel/pengajar', 'RombelController@pengajar')->name('get_pengajar');
-        Route::get('/rombel/kelompok/{id}', array('as' => 'rombel.kelompok', 'uses' => 'RombelController@kelompok'));
-        Route::post('/rombel/tambah_alias', array('as' => 'rombel.tambah_alias', 'uses' => 'RombelController@tambah_alias'));
-        Route::post('/rombel/simpan_pembelajaran', array('as' => 'rombel.simpan_pembelajaran', 'uses' => 'RombelController@simpan_pembelajaran'));
         Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
         Route::get('/konfigurasi', 'ConfigController@index')->name('konfigurasi');
         Route::post('konfigurasi/simpan', 'ConfigController@simpan');
@@ -135,6 +126,17 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/referensi/edit-metode/{id}', array('as' => 'referensi.edit_metode', 'uses' => 'ReferensiController@edit_metode'));
         Route::get('/referensi/hapus-metode/{id}', array('as' => 'referensi.hapus_metode', 'uses' => 'ReferensiController@hapus_metode'));
         Route::get('/referensi/sikap', 'ReferensiController@sikap')->name('sikap');
+    });
+    Route::group(['middleware' => ['role:admin|waka']], function () {
+        Route::get('/rombel', 'RombelController@index')->name('rombel');
+        Route::get('/rombel/list-rombel', 'RombelController@list_rombel')->name('list_rombel');
+        Route::get('/rombel/anggota/{rombel_id}', array('as' => 'rombel.anggota', 'uses' => 'RombelController@anggota'));
+        Route::get('/rombel/pembelajaran/{rombel_id}', array('as' => 'rombel.pembelajaran', 'uses' => 'RombelController@pembelajaran'));
+        Route::get('/rombel/keluarkan/{id}', array('as' => 'rombel.keluarkan', 'uses' => 'RombelController@keluarkan'));
+        Route::get('/rombel/pengajar', 'RombelController@pengajar')->name('get_pengajar');
+        Route::get('/rombel/kelompok/{id}', array('as' => 'rombel.kelompok', 'uses' => 'RombelController@kelompok'));
+        Route::post('/rombel/tambah_alias', array('as' => 'rombel.tambah_alias', 'uses' => 'RombelController@tambah_alias'));
+        Route::post('/rombel/simpan_pembelajaran', array('as' => 'rombel.simpan_pembelajaran', 'uses' => 'RombelController@simpan_pembelajaran'));
     });
     Route::group(['middleware' => ['role:admin|guru']], function () {
         Route::get('/pd-aktif', 'SiswaController@index')->name('pd_aktif');
@@ -180,10 +182,12 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/perencanaan/bobot', 'PerencanaanController@bobot')->name('list_bobot');
         Route::post('/perencanaan/simpan-bobot', array('as' => 'simpan_bobot', 'uses' => 'PerencanaanController@simpan_bobot'));
         Route::get('/perencanaan/ukk', 'PerencanaanController@ukk')->name('perencanaan_ukk');
-        Route::get('/perencanaan/tambah-ukk', 'PerencanaanController@tambah_ukk');
+        Route::get('/perencanaan/tambah-ukk', 'PerencanaanController@tambah_ukk')->name('perencanaan.tambah_ukk');
         Route::post('/perencanaan/simpan-ukk', array('as' => 'perencanaan.simpan_ukk', 'uses' => 'PerencanaanController@simpan_ukk'));
         Route::get('/perencanaan/list-ukk', array('as' => 'perencanaan.list_ukk', 'uses' => 'PerencanaanController@list_ukk'));
         Route::get('/perencanaan/view-ukk/{ukk_id}', array('as' => 'perencanaan.view_ukk', 'uses' => 'PerencanaanController@view_ukk'));
+        Route::get('/perencanaan/edit-ukk/{ukk_id}', array('as' => 'perencanaan.edit_ukk', 'uses' => 'PerencanaanController@edit_ukk'));
+        Route::post('/perencanaan/update-ukk', array('as' => 'perencanaan.update_ukk', 'uses' => 'PerencanaanController@update_ukk'));
         Route::get('/perencanaan/delete-ukk/{ukk_id}', array('as' => 'perencanaan.delete_ukk', 'uses' => 'PerencanaanController@delete_ukk'));
         //Perencanaan End//
         //Penilaian Start//

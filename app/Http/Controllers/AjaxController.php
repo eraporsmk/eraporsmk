@@ -24,6 +24,7 @@ use App\Catatan_ppk;
 use App\Prestasi;
 use App\Rencana_ukk;
 use App\Dudi;
+use App\Jurusan_sp;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -608,6 +609,7 @@ class AjaxController extends Controller
 	}
 	public function get_paket_by_jurusan(Request $request){
 		$jurusan_id = $request['jurusan_id'];
+		$jurusan_sp = Jurusan_sp::where('jurusan_id', $jurusan_id)->first();
 		$get_paket_ukk = Paket_ukk::where('jurusan_id', $jurusan_id)->where('status', 1)->get();
 		if($get_paket_ukk->count()){
 			foreach($get_paket_ukk as $paket_ukk){
@@ -618,7 +620,7 @@ class AjaxController extends Controller
 			}
 		} else {
 			$record['value'] 	= '';
-			$record['text'] 	= 'Tidak ditemukan paket kompetensi keahlian dibawah jurusan terpilih ('.$jurusan_id.')';
+			$record['text'] 	= 'Tidak ditemukan paket UKK pada kompetensi keahlian '.$jurusan_sp->nama_jurusan_sp;
 			$output['result'][] = $record;
 		}
 		echo json_encode($output);
@@ -684,9 +686,11 @@ class AjaxController extends Controller
 		$semester_id = $request['semester_id'];
 		$rencana_ukk = Rencana_ukk::with('paket_ukk')->where('internal', $internal)->where('eksternal', $eksternal)->where('paket_ukk_id', $paket_ukk_id)->where('semester_id', $semester_id)->first(); 
 		$data_siswa = Anggota_rombel::with('siswa')->with(['nilai_ukk' => function($query) use ($rencana_ukk){
-			if($rencana_ukk){
-				$query->where('rencana_ukk_id',$rencana_ukk->rencana_ukk_id);
-			}
+			$query->whereHas('rencana_ukk', function($query) use ($rencana_ukk){
+				if($rencana_ukk){
+					$query->where('rencana_ukk_id',$rencana_ukk->rencana_ukk_id);
+				}
+			});
 			/*$query->whereIn('rencana_ukk_id', function($q) use ($request){
 				$q->select('rencana_ukk_id')->from('rencana_ukk')->where('paket_ukk_id', $request['paket_id']);
 			});*/

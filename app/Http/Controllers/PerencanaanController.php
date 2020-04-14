@@ -631,14 +631,69 @@ class PerencanaanController extends Controller
 			'eksternal'	=> $eksternal,
 		);
 		return view('perencanaan.tambah_ukk')->with($params);
-    }
+	}
+	public function edit_ukk(Request $request){
+		$user = auth()->user();
+		$rencana_ukk = Rencana_ukk::with(['guru_internal', 'guru_eksternal', 'paket_ukk'])->find($request->route('ukk_id'));
+		$get_internal = CustomHelper::jenis_gtk('guru');
+		$get_eksternal = CustomHelper::jenis_gtk('asesor');
+		$callback = function($query){
+			$query->whereRoleIs('internal');
+		};
+		$internal = Guru::where('sekolah_id', session('sekolah_id'))->whereIn('jenis_ptk_id', $get_internal)->whereHas('pengguna', $callback)->with(['pengguna' => $callback])->get();
+		$eksternal = Guru::where('sekolah_id', session('sekolah_id'))->whereHas('dudi')->with('dudi')->whereIn('jenis_ptk_id', $get_eksternal)->get();
+		$params = array(
+			'rencana_ukk' => $rencana_ukk,
+			'internal'	=> $internal,
+			'eksternal'	=> $eksternal,
+		);
+		return view('perencanaan.edit_ukk')->with($params);
+	}
+	public function update_ukk(Request $request){
+		$messages = [
+			'rencana_ukk_id.required'	=> 'Rencana UKK tidak boleh kosong',
+			'internal.required'	=> 'Penguji Internal tidak boleh kosong',
+			'eksternal.required'        => 'Penguji Eksternal tidak boleh kosong',
+			'tanggal_sertifikat.required'        => 'Tanggal Sertifikat tidak boleh kosong',
+		];
+		$validator = Validator::make($request->all(), [
+			'rencana_ukk_id' => 'required',
+			'internal' => 'required',
+			'eksternal' => 'required',
+			'tanggal_sertifikat' => 'required',
+		],
+		$messages
+		);
+		if ($validator->fails()) {
+			return redirect()->route('perencanaan.edit_ukk', ['ukk_id' => $request->rencana_ukk_id])->withErrors($validator);
+		}
+		$rencana_ukk = Rencana_ukk::find($request->rencana_ukk_id);
+		$rencana_ukk->internal = $request->internal;
+		$rencana_ukk->eksternal = $request->eksternal;
+		$rencana_ukk->tanggal_sertifikat = $request->tanggal_sertifikat;
+		$rencana_ukk->last_sync = date('Y-m-d H:i:s');
+		if($rencana_ukk->save()){
+			return redirect()->route('perencanaan_ukk')->with(['success' => 'Data Rencana UKK berhasil diperbaharui']);
+		} else {
+			return redirect()->route('perencanaan_ukk')->with(['error' => 'Data Rencana UKK gagal diperbaharui']);
+		}
+	}
 	public function simpan_ukk(Request $request){
+		$messages = [
+			'rombel_id.required'	=> 'Rombongan Belajar tidak boleh kosong',
+			'internal.required'	=> 'Penguji Internal tidak boleh kosong',
+			'eksternal.required'        => 'Penguji Eksternal tidak boleh kosong',
+			'tanggal_sertifikat.required'        => 'Tanggal Sertifikat tidak boleh kosong',
+		];
 		$validator = Validator::make($request->all(), [
 			'rombel_id' => 'required',
 			'internal' => 'required',
 			'eksternal' => 'required',
 			'tanggal_sertifikat' => 'required',
 		]);
+		if ($validator->fails()) {
+			return redirect()->route('perencanaan.tambah_ukk')->withErrors($validator);
+		}
 		$siswa_dipilih	= $request['siswa_dipilih'];
 		$insert = Rencana_ukk::firstOrCreate(
 			[
@@ -707,7 +762,8 @@ class PerencanaanController extends Controller
 								<span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu pull-right text-left" role="menu">
-								 <li><a href="'.url('perencanaan/view-ukk/'.$item->rencana_ukk_id).'" class="toggle-modal"><i class="fa fa-pencil"></i> Detil</a></li>
+								 <li><a href="'.url('perencanaan/view-ukk/'.$item->rencana_ukk_id).'" class="toggle-modal"><i class="fa fa-eye"></i> Detil</a></li>
+								 <li><a href="'.url('perencanaan/edit-ukk/'.$item->rencana_ukk_id).'"><i class="fa fa-pencil"></i> Ubah</a></li>
 								 <li><a href="'.url('perencanaan/delete-ukk/'.$item->rencana_ukk_id).'" class="confirm"><i class="fa fa-power-off"></i> Hapus</a></li>
                             </ul>
                         </div></div>';
