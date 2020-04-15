@@ -38,7 +38,23 @@ class SiswaController extends Controller
 			'all_jurusan' => Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get(),
 		);
 		return view('siswa.list_siswa')->with($params);
-    }
+	}
+	public function password_siswa(Request $request){
+		$user = auth()->user();
+		$callback = function($query) use ($user) {
+			$query->whereHas('anggota_rombel', function($query) use ($user){
+				$query->whereHas('rombongan_belajar', function($subquery) use ($user){
+					$subquery->where('rombongan_belajar.jenis_rombel', 1);
+					$subquery->where('sekolah_id', session('sekolah_id'));
+					$subquery->where('semester_id', session('semester_id'));
+					$subquery->where('guru_id', $user->guru_id);
+				});
+			});
+		};
+		$query =  User::with('siswa')->whereHas('siswa', $callback)->orderBy('name')->get();
+		$params = ['all_siswa' => $query];
+		return view('siswa.list_password_siswa')->with($params);
+	}
 	public function list_siswa(Request $request, $status){
 		$user = auth()->user();
 		if($status == 'aktif'){

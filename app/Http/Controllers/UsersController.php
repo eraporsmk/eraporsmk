@@ -189,8 +189,9 @@ class UsersController extends Controller
 				return $return;
 			})
 			->addColumn('hashedPassword', function ($item) {
-				if(Hash::check(12345678, $item->password)){
-    				$password = '<div class="text-center"><span class="btn btn-xs btn-danger"> Standar </span></div>';
+				//if(Hash::check(12345678, $item->password)){
+				if(Hash::check($item->default_password, $item->password)){
+    				$password = '<div class="text-center">'.$item->default_password.'</div>';
 				} else {
 					$password = '<div class="text-center"><span class="btn btn-xs btn-success"> Custom </span></div>';
 				}
@@ -358,7 +359,6 @@ class UsersController extends Controller
     {
         try {
 			//dd($id);
-			//dd($request->all());
             $user = User::findOrFail($id);
 			$this->validate($request, [
                 'name' => 'required',
@@ -368,8 +368,16 @@ class UsersController extends Controller
 			//dd($user);
 			$user->name = $request->input('name');
             $user->email = $request->input('email');
-            $user->save();
-			$set_roles = $request->input('role_id');
+			$user->save();
+			$set_roles = [];
+			if ($request->has('role_id')) {
+				$set_roles = $request->input('role_id');
+				$collection = collect($set_roles);
+				$filtered = $collection->filter(function ($value, $key) {
+					return $value > 2;
+				});
+				$set_roles = $filtered->all();
+			}
 			if($user->hasRole('siswa')){
 				if($set_roles){
 					$set_roles = array_merge($set_roles, ['5']);
@@ -428,7 +436,7 @@ class UsersController extends Controller
 				}
 				DB::table('permission_role')->updateOrInsert(['permission_id' => $permission->id, 'role_id' => $role->id]);
 			}
-			return redirect()->route('users')->with('success', "The user <strong>$user->name</strong> has successfully been updated.");
+			return redirect()->route('users')->with('success', "Pengguna <strong>$user->name</strong> berhasil diperbaharui.");
         } catch (ModelNotFoundException $ex) {
             if ($ex instanceof ModelNotFoundException) {
                 return response()->view('errors.' . '404');
@@ -438,7 +446,7 @@ class UsersController extends Controller
 	public function reset_password($id){
 		$user = User::findOrFail($id);
 		if($user){
-			$user->password = Hash::make(12345678);
+			$user->password = Hash::make($user->default_password);
 			if($user->save()){
 				Alert::success('Password berhasil di atur ulang', 'Berhasil');
 			} else {
@@ -469,15 +477,17 @@ class UsersController extends Controller
 				if($find_user_email){
 					$guru->email = strtolower($random).'@erapor-smk.net';
 				}
+				$new_password = strtolower(Str::random(8));
 				$insert_user = array(
 					'name' => $guru->nama,
 					'email' => $guru->email,
 					'nuptk'	=> $guru->nuptk,
-					'password' => Hash::make(12345678),
+					'password' => Hash::make($new_password),
 					'last_sync'	=> date('Y-m-d H:i:s'),
 					'sekolah_id'	=> $user->sekolah_id,
-					'password_dapo'	=> md5(12345678),
-					'guru_id'	=> $guru->guru_id
+					'password_dapo'	=> md5($new_password),
+					'guru_id'	=> $guru->guru_id,
+					'default_password' => $new_password,
 				);
 				$create_user = User::updateOrCreate(
 					['guru_id' => $guru->guru_id],
@@ -528,15 +538,17 @@ class UsersController extends Controller
 				if($find_user_email){
 					$siswa->email = strtolower($random).'@erapor-smk.net';
 				}
+				$new_password = strtolower(Str::random(8));
 				$insert_user = array(
 					'name' => $siswa->nama,
 					'email' => $siswa->email,
 					'nisn'	=> $siswa->nisn,
-					'password' => Hash::make(12345678),
+					'password' => Hash::make($new_password),
 					'last_sync'	=> date('Y-m-d H:i:s'),
 					'sekolah_id'	=> $user->sekolah_id,
-					'password_dapo'	=> md5(12345678),
-					'peserta_didik_id'	=> $siswa->peserta_didik_id
+					'password_dapo'	=> md5($new_password),
+					'peserta_didik_id'	=> $siswa->peserta_didik_id,
+					'default_password' => $new_password,
 				);
 				$create_user = User::updateOrCreate(
 					['peserta_didik_id' => $siswa->peserta_didik_id],
@@ -546,6 +558,19 @@ class UsersController extends Controller
 				$CheckadminRole = DB::table('role_user')->where('user_id', $create_user->user_id)->first();
 				if(!$CheckadminRole){
 					$create_user->attachRole($adminRole);
+				}
+			}
+		}
+		$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->get();
+		if($all_pengguna->count()){
+			foreach($all_pengguna as $pengguna){
+				$new_password = strtolower(Str::random(8));
+				if(!$pengguna->hasRole('admin')){
+					if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
+						$pengguna->password = Hash::make($new_password);
+						$pengguna->default_password = $new_password;
+						$pengguna->save();
+					}
 				}
 			}
 		}

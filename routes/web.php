@@ -141,6 +141,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::group(['middleware' => ['role:admin|guru']], function () {
         Route::get('/pd-aktif', 'SiswaController@index')->name('pd_aktif');
         Route::get('/pd-keluar', 'SiswaController@keluar')->name('pd_keluar');
+        Route::get('/password-pd', 'SiswaController@password_siswa')->name('password_siswa');
         Route::get('/pd/list/{status}', array('as' => 'rombel.pembelajaran', 'uses' => 'SiswaController@list_siswa'));
         Route::get('/pd/view/{siswa_id}', array('as' => 'siswa.view', 'uses' => 'SiswaController@view'));
         Route::get('/referensi/kd', 'ReferensiController@kd')->name('ref_kompetensi_dasar');

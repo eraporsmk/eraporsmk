@@ -12,6 +12,12 @@
 <style>
 .swal-footer{text-align:center !important;}
 </style>
+	@if ($message = Session::get('success'))
+	<div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		<strong>Sukses!</strong> {!! $message !!}
+	</div>
+	@endif
 	<div class="row" style="margin-bottom:10px;">
 		<div class="col-md-6">
 			<select id="filter_akses" class="form-control select2" style="width:100%;">

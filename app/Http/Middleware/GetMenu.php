@@ -201,6 +201,12 @@ class GetMenu
 								'icon' => 'users',
 								'icon_color'	=> 'red',
 							],
+							[
+								'text' => 'Password Peserta Didik',
+								'url'  => 'password-pd',
+								'icon' => 'users',
+								'permission'  => 'wali',
+							],
 						],
 					],
 					[
