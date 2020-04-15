@@ -157,6 +157,13 @@ class UsersController extends Controller
 		$user->name = $request->input('name');
         $user->email = strtolower($request->input('email'));
 		$user->save();
+		if($user->hasRole('siswa')){
+			$siswa = $user->siswa;
+			if($siswa){
+				$siswa->email = strtolower($request->input('email'));
+				$siswa->save();
+			}
+		}
 		return redirect()->route('user.profile')->with($with, $text);
 	}
 	
