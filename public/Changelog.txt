@@ -2,6 +2,8 @@
 <legend><h3>Versi 5.0.8</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Tombol Status Penilaian di Dashboard Admin</li>
+<li><b style="color:blue">[Pembaharuan]</b> Generate password pengguna memakai kombinasi acak</li>
+<li><b style="color:blue">[Pembaharuan]</b> Menampilkan detil data diri di profil Peserta Didik</li>
 <li><b style="color:green">[Perbaikan]</b> Cetak Rapor UTS</li>
 <li><b style="color:green">[Perbaikan]</b> Akses Menu sesuai Role</li>
 <li><b style="color:green">[Perbaikan]</b> Nilai Ekstrakurikuler ganda</li>

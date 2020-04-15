@@ -82,7 +82,7 @@ class UpdateController extends Controller
 		}
 		*/
 		Setting::where('key', 'app_version')->update(['value' => '5.0.8']);
-		Setting::where('key', 'db_version')->update(['value' => '4.0.1']);
+		Setting::where('key', 'db_version')->update(['value' => '4.0.2']);
 		//Artisan::call('migrate');
 		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
 		Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
