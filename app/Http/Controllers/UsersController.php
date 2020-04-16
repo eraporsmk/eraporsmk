@@ -10,6 +10,7 @@ use App\Role_user;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Image;
 use File;
@@ -88,10 +89,13 @@ class UsersController extends Controller
 			return redirect()->back()->withInput()->withErrors($validator->errors());
 		}
 		//JIKA FOLDERNYA BELUM ADA
-        if (!File::isDirectory($this->path)) {
+        //if (!File::isDirectory($this->path)) {
             //MAKA FOLDER TERSEBUT AKAN DIBUAT
-            File::makeDirectory($this->path);
-        }
+            //File::makeDirectory($this->path);
+		//}
+		if(!Storage::exists('public/images')) {
+			Storage::makeDirectory('public/images', 0775, true); //creates directory
+		}
 		//MENGAMBIL FILE IMAGE DARI FORM
         $file = $request->file('image');
 		$current_password_post = $request->input('current_password');
@@ -142,9 +146,12 @@ class UsersController extends Controller
 				});
 				
 				//CEK JIKA FOLDERNYA BELUM ADA
-				if (!File::isDirectory($this->path . '/' . $row)) {
+				//if (!File::isDirectory($this->path . '/' . $row)) {
 					//MAKA BUAT FOLDER DENGAN NAMA DIMENSI
-					File::makeDirectory($this->path . '/' . $row);
+					//File::makeDirectory($this->path . '/' . $row);
+				//}
+				if(!Storage::exists('public/images/'.$row)) {
+					Storage::makeDirectory('public/images/'.$row, 0775, true); //creates directory
 				}
 				
 				//MEMASUKAN IMAGE YANG TELAH DIRESIZE KE DALAM CANVAS

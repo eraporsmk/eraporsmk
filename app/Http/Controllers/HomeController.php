@@ -25,6 +25,7 @@ use App\Jurusan_sp;
 use App\Remedial;
 use Session;
 use App\Setting;
+use Illuminate\Support\Facades\Storage;
 class HomeController extends Controller
 {
     /**
@@ -34,7 +35,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+		$this->middleware('auth');
     }
 
     /**
@@ -43,7 +44,6 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index(){
-		//dd(session('sekolah_id'));
 		$user = auth()->user();
 		$guru = 0;
 		$siswa = 0;
