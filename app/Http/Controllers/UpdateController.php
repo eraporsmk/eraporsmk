@@ -37,58 +37,30 @@ class UpdateController extends Controller
 		return view('update');
     }
 	public function update_versi(){
-		//$user = auth()->user();
-		/*
-		$a = Rombongan_belajar::where(function($query){
-			$query->where('jenis_rombel', 51);
-			$query->where('sekolah_id', session('sekolah_id'));
-			$query->where('semester_id', session('semester_id'));
-		})->onlyTrashed()->get();
-		$rombongan_belajar_id = [];
-		foreach($a as $b){
-			$rombongan_belajar_id[] = $b->rombongan_belajar_id;
-			$c = Ekstrakurikuler::where(function($query) use ($b){
-				$query->where('nama_ekskul', $b->nama);
-				$query->where('sekolah_id', session('sekolah_id'));
-				$query->where('semester_id', session('semester_id'));
-			})->first();
-			if($c){
-				$anggota_not_deleted = Anggota_rombel::where('rombongan_belajar_id', $c->rombongan_belajar_id)->get();
-				foreach($anggota_not_deleted as $not_deleted){
-					$not_deleted->delete();
-				}
-				$c->rombongan_belajar_id = $b->rombongan_belajar_id;
-				$c->save();
-			}
-			$anggota_deleted = Anggota_rombel::where('rombongan_belajar_id', $b->rombongan_belajar_id)->onlyTrashed()->get();
-			foreach($anggota_deleted as $deleted){
-				$siswa = Siswa::onlyTrashed()->find($deleted->peserta_didik_id);
-				if($siswa){
-					$siswa->restore();
-				}
-				$deleted->restore();
-			}
-			$b->restore();
-		}
-		if($rombongan_belajar_id){
-			Rombongan_belajar::whereHas('anggota_rombel', function($query){
-				$query->onlyTrashed();
-			})->where(function($query) use ($rombongan_belajar_id){
-				$query->whereNotIn('rombongan_belajar_id', $rombongan_belajar_id);
-				$query->where('jenis_rombel', 51);
-				$query->where('sekolah_id', session('sekolah_id'));
-				$query->where('semester_id', session('semester_id'));
-			})->delete();
-		}
-		*/
 		Setting::where('key', 'app_version')->update(['value' => '5.0.8']);
-		Setting::where('key', 'db_version')->update(['value' => '4.0.1']);
-		//Artisan::call('migrate');
+		Setting::where('key', 'db_version')->update(['value' => '4.0.2']);
 		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
 		Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
-		Artisan::call('config:clear');
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
+		Artisan::call('config:cache');
+		$path = base_path('bootstrap/cache');
+		$files = File::files($path);
+		$config = FALSE;
+		$config_ = FALSE;
+		foreach($files as $file){
+			if($file->getRelativePathname() == 'config-.php'){
+				$config_ = $file->getPathname();
+			}
+			if($file->getRelativePathname() == 'config.php'){
+				$config = $file->getPathname();
+			}
+		}
+		if($config_ && $config){
+			File::move($config_,$config);
+		} elseif($config_ && !$config){
+			File::move($config_,$files.'/config.php');
+		}
 		Artisan::call('migrate');
 		system('composer update');
 		File::put(base_path().'/version.txt', '5.0.8');
