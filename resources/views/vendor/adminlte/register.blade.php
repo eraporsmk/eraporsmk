@@ -79,7 +79,7 @@
             </form>
             <div class="auth-links text-center">
 				<p>- ATAU -</p>
-                <a href="{{ url(config('adminlte.login_url', 'login')) }}" class="btn btn-warning btn-block btn-flat">{{ trans('adminlte::adminlte.i_already_have_a_membership') }}</a>
+                <a href="{{ url(config('adminlte.login_url', 'login')) }}" class="btn btn-warning btn-block btn-flat">Masuk Aplikasi</a>
             </div>
         </div>
         <!-- /.form-box -->
