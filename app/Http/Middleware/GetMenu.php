@@ -24,22 +24,32 @@ class GetMenu
     public function handle($request, Closure $next)
     {
         $user = '';
-        $ta = '';
+		$ta = '';
+		$sekolah = '';
         if (Auth::check()){
             $user = Auth::user();
-            $ta = Semester::find($user->periode_aktif);
-            view()->composer('*', function($view) use ($user, $ta){
-                $with = [
-                    'user' => $user,
-                    'semester' => $ta,
-                    'sekolah'	=> Sekolah::with(['guru' => function($query){
-                        $query->with('gelar_depan');
-                        $query->with('gelar_belakang');
-                    }])->find($user->sekolah_id),
-                ];
-                $view->with($with);
-            });
-        }
+			$ta = Semester::find($user->periode_aktif);
+			$sekolah = Sekolah::with(['guru' => function($query){
+				$query->with('gelar_depan');
+				$query->with('gelar_belakang');
+			}])->find($user->sekolah_id);
+		}
+		/*view()->composer('*', function($view) use ($user, $ta){
+			$with = [
+				'user' => $user,
+				'semester' => $ta,
+				'sekolah'	=> Sekolah::with(['guru' => function($query){
+					$query->with('gelar_depan');
+					$query->with('gelar_belakang');
+				}])->find($user->sekolah_id),
+			];
+			$view->with($with);
+		});*/
+		view()->share([
+			'user' => $user,
+			'semester' => $ta,
+			'sekolah' => $sekolah,
+		]);
         if(Schema::hasTable('settings')){
 			config([
                 'global' => collect(DB::table('settings')->get())->keyBy('key')->transform(function ($setting) {
