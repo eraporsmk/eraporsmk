@@ -160,7 +160,12 @@ class SiswaController extends Controller
 		if ($request->has('filter_kelas')) {
 			$dt->addColumn('rombongan_belajar', function () {
 				$tingkat = request('filter_kelas');
-				$data_rombel = Rombongan_belajar::where('jurusan_sp_id', request('filter_jurusan'))->where('tingkat', $tingkat)->orderBy('nama')->get();
+				$data_rombel = Rombongan_belajar::where(function($query) {
+					$query->where('jurusan_sp_id', request('filter_jurusan'));
+					$query->where('tingkat', request('filter_kelas'));
+					$query->where('semester_id', session('semester_id'));
+					$query->where('sekolah_id', session('sekolah_id'));
+				})->orderBy('nama')->get();
 				if($data_rombel->count()){
 					foreach($data_rombel as $rombel){
 						$record= array();
