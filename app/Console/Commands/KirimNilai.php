@@ -18,7 +18,7 @@ class KirimNilai extends Command
      *
      * @var string
      */
-    protected $signature = 'kirim:nilai {tingkat} {sekolah_id}';
+    protected $signature = 'kirim:nilai {tingkat} {sekolah_id} {semester_id}';
 
     /**
      * The console command description.
@@ -45,9 +45,9 @@ class KirimNilai extends Command
     public function handle()
     {
         $arguments = $this->arguments();
-		self::proses_kirim($arguments['tingkat'], $arguments['sekolah_id']);
+		self::proses_kirim($arguments['tingkat'], $arguments['sekolah_id'], $arguments['semester_id']);
     }
-	private function proses_kirim($tingkat, $sekolah_id){
+	private function proses_kirim($tingkat, $sekolah_id, $semester_id){
 		$result['status'] = 1;
 		$result['rombel'] = '0';
 		$result['jumlah_data'] = '0';
@@ -56,11 +56,12 @@ class KirimNilai extends Command
 		$result['sekolah_id'] = $sekolah_id;
 		$result['message'] = '';
 		Storage::disk('public')->put('proses_kirim.json', json_encode($result));
-		$callback = function($query) use ($tingkat, $sekolah_id){
+		$callback = function($query) use ($tingkat, $sekolah_id, $semester_id){
 			$query->where('sekolah_id', $sekolah_id);
 			$query->where('tingkat', $tingkat);
 			$query->where('jenis_rombel', 1);
 			$query->where('kunci_nilai', 1);
+			$query->where('semester_id', $semester_id);
 			$query->with(['anggota_rombel' => function($query){
 				$query->with(['nilai_akhir_pengetahuan', 'nilai_akhir_keterampilan']);
 			}]);
@@ -84,7 +85,7 @@ class KirimNilai extends Command
 			$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
 			$insert_matev_rapor = [
 				'nm_mata_evaluasi'		=> Str::limit($pembelajaran->nama_mata_pelajaran, 50),
-				'a_dari_template'		=> 0,
+				'a_dari_template'		=> 1,
 				'no_urut'				=> $pembelajaran->no_urut,
 				'kkm_kognitif'			=> $kkm,
 				'kkm_psikomotorik'		=> $kkm,

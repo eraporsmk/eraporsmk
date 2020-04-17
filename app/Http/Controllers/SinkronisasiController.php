@@ -227,7 +227,7 @@ class SinkronisasiController extends Controller
 	}
 	public function kirim_nilai(){
 		$user = auth()->user();
-		$sekolah = Sekolah::find(session('sekolah_id'));
+		$sekolah = Sekolah::find($user->sekolah_id);
 		try {
 			$param = array(
 				'status' 	=> TRUE,
@@ -392,8 +392,8 @@ class SinkronisasiController extends Controller
     	}
 		return view('sinkronisasi.kirim_nilai')->with($param);
 	}
-	public function proses_kirim_nilai($tingkat, $sekolah_id){
-		Artisan::call('kirim:nilai', ['tingkat' => $tingkat, 'sekolah_id' => $sekolah_id]);
+	public function proses_kirim_nilai($tingkat, $sekolah_id, $semester_id){
+		Artisan::call('kirim:nilai', ['tingkat' => $tingkat, 'sekolah_id' => $sekolah_id, 'semester_id' => $semester_id]);
 	}
 	public function kirim_data(){
 		$url_server = config('erapor.url_server').'sinkronisasi/status';

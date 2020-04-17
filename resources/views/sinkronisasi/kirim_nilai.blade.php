@@ -61,7 +61,7 @@
 				<td class="text-center">{{$rombel['terbuka']}}</td>
 				<td class="text-center">{{$rombel['nilai']}}</td>
 				<td class="text-center">{{$rombel['terkirim']}}</td>
-				<td class="text-center">{!!($rombel['terkunci'] && $rombel['nilai']) ? '<a class="proses_kirim btn btn-success btn-sm" data-tingkat="'.$rombel['tingkat'].'" data-sekolah_id="'.$sekolah->sekolah_id.'">Kirim Nilai</a>' : '-' !!}</td>
+				<td class="text-center">{!!($rombel['terkunci'] && $rombel['nilai']) ? '<a class="proses_kirim btn btn-success btn-sm" data-tingkat="'.$rombel['tingkat'].'" data-sekolah_id="'.$sekolah->sekolah_id.'" data-semester_id="'.$semester->semester_id.'">Kirim Nilai</a>' : '-' !!}</td>
 			</tr>
 			<?php
 			$jumlah_jumlah += $rombel['jumlah'];
@@ -91,7 +91,7 @@
 var BarWidth = setInterval(frame, 1000);
 var ProsesSinkronTable;
 var Proses_Sinkron = function(m) {
-	var url = '{{url('sinkronisasi/proses-kirim-nilai')}}/'+m.tingkat+'/'+m.sekolah_id;
+	var url = '{{url('sinkronisasi/proses-kirim-nilai')}}/'+m.tingkat+'/'+m.sekolah_id+'/'+m.semester_id;
 	$.get(url).done(function(response) {
 		var data = $.parseJSON(response);
 		console.log(data);
@@ -112,9 +112,10 @@ var Proses_Sinkron = function(m) {
 		}
 	});
 }
-function Data_Sync(tingkat, sekolah_id){
+function Data_Sync(tingkat, sekolah_id, semester_id){
 	this.tingkat = tingkat,
-	this.sekolah_id = sekolah_id
+	this.sekolah_id = sekolah_id,
+	this.semester_id = semester_id
 }
 function frame() {
 	if(typeof ProsesSinkronTable != 'undefined'){
@@ -135,7 +136,8 @@ $('.proses_kirim').click(function(){
 	$('.status').show();
 	var tingkat = $(this).data('tingkat');
 	var sekolah_id = $(this).data('sekolah_id');
-	var DataSync = new Data_Sync(tingkat, sekolah_id);
+	var semester_id = $(this).data('semester_id');
+	var DataSync = new Data_Sync(tingkat, sekolah_id, semester_id);
 	Proses_Sinkron(DataSync);
 });
 </script>

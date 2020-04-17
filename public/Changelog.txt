@@ -9,6 +9,7 @@
 <li><b style="color:green">[Perbaikan]</b> Nilai Ekstrakurikuler ganda</li>
 <li><b style="color:green">[Perbaikan]</b> Menu Ketidakhadiran</li>
 <li><b style="color:green">[Perbaikan]</b> Penilaian UKK</li>
+<li><b style="color:green">[Perbaikan]</b> Kirim Nilai Rapor ke Dapodik</li>
 </ol>
 <legend><h3>Versi 5.0.7</h3></legend>
 <ol>

@@ -172,7 +172,7 @@ class HomeController extends Controller
 	public function togglePenilaian(Request $request){
 		$user = auth()->user();
 		$status = $request->status;
-		$text = ($status) ? 'Status Penilaian berhasil di aktifkan' : 'Status Penilaian di nonaktifkan';
+		$text = ($status) ? 'Status Penilaian di nonaktifkan' : 'Status Penilaian berhasil di aktifkan';
 		Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $user->periode_aktif)->update(['kunci_nilai' => $status]);
 		$status_penilaian = Setting::updateOrCreate(
 			['key' => 'status_penilaian'],

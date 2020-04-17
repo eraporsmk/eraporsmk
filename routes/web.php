@@ -51,7 +51,7 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/sinkronisasi/erapor', 'SinkronisasiController@kirim_data')->name('kirim_data');
         Route::get('/sinkronisasi/erapor4', 'SinkronisasiController@erapor_lama')->name('erapor_lama');
         Route::get('/sinkronisasi/proses-erapor4/{tabel}', array('as' => 'sinkronisasi.proses_erapor_lama', 'uses' => 'SinkronisasiController@proses_erapor_lama'));
-        Route::get('/sinkronisasi/proses-kirim-nilai/{tingkat}/{sekolah_id}', 'SinkronisasiController@proses_kirim_nilai')->name('proses_kirim_nilai');
+        Route::get('/sinkronisasi/proses-kirim-nilai/{tingkat}/{sekolah_id}/{semester_id}', 'SinkronisasiController@proses_kirim_nilai')->name('proses_kirim_nilai');
         Route::get('/sinkronisasi/proses-ambil-data', 'SinkronisasiController@ambil_data')->name('ambil_data');
         Route::get('/sinkronisasi/sekolah', 'SinkronisasiController@sekolah')->name('sekolah');
         Route::get('/sinkronisasi/guru', 'SinkronisasiController@guru')->name('sinkronisasi_guru');;
