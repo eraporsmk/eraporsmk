@@ -31,7 +31,7 @@
 					</td>
 					<td>{{CustomHelper::nama_guru($pembelajaran->guru->gelar_depan, $pembelajaran->guru->nama, $pembelajaran->guru->gelar_belakang)}}</td>
 					<td>
-						<select class="form-control select2" name="rencana_penilaian[{{$pembelajaran->pembelajaran_id}}]" multiple="multiple" style="width:100%">
+						<select class="form-control select2" name="rencana_penilaian[{{$pembelajaran->pembelajaran_id}}][]" multiple="multiple" style="width:100%">
 							<option value="">== Pilih Penilaian ==</option>
 							@if($pembelajaran->rencana_penilaian->count())
 							@foreach($pembelajaran->rencana_penilaian as $rencana_penilaian)

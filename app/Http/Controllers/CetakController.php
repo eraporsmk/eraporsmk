@@ -158,7 +158,8 @@ class CetakController extends Controller
 			$pdf->getMpdf()->WriteHTML($rapor_nilai);
 			$pdf->getMpdf()->AddPage('P','','1','','',10,10,10,10,5,5,'', 'A4');
 		}
-		return $pdf->stream('rapor_pts.pdf');  
+		$filename = 'Rapor_PTS_'.str_replace(' ','_', CustomHelper::clean($rombongan_belajar->nama)).'_TA_'.$rombongan_belajar->semester->nama;
+		return $pdf->stream($filename.'.pdf');  
 	}
 	public function rapor_top($query, $id){
 		if($query){
