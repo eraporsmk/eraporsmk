@@ -26,6 +26,7 @@ use App\Exports\LeggerNilaiAkhirExport;
 use App\Exports\LeggerNilaiRaporExport;
 use App\Exports\AbsensiExport;
 use App\Dudi;
+use App\Tahun_ajaran;
 class LaporanController extends Controller
 {
     public function __construct()
@@ -530,24 +531,26 @@ class LaporanController extends Controller
 		if($rencana_penilaian){
 			foreach($rencana_penilaian as $pembelajaran_id => $rencana_penilaian_id){
 				$pembelajaran_id_array[] = $pembelajaran_id;
-				$rencana_penilaian_id_array[] = $rencana_penilaian_id;
-				$insert_rapor_pts = array(
-					'sekolah_id' => $request->sekolah_id,
-					'last_sync'	=> date('Y-m-d H:i:s'),
-				);
-				$insert_data = Rapor_pts::updateOrCreate(
-					[
-						'rombongan_belajar_id' => $request->rombongan_belajar_id,
-						'pembelajaran_id' => $pembelajaran_id,
-						'rencana_penilaian_id' => $rencana_penilaian_id
-					],
-					$insert_rapor_pts
-				);
-				if($insert_data){
-					$insert++;
+				foreach($rencana_penilaian_id as $ren_id){
+					$rencana_penilaian_id_array[] = $ren_id;
+					$insert_rapor_pts = array(
+						'sekolah_id' => $request->sekolah_id,
+						'last_sync'	=> date('Y-m-d H:i:s'),
+					);
+					$insert_data = Rapor_pts::updateOrCreate(
+						[
+							'rombongan_belajar_id' => $request->rombongan_belajar_id,
+							'pembelajaran_id' => $pembelajaran_id,
+							'rencana_penilaian_id' => $ren_id
+						],
+						$insert_rapor_pts
+					);
+					if($insert_data){
+						$insert++;
+					}
 				}
 			}
-			Rapor_pts::where(function($query) use ($request, $pembelajaran_id_array){
+			Rapor_pts::where(function($query) use ($request, $pembelajaran_id_array, $rencana_penilaian_id_array){
 				$query->where('rombongan_belajar_id', $request->rombongan_belajar_id);
 				$query->whereIn('pembelajaran_id', $pembelajaran_id_array);
 				$query->whereNotIn('rencana_penilaian_id', $rencana_penilaian_id_array);
@@ -611,7 +614,10 @@ class LaporanController extends Controller
 	public function legger(){
 		$user = auth()->user();
 		if($user->hasRole('waka')){
-			return view('laporan.waka.legger');
+			$params = array(
+				'all_data' => Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get(),
+			);
+			return view('laporan.waka.legger')->with($params);
 		} else {
 			$rombongan_belajar = Rombongan_belajar::where(function($query) use ($user){
 				$query->where('guru_id', $user->guru_id);

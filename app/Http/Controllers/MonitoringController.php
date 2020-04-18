@@ -7,6 +7,7 @@ use App\Semester;
 use App\Exports\NilaiAkhirExport;
 use App\Pembelajaran;
 use CustomHelper;
+use App\Tahun_ajaran;
 class MonitoringController extends Controller
 {
     public function __construct()
@@ -14,7 +15,10 @@ class MonitoringController extends Controller
         $this->middleware('auth');
     }
 	public function index(){
+		$user = auth()->user();
 		$params = array(
+			'waka'		=> $user->hasRole('waka'),
+			'all_data'	=> Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get(),
 			'query'		=> 'rekap_nilai',
 			'title'		=> 'Rekapitulasi Hasil Penilaian',
 		);

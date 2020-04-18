@@ -17,8 +17,15 @@
 						<input type="hidden" name="guru_id" value="{{$user->guru_id}}" />
 						<input type="hidden" name="sekolah_id" value="{{$user->sekolah_id}}" />
 						<input type="hidden" name="query" id="query" value="waka" />
-						<input type="hidden" name="semester_id" id="semester_id" value="{{$semester->semester_id}}" />
-						<input type="text" class="form-control" value="{{$semester->nama}} (SMT {{$semester->semester}})" readonly />
+						<select name="semester_id" id="semester_id" class="select2 form-control">
+							<option value="">== Pilih Semester ==</option>
+							@foreach ($all_data as $tahun)
+							@foreach ($tahun->semester as $data)
+							<option value="{{ $data->semester_id }}">
+								{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
+							@endforeach
+							@endforeach
+						</select>
 					</div>
 				</div>
 				<div class="form-group">
@@ -68,6 +75,12 @@ var checkJSON = function(m) {
 	return true;
 };
 $('.select2').select2();
+$('#semester_id').change(function(){
+	$("#kelas").val('');
+	$("#kelas").trigger('change.select2');
+	$("#rombel").val('');
+	$("#rombel").trigger('change.select2');
+});
 $('#kelas').change(function(){
 	$("#rombel").val('');
 	$("#rombel").trigger('change.select2');
