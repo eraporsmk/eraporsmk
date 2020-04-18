@@ -69,7 +69,7 @@ body{font-size:11px !important;}
 <div class="strong">CATATAN WALI KELAS (untuk perhatian Orang Tua/Wali)</div>
 <table width="100%" border="1">
   <tr>
-    <td style="padding:10px 10px 60px 10px;">{{($siswa->catatan_wali) ? $siswa->catatan_wali->uraian_deskripsi : ''}}</td>
+    <td style="padding:10px 10px 60px 10px;">{{($anggota_rombel->catatan_wali) ? $anggota_rombel->catatan_wali->uraian_deskripsi : ''}}</td>
   </tr>
 </table>
 <br>
