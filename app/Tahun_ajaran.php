@@ -11,6 +11,6 @@ class Tahun_ajaran extends Model
 	protected $primaryKey = 'tahun_ajaran_id';
 	protected $guarded = [];
 	public function semester(){
-		return $this->hasMany('App\Semester', 'tahun_ajaran_id', 'tahun_ajaran_id')->orderBy('semester_id', 'asc');
+		return $this->hasMany('App\Semester', 'tahun_ajaran_id', 'tahun_ajaran_id')->orderBy('semester_id', 'desc');
     }
 }
