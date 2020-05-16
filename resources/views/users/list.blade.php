@@ -87,7 +87,6 @@ $(document).ready( function () {
 				closeModal: false,
 			},
 		}).then((value) => {
-			console.log(value);
 			if(value){
 				$("#spinner").show();
 				return fetch('{{url('users/generate')}}/'+value).then(response => {
@@ -97,12 +96,13 @@ $(document).ready( function () {
 				})
 			}
 		}).then(response => {
-			console.log(response);
-			$("#spinner").hide();
-			swal(response.title, response.text, response.icon).then(function(){
-				swal.stopLoading();
-    			swal.close();
-			});
+			if(response){
+				$("#spinner").hide();
+				swal(response.title, response.text, response.icon).then(function(){
+					swal.stopLoading();
+					swal.close();
+				});
+			}
 		});
 	})
 	$('.select2').select2();
