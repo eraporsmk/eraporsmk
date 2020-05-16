@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use File;
+use App\Setting;
 class EraporUpdate extends Command
 {
     /**
@@ -45,6 +46,9 @@ class EraporUpdate extends Command
             $a = collect($a);
             $this->info($a->toJson());
         } else {
+            $version = File::get(base_path().'/version.txt');
+            \Artisan::call('migrate');
+            Setting::where('key', 'app_version')->update(['value' => $version]);
             $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.0.9');
         }
     }
