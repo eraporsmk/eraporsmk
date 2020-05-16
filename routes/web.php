@@ -28,6 +28,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/progres-perencanaan-dan-penilaian', array('as' => 'progres_perencanaan_dan_penilaian', 'uses' => 'HomeController@progres_perencanaan_dan_penilaian'));
     Route::get('/detil-nilai/{pembelajaran_id}', array('as' => 'detil_nilai', 'uses' => 'HomeController@detil_nilai'));
     //home end
+    Route::group(['middleware' => ['role:admin|guru']], function () {
+        Route::get('/sinkronisasi/diterima-dikelas/{id}', 'SinkronisasiController@diterima_dikelas')->name('diterima_dikelas');
+        Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
+    });
     //admin area
     Route::group(['middleware' => ['role:admin']], function () {
         Route::prefix('users')->group(function () {
@@ -75,7 +79,6 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/sinkronisasi/proses-artisan/{server}/{data}/{aksi}/{satuan}', array('as' => 'sinkronisasi.proses_artisan_sync', 'uses' => 'SinkronisasiController@proses_artisan_sync'));
         Route::get('/sinkronisasi/hitung-data/{data}', array('as' => 'sinkronisasi.hitung_data', 'uses' => 'SinkronisasiController@hitung_data'));
         Route::get('/sinkronisasi/debug', 'SinkronisasiController@debug')->name('debug');
-        Route::get('/sinkronisasi/diterima-dikelas/{id}', 'SinkronisasiController@diterima_dikelas')->name('diterima_dikelas');
         //sinkronisasi end//
         Route::get('/users/generate/{query}', 'UsersController@generate')->name('generate');
         Route::get('/role', 'RolesController@index')->name('role');
@@ -111,7 +114,6 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/guru/view/{guru_id}', array('as' => 'guru.view', 'uses' => 'GuruController@view'));
         Route::post('/guru/update-data', array('as' => 'guru.update_data', 'uses' => 'GuruController@update_data'));
         Route::get('/guru/hapus/{query}/{guru_id}', array('as' => 'guru.hapus', 'uses' => 'GuruController@hapus'));
-        Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
         Route::get('/konfigurasi', 'ConfigController@index')->name('konfigurasi');
         Route::post('konfigurasi/simpan', 'ConfigController@simpan');
         Route::get('/changelog', 'ChangelogController@index')->name('changelog');
