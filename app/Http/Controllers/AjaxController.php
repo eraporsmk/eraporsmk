@@ -823,4 +823,36 @@ class AjaxController extends Controller
 		);
 		return view('laporan.waka.legger_result')->with($params);
 	}
+	public function get_next_rombel(Request $request){
+		$rombongan_belajar_id = $request->rombongan_belajar_id;
+		$now = Rombongan_belajar::find($rombongan_belajar_id);
+		$all_rombel = Rombongan_belajar::where(function($query) use ($now){
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->where('tingkat', ($now->tingkat + 1));
+		})->get();
+		if($all_rombel->count()){
+            foreach($all_rombel as $rombel){
+                $record[$rombel->rombongan_belajar_id] 	= $rombel->nama;
+                $output = $record;
+            }
+        } else {
+            $record[''] 	= 'Tidak ditemukan data rombongan belajar';
+            $output= $record;
+        }
+		$response = [
+            'rombongan_belajar' => (object) $output,
+        ];
+        return response()->json($response);
+	}
+	public function get_single_rombel(Request $request){
+		if($request->rombongan_belajar_id != 'a'){
+			$response = Rombongan_belajar::select('nama', 'rombongan_belajar_id')->find($request->rombongan_belajar_id);
+		} else {
+			$response = [
+				'nama' => NULL
+			];
+		}
+		return response()->json($response);
+	}
 }

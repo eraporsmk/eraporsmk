@@ -12,12 +12,17 @@
 					<td>
 						<input type="hidden" name="anggota_rombel_id[]" value="{{$siswa->anggota_rombel_id}}" />
 						<input type="hidden" id="kelas_sekarang" value="{{$siswa->rombongan_belajar->nama}}" />
+						<input type="hidden" id="rombongan_belajar_id" value="{{$siswa->rombongan_belajar->rombongan_belajar_id}}" />
 						{{strtoupper($siswa->siswa->nama)}}
 					</td>
 					<td>
 						@if($open)
 						<select name="status[]" id="status" class="form-control">
+							@if($siswa->rombongan_belajar->tingkat == 12)
 							<option value="">== Pilih Status Kenaikan==</option>
+							@else
+							<option value="">== Pilih Status Kelulusan==</option>
+							@endif
 							@if($cari_tingkat_akhir)
 							<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
 							<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
@@ -32,18 +37,32 @@
 							@endif
 						</select>
 						@else
-						{{
-						($siswa->kenaikan) ? 
-						($siswa->kenaikan->status == 1) ? 'a' : 'b'
-						: 'Belum dilakukan proses kenaikan'
-						}}
+							@if($siswa->rombongan_belajar->tingkat == 12)
+								{{
+								($siswa->kenaikan) ? 
+								($siswa->kenaikan->status == 3) ? 'Lulus' : 'Tidak Lulus'
+								: 'Belum dilakukan proses kelulusan'
+								}}
+							@else
+							{{
+							($siswa->kenaikan) ? 
+							($siswa->kenaikan->status == 1) ? 'Naik Kelas' : 'Tinggal Dikelas'
+							: 'Belum dilakukan proses kenaikan'
+							}}
+							@endif
 						@endif
 					</td>
 					<td>
 						@if($open)
-						<input type="text" class="form-control" name="rombongan_belajar[]" id="rombongan_belajar" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? $siswa->rombongan_belajar->nama : '-' : ''}}" />
+						<input type="hidden" class="form-control" name="rombongan_belajar[]" id="rombongan_belajar" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->rombongan_belajar) ? $siswa->kenaikan->rombongan_belajar->rombongan_belajar_id : '' : ''}}" />
+						<input type="text" class="form-control" id="disabled" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1 && $siswa->kenaikan->rombongan_belajar || $siswa->kenaikan->status == 2 && $siswa->kenaikan->rombongan_belajar) ? $siswa->kenaikan->rombongan_belajar->nama : '' : ''}}" disabled />
 						@else
-						{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? $siswa->rombongan_belajar->nama : $siswa->kenaikan->rombongan_belajar : '-'}}
+							@if($siswa->kenaikan)
+							{{$siswa->kenaikan->status}}
+								@if($siswa->kenaikan->status == 1 && $siswa->kenaikan->rombongan_belajar || $siswa->kenaikan->status == 2 && $siswa->kenaikan->rombongan_belajar)
+								{{$siswa->kenaikan->rombongan_belajar->nama}}
+								@endif
+							@endif
 						@endif
 					</td>
 				</tr>

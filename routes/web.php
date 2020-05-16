@@ -77,7 +77,7 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/sinkronisasi/debug', 'SinkronisasiController@debug')->name('debug');
         Route::get('/sinkronisasi/diterima-dikelas/{id}', 'SinkronisasiController@diterima_dikelas')->name('diterima_dikelas');
         //sinkronisasi end//
-        Route::get('/users/generate', 'UsersController@generate')->name('generate');
+        Route::get('/users/generate/{query}', 'UsersController@generate')->name('generate');
         Route::get('/role', 'RolesController@index')->name('role');
         Route::get('/role/list_role', 'UsersController@list_role')->name('list_role');
         Route::get('/role_index', array('as' => 'roles.index', 'uses' => 'RolesController@index'));
@@ -222,6 +222,8 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/ajax/get-bobot/{pembelajaran_id}/{metode_id}', array('as' => 'ajax.get_bobot', 'uses' => 'AjaxController@get_bobot'));
     Route::post('/ajax/get-rombel-filter', array('as' => 'ajax.get_rombel_filter', 'uses' => 'AjaxController@get_rombel_filter'));
     Route::post('/ajax/get-rombel', array('as' => 'ajax.get_rombel', 'uses' => 'AjaxController@get_rombel'));
+    Route::post('/get-next-rombel', 'AjaxController@get_next_rombel')->name('ajax.get_next_rombel');
+    Route::post('/get-single-rombel', 'AjaxController@get_single_rombel')->name('ajax.get_single_rombel');
     Route::post('/ajax/get-mapel', array('as' => 'ajax.get_mapel', 'uses' => 'AjaxController@get_mapel'));
     Route::post('/ajax/get-teknik', array('as' => 'ajax.get_teknik', 'uses' => 'AjaxController@get_teknik'));
     Route::post('/ajax/get-kd', array('as' => 'ajax.get_kd', 'uses' => 'AjaxController@get_kd'));

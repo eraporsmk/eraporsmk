@@ -465,7 +465,6 @@ class LaporanController extends Controller
 		}
 	}
 	public function simpan_kenaikan(Request $request){
-		//dd($request->all());
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$status = $request['status'];
@@ -474,14 +473,15 @@ class LaporanController extends Controller
 		foreach($anggota_rombel_id as $key => $value){
 			if($status[$key]){
 				/*
-				if($status[$key] == 3){
+				*/
+				//$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
+				//$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
+				if($status[$key] == 3 || $status[$key] == 4){
 					$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
 					$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
 				} else {
 					$rombongan_belajar_id = $rombongan_belajar[$key];
-				}*/
-				$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
-				$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
+				}
 				$new = Kenaikan_kelas::UpdateOrCreate(
 					['anggota_rombel_id' => $value],
 					[
