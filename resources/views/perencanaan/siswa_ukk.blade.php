@@ -14,11 +14,11 @@
 		<input type="hidden" class="form-control" name="anggota_rombel_id[]" value="{{$siswa->anggota_rombel_id}}" />
 		<tr>
 			<td class="text-center">
-				<?php if(!$siswa->nilai_ukk){?>
-					<input name="siswa_dipilih[<?php echo $i++;?>]" type="checkbox" value="1">
-				<?php } else { ?>
-					<input type="checkbox" checked="checked" disabled="disabled" />
-				<?php } ?>
+				@if($siswa->nilai_ukk && $rencana_ukk)
+				<input type="checkbox" checked="checked" disabled="disabled" />
+				@else
+				<input name="siswa_dipilih[<?php echo $i++;?>]" type="checkbox" value="1">
+				@endif
 			</td>
 			<td>{{strtoupper($siswa->siswa->nama)}}</td>
 			<td>{{($siswa->nilai_ukk && $rencana_ukk) ? $rencana_ukk->paket_ukk->nama_paket_id : '-'}}</td>

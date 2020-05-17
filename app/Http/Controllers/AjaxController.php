@@ -679,6 +679,7 @@ class AjaxController extends Controller
 		echo $rombel->jurusan_id;
 	}
 	public function get_siswa_ukk(Request $request){
+		//$data_siswa = Anggota_rombel::with('siswa')->whereHas('nilai_ukk', $callback)->with(['nilai_ukk' => $callback])->order()->get();
 		$internal = $request['internal'];
 		$eksternal = $request['eksternal'];
 		$paket_ukk_id = $request['paket_ukk_id'];
@@ -694,7 +695,7 @@ class AjaxController extends Controller
 			/*$query->whereIn('rencana_ukk_id', function($q) use ($request){
 				$q->select('rencana_ukk_id')->from('rencana_ukk')->where('paket_ukk_id', $request['paket_id']);
 			});*/
-		}])->where('rombongan_belajar_id', $rombongan_belajar_id)->get();
+		}])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		$params = array(
 			'data_siswa'	=> $data_siswa,
 			'rencana_ukk'	=> $rencana_ukk,
