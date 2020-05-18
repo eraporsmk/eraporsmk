@@ -223,6 +223,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     //Query Ajax Start//
     Route::get('/ajax/get-bobot/{pembelajaran_id}/{metode_id}', array('as' => 'ajax.get_bobot', 'uses' => 'AjaxController@get_bobot'));
     Route::post('/ajax/get-rombel-filter', array('as' => 'ajax.get_rombel_filter', 'uses' => 'AjaxController@get_rombel_filter'));
+    Route::post('/ajax/get-rombel-jurusan', array('as' => 'ajax.get_rombel_jurusan', 'uses' => 'AjaxController@get_rombel_jurusan'));
     Route::post('/ajax/get-rombel', array('as' => 'ajax.get_rombel', 'uses' => 'AjaxController@get_rombel'));
     Route::post('/get-next-rombel', 'AjaxController@get_next_rombel')->name('ajax.get_next_rombel');
     Route::post('/get-single-rombel', 'AjaxController@get_single_rombel')->name('ajax.get_single_rombel');
@@ -275,6 +276,8 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::post('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
         Route::get('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
         Route::post('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
+        Route::get('/laporan/unduh-template/{query}/{id}', 'LaporanController@unduh_template')->name('laporan.unduh_template');
+        Route::post('/laporan/import-excel', 'LaporanController@import_excel')->name('laporan.import_excel');
         Route::post('/laporan/simpan-catatan-akademik', array('as' => 'laporan.simpan_catatan_akademik', 'uses' => 'LaporanController@simpan_catatan_akademik'));
         Route::get('/laporan/nilai-karakter', 'LaporanController@nilai_karakter');
         Route::get('/laporan/list-nilai-karakter', 'LaporanController@list_nilai_karakter');

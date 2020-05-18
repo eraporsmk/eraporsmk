@@ -32,7 +32,35 @@ class AjaxController extends Controller
 	public function __construct()
     {
         $this->middleware('auth');
-    }
+	}
+	public function get_rombel_jurusan(Request $request){
+		$user = auth()->user();
+		$data_rombel = Rombongan_belajar::where(function($query) use ($request){
+			$query->where('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->where('jenis_rombel', 1);
+			$query->where('jurusan_sp_id', $request->jurusan_sp_id);
+			$query->where('tingkat', 13);
+			$query->orWhere('sekolah_id', session('sekolah_id'));
+			$query->where('semester_id', session('semester_id'));
+			$query->where('jenis_rombel', 1);
+			$query->where('jurusan_sp_id', $request->jurusan_sp_id);
+			$query->where('tingkat', 12);
+		})->orderBy('nama')->get();
+		if($data_rombel->count()){
+			foreach($data_rombel as $rombel){
+				$record= array();
+				$record['value'] 	= $rombel->rombongan_belajar_id;
+				$record['text'] 	= $rombel->nama;
+				$output['result'][] = $record;
+			}
+		} else {
+			$record['value'] 	= '';
+			$record['text'] 	= 'Tidak ditemukan rombongan belajar di kelas terpilih';
+			$output['result'][] = $record;
+		}
+		echo json_encode($output);
+	}
 	public function get_rombel_filter(Request $request){
 		$user = auth()->user();
 		$jurusan_id = $request['jurusan_id'];

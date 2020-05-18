@@ -32,10 +32,10 @@
 <form action="{{ route('laporan.nilai_un') }}" method="post" class="form-horizontal" id="form">
 	{{ csrf_field() }}
 	<div class="col">
-		<div class="col-sm-6">
+		<div class="col-sm-8">
 			<div class="form-group">
-				<label for="ajaran_id" class="col-sm-5 control-label">Tahun Ajaran</label>
-				<div class="col-sm-7">
+				<label for="ajaran_id" class="col-sm-3 control-label">Tahun Ajaran</label>
+				<div class="col-sm-9">
 					<input type="hidden" name="guru_id" value="{{$user->guru_id}}" />
 					<input type="hidden" name="sekolah_id" value="{{$user->sekolah_id}}" />
 					<input type="hidden" name="query" id="query" value="nilai_un" />
@@ -45,22 +45,43 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="rombel" class="col-sm-5 control-label">Rombongan Belajar</label>
-				<div class="col-sm-7">
-					<select name="rombel_id" class="select2 form-control" id="rombel">
-						<option value="">== Pilih Rombongan Belajar ==</option>
-						@foreach ($rombongan_belajar as $rombel)
-						<option value="{{$rombel->rombongan_belajar_id}}">{{$rombel->nama}}</option>
+				<label for="jurusan_sp_id" class="col-sm-3 control-label">Kompetensi Keahlian</label>
+				<div class="col-sm-9">
+					<select name="jurusan_sp_id" class="select2 form-control" id="jurusan_sp_id">
+						<option value="">== Pilih Kompetensi Keahlian ==</option>
+						@foreach ($jurusan_sp as $jurusan)
+						<option value="{{$jurusan->jurusan_sp_id}}">{{$jurusan->nama_jurusan_sp}}</option>
 						@endforeach
 					</select>
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="pembelajaran_id" class="col-sm-5 control-label">Pembelajaran</label>
-				<div class="col-sm-7">
+				<label for="rombel" class="col-sm-3 control-label">Rombongan Belajar</label>
+				<div class="col-sm-9">
+					<select name="rombel_id" class="select2 form-control" id="rombel">
+						<option value="">== Pilih Rombongan Belajar ==</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="pembelajaran_id" class="col-sm-3 control-label">Pembelajaran</label>
+				<div class="col-sm-9">
 					<select name="pembelajaran_id" class="select2 form-control" id="pembelajaran_id">
 						<option value="">== Pilih Pembelajaran ==</option>
 					</select>
+				</div>
+			</div>
+			<div class="form-group template" style="display: none;">
+				<label for="template" class="col-sm-3 control-label">Unduh Template</label>
+				<div class="col-sm-9">
+					<div class="row">
+						<div class="col-sm-6">
+							<a href="javascript:void(0)" class="btn btn-block btn-success btn-flat template_excel">Unduh Template</a>
+						</div>
+						<div class="col-sm-6">
+							<span class="btn btn-danger btn-file btn-flat btn-block"> Unggah Excel <input type="file" id="fileupload" name="file" /></span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -91,6 +112,38 @@
 	return true;
 };
 $('.select2').select2();
+$('#jurusan_sp_id').change(function(){
+	var ini = $(this).val();
+	if(ini == ''){
+		return false;
+	}
+	$.ajax({
+		url: '{{route('ajax.get_rombel_jurusan')}}',
+		type: 'post',
+		data: $("form#form").serialize(),
+		success: function(response){
+			result = checkJSON(response);
+			if(result == true){
+				$('.simpan').hide();
+				$('#result').html('');
+				$('table.table').addClass("jarak1");
+				var data = $.parseJSON(response);
+				$('#rombel').html('<option value="">== Pilih Rombongan Belajar ==</option>');
+				if($.isEmptyObject(data.result)){
+				} else {
+					$.each(data.result, function (i, item) {
+						$('#rombel').append($('<option>', { 
+							value: item.value,
+							text : item.text
+						}));
+					});
+				}
+			} else {
+				$('#result').html(response);
+			}
+		}
+	});
+});
 $('#rombel').change(function(){
 	var ini = $(this).val();
 	if(ini == ''){
@@ -135,6 +188,8 @@ $('#pembelajaran_id').change(function(){
 		success: function(response){
 			$('#result').html(response);
 			$('.btn-submit').show();
+			$('.template').show();
+			$('.template_excel').attr('href', '{{url('laporan/unduh-template/nilai-un')}}/'+ini);
 		}
 	});
 });

@@ -29,6 +29,9 @@ use App\Dudi;
 use App\Tahun_ajaran;
 use App\Nilai_us;
 use App\Nilai_un;
+use App\Jurusan_sp;
+use App\Exports\LaporanExport;
+use App\Imports\LaporanImport;
 use Validator;
 class LaporanController extends Controller
 {
@@ -684,19 +687,19 @@ class LaporanController extends Controller
 		}
 		$user = auth()->user();
 		if($user->hasRole('waka')){
-			$rombongan_belajar = Rombongan_belajar::where(function($query){
+			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
 				$query->where('sekolah_id', session('sekolah_id'));
 				$query->where('semester_id', session('semester_id'));
 				$query->where('tingkat', 13);
 			})->get();
-			if(!$rombongan_belajar->count()){
-				$rombongan_belajar = Rombongan_belajar::where(function($query){
+			if(!$jurusan_sp->count()){
+				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
 					$query->where('sekolah_id', session('sekolah_id'));
 					$query->where('semester_id', session('semester_id'));
 					$query->where('tingkat', 12);
 				})->get();
 			}
-			return view('laporan.waka.nilai_us', compact('rombongan_belajar'));
+			return view('laporan.waka.nilai_us', compact('jurusan_sp'));
 		} else {
 			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
 				$query->whereNotNull('kelompok_id');
@@ -744,19 +747,19 @@ class LaporanController extends Controller
 		}
 		$user = auth()->user();
 		if($user->hasRole('waka')){
-			$rombongan_belajar = Rombongan_belajar::where(function($query){
+			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
 				$query->where('sekolah_id', session('sekolah_id'));
 				$query->where('semester_id', session('semester_id'));
 				$query->where('tingkat', 13);
 			})->get();
-			if(!$rombongan_belajar->count()){
-				$rombongan_belajar = Rombongan_belajar::where(function($query){
+			if(!$jurusan_sp->count()){
+				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
 					$query->where('sekolah_id', session('sekolah_id'));
 					$query->where('semester_id', session('semester_id'));
 					$query->where('tingkat', 12);
 				})->get();
 			}
-			return view('laporan.waka.nilai_un', compact('rombongan_belajar'));
+			return view('laporan.waka.nilai_un', compact('jurusan_sp'));
 		} else {
 			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
 				$query->whereNotNull('kelompok_id');
@@ -776,5 +779,36 @@ class LaporanController extends Controller
 			})->first();
 			return view('laporan.nilai_un', compact('rombongan_belajar'));
 		}
+	}
+	public function unduh_template(Request $request){
+		$query = $request->route('query');
+		if($query == 'nilai_us'){
+			$kompetensi = 'US/USBN';
+		} else {
+			$kompetensi = 'UN';
+		}
+		$pembelajaran = Pembelajaran::find($request->route('id'));
+		$nama_mapel = CustomHelper::clean($pembelajaran->nama_mata_pelajaran);
+		$nama_file = 'Format Nilai '.$kompetensi.' eRaporSMK '.$nama_mapel.' '.$pembelajaran->rombongan_belajar->nama;
+		$nama_file = CustomHelper::clean($nama_file);
+		$nama_file = $nama_file.'.xlsx';
+		return (new LaporanExport)->query($query, $pembelajaran->rombongan_belajar_id, $request->route('id'))->download($nama_file);
+	}
+	public function import_excel(Request $request){
+		$validator = Validator::make($request->all(), [
+			'file' => 'required|mimes:csv,xls,xlsx'
+		]);
+		if ($validator->passes()) {
+			$file = $request->file('file');
+			//$nama_file = rand().$file->getClientOriginalName();
+			//$file->move('excel',$nama_file);
+			$Import = new LaporanImport();
+			$rows = Excel::import($Import, $file);
+			//if(File::exists(public_path('/excel/'.$nama_file))) {
+				//File::delete(public_path('/excel/'.$nama_file));
+			//}
+			return response()->json($Import);
+		}
+		return response()->json(['error'=>$validator->errors()->all()]);
 	}
 }

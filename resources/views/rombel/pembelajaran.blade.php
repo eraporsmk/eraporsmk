@@ -45,7 +45,7 @@
 				<a href="#" class="nama_mapel" data-type="text" data-value="{{$pembelajaran->nama_mata_pelajaran}}" data-name="{{$pembelajaran->pembelajaran_id}}" data-pk="{{$pembelajaran->mata_pelajaran_id}}" data-url="<?php echo url('rombel/tambah_alias'); ?>" data-title="Edit Nama Mapel" data-token="{{ Session::token() }}">{{$pembelajaran->nama_mata_pelajaran}} ({{$pembelajaran->mata_pelajaran_id}})</a>
 			</td>
 			<td>{{$nama_guru}}</td>
-			<td>
+			<td><span style="display: none;">{{strtoupper($nama_pengajar)}}</span>
 				<select class="select2 form-control" name="guru_pengajar_id" style="width:100%">
 					<option value="" data-description="Kosongkan Guru Pengajar">== Pilih Pengajar ==</option>
 					@foreach($all_pengajar as $pengajar)
@@ -53,7 +53,7 @@
 					@endforeach
 				</select>
 			</td>
-			<td>
+			<td><span style="display: none;">{{$pembelajaran->kelompok_id}}</span>
 				<select name="kelompok_id" class="form-control select2" style="width:100%">
 					<option value="">== Pilih Kelompok ==</option>
 					@foreach($all_kelompok as $kelompok)
@@ -61,7 +61,10 @@
 					@endforeach
 				</select>
 			</td>
-			<td class="text-center"><input type="text" name="no_urut" value="{{$pembelajaran->no_urut}}" class="nomor_urut form-control" /></td>
+			<td class="text-center">
+				<span style="display: none;">{{str_pad($pembelajaran->no_urut, 2, 0, STR_PAD_LEFT)}}</span>
+				<input type="text" name="no_urut" value="{{$pembelajaran->no_urut}}" class="nomor_urut form-control" style="width: 100%" />
+			</td>
 		</tr>
 		<?php 
 		$i++;}
@@ -125,6 +128,13 @@ function formatState (state) {
   return $state;
 };
 $(function(){
+	$('#pembelajaran').DataTable({
+		"lengthChange": false,
+		"searching": false,
+		"paging": false,
+		"info": false,
+		"lengthMenu": [[-1, 10, 25, 50], ["All", 10, 25, 50]]
+	});
 	$.fn.editable.defaults.mode = 'inline';
 	$.fn.editable.defaults.params = function (params) {
         params._token = $("input[name=_token]").val();

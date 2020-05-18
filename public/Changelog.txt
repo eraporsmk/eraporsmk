@@ -8,6 +8,8 @@
 <li><b style="color:green">[Perbaikan]</b> Proses kenaikan kelas dan kelulusan Peserta Didik</li>
 <li><b style="color:green">[Perbaikan]</b> Edit Data Peserta Didik di Login PTK</li>
 <li><b style="color:green">[Perbaikan]</b> Penilaian UKK dibawah perencanaan Multi Paket</li>
+<li><b style="color:green">[Perbaikan]</b> Jumlah rombel terkunci di tingkat 12 (dua belas)</li>
+<li><b style="color:green">[Perbaikan]</b> Sortable menu pembelajaran</li>
 </ol>
 <legend><h3>Versi 5.0.8</h3></legend>
 <ol>

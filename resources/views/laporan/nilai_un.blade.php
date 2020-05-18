@@ -33,10 +33,10 @@
 <form action="{{ route('laporan.nilai_un') }}" method="post" class="form-horizontal" id="form">
 	{{ csrf_field() }}
 	<div class="col">
-		<div class="col-sm-6">
+		<div class="col-sm-8">
 			<div class="form-group">
-				<label for="ajaran_id" class="col-sm-5 control-label">Tahun Ajaran</label>
-				<div class="col-sm-7">
+				<label for="ajaran_id" class="col-sm-3 control-label">Tahun Ajaran</label>
+				<div class="col-sm-9">
 					<input type="hidden" name="guru_id" value="{{$user->guru_id}}" />
 					<input type="hidden" name="sekolah_id" value="{{$user->sekolah_id}}" />
 					<input type="hidden" name="query" id="query" value="nilai_un" />
@@ -47,14 +47,27 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="pembelajaran_id" class="col-sm-5 control-label">Pembelajaran</label>
-				<div class="col-sm-7">
+				<label for="pembelajaran_id" class="col-sm-3 control-label">Pembelajaran</label>
+				<div class="col-sm-9">
 					<select name="pembelajaran_id" class="select2 form-control" id="pembelajaran_id">
 						<option value="">== Pilih Pembelajaran ==</option>
 						@foreach ($rombongan_belajar->pembelajaran as $pembelajaran)
 						<option value="{{$pembelajaran->pembelajaran_id}}">{{$pembelajaran->nama_mata_pelajaran}}</option>
 						@endforeach
 					</select>
+				</div>
+			</div>
+			<div class="form-group template" style="display: none;">
+				<label for="template" class="col-sm-3 control-label">Unduh Template</label>
+				<div class="col-sm-9">
+					<div class="row">
+						<div class="col-sm-6">
+							<a href="javascript:void(0)" class="btn btn-block btn-success btn-flat template_excel">Unduh Template</a>
+						</div>
+						<div class="col-sm-6">
+							<span class="btn btn-danger btn-file btn-flat btn-block"> Unggah Excel <input type="file" id="fileupload" name="file" /></span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -102,6 +115,8 @@ $('#pembelajaran_id').change(function(){
 		success: function(response){
 			$('#result').html(response);
 			$('.btn-submit').show();
+			$('.template').show();
+			$('.template_excel').attr('href', '{{url('laporan/unduh-template/nilai-un')}}/'+ini);
 		}
 	});
 });

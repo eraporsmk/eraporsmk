@@ -173,7 +173,7 @@ class HomeController extends Controller
 		$user = auth()->user();
 		$status = $request->status;
 		$kunci_nilai = ($status) ? 0 : 1;
-		$text = ($status) ? 'Status Penilaian di nonaktifkan' : 'Status Penilaian berhasil di aktifkan';
+		$text = ($status) ? 'Status Penilaian di aktifkan' : 'Status Penilaian berhasil di nonaktifkan';
 		Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $user->periode_aktif)->update(['kunci_nilai' => $kunci_nilai]);
 		$status_penilaian = Setting::updateOrCreate(
 			['key' => 'status_penilaian'],
