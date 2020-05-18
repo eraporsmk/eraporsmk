@@ -407,6 +407,16 @@ class GetMenu
 					'permission'  => ['wali', 'waka'],
 					'submenu' => [
 						[
+							'text' => 'Nilai US/USBN',
+							'url'  => 'laporan/nilai-us',
+							'icon' => 'hand-o-right',
+						],
+						[
+							'text' => 'Nilai UN',
+							'url'  => 'laporan/nilai-un',
+							'icon' => 'hand-o-right',
+						],
+						[
 							'text' => 'Catatan Akademik',
 							'url'  => 'laporan/catatan-akademik',
 							'icon' => 'hand-o-right',

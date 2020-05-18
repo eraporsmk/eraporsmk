@@ -25,6 +25,8 @@ use App\Prestasi;
 use App\Rencana_ukk;
 use App\Dudi;
 use App\Jurusan_sp;
+use App\Nilai_us;
+use App\Nilai_un;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -134,9 +136,19 @@ class AjaxController extends Controller
 		$semester_id = $request['semester_id'];
 		$query = $request['query'];
 		if($user->hasRole('waka')){
-			if($query == 'rekap_nilai' || $query == 'analisis_nilai' || $query == 'analisis_remedial' || $query == 'capaian_kompetensi' || $query == 'prestasi_individu'){
+			if($query == 'rekap_nilai' || $query == 'analisis_nilai' || $query == 'analisis_remedial' || $query == 'capaian_kompetensi' || $query == 'prestasi_individu' || $query == 'nilai_us'){
 				$all_mapel = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar_id)
 				->whereNotNull('kelompok_id')
+				->whereNotNull('no_urut')
+				->orderBy('mata_pelajaran_id', 'asc')
+				->get();
+			} elseif($query == 'nilai_un'){
+				$all_mapel = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar_id)
+				->whereNotNull('kelompok_id')
+				->whereNotNull('no_urut')
+				->whereIn('mata_pelajaran_id', ['300110000', '401000000', '300210000'])
+				->orWhere('rombongan_belajar_id', $rombongan_belajar_id)
+				->where('kelompok_id', 10)
 				->whereNotNull('no_urut')
 				->orderBy('mata_pelajaran_id', 'asc')
 				->get();
@@ -855,5 +867,31 @@ class AjaxController extends Controller
 			];
 		}
 		return response()->json($response);
+	}
+	public function get_nilai_us(Request $request){
+		$pembelajaran = Pembelajaran::find($request->pembelajaran_id);
+		$get_mapel_agama = CustomHelper::filter_agama_siswa($request->pembelajaran_id, $request->rombel_id);
+		$callback = function($query) use ($get_mapel_agama) {
+			if($get_mapel_agama){
+				$query->where('agama_id', $get_mapel_agama);
+			}
+		};
+		$get_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with(['nilai_us' => function($query) use ($request){
+			$query->where('pembelajaran_id', $request->pembelajaran_id);
+		}])->where('rombongan_belajar_id', $request->rombel_id)->order()->get();
+		return view('laporan.waka.nilai_us_result', compact('get_siswa', 'pembelajaran'));
+	}
+	public function get_nilai_un(Request $request){
+		$pembelajaran = Pembelajaran::find($request->pembelajaran_id);
+		$get_mapel_agama = CustomHelper::filter_agama_siswa($request->pembelajaran_id, $request->rombel_id);
+		$callback = function($query) use ($get_mapel_agama) {
+			if($get_mapel_agama){
+				$query->where('agama_id', $get_mapel_agama);
+			}
+		};
+		$get_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with(['nilai_un' => function($query) use ($request){
+			$query->where('pembelajaran_id', $request->pembelajaran_id);
+		}])->where('rombongan_belajar_id', $request->rombel_id)->order()->get();
+		return view('laporan.waka.nilai_un_result', compact('get_siswa', 'pembelajaran'));
 	}
 }

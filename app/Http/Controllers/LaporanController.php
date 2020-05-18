@@ -27,6 +27,9 @@ use App\Exports\LeggerNilaiRaporExport;
 use App\Exports\AbsensiExport;
 use App\Dudi;
 use App\Tahun_ajaran;
+use App\Nilai_us;
+use App\Nilai_un;
+use Validator;
 class LaporanController extends Controller
 {
     public function __construct()
@@ -650,5 +653,128 @@ class LaporanController extends Controller
 		$nama_file = CustomHelper::clean($nama_file);
 		$nama_file = $nama_file.'.xlsx';
 		return (new LeggerNilaiRaporExport)->query($id)->download($nama_file);
+	}
+	public function nilai_us(Request $request){
+		if ($request->isMethod('post')) {
+			$messages = [
+				'nilai.*.required' => 'Nilai tidak boleh kosong',
+				'nilai.*.integer' => 'Nilai harus berupa angka',
+				'nilai.*.min' => 'Minimal nilai 0 (nol)',
+				'nilai.*.max' => 'Maksimal nilai 100 (seratus)',
+			];
+			$validator = Validator::make(request()->all(), [
+				'nilai.*' => 'required|integer|min:0|max:100',
+			],
+			$messages
+			)->validate();
+			foreach($request->nilai as $anggota_rombel_id => $nilai){
+				Nilai_us::updateOrCreate(
+					[
+						'sekolah_id' => $request->sekolah_id,
+						'anggota_rombel_id' => $anggota_rombel_id,
+						'pembelajaran_id' => $request->pembelajaran_id,
+					],
+					[
+						'nilai' => $nilai,
+						'last_sync' => date('Y-m-d H:i:s'),
+					]
+				);
+			}
+			return redirect()->back()->with(['success' => 'Nilai US/USBN berhasil disimpan']);
+		}
+		$user = auth()->user();
+		if($user->hasRole('waka')){
+			$rombongan_belajar = Rombongan_belajar::where(function($query){
+				$query->where('sekolah_id', session('sekolah_id'));
+				$query->where('semester_id', session('semester_id'));
+				$query->where('tingkat', 13);
+			})->get();
+			if(!$rombongan_belajar->count()){
+				$rombongan_belajar = Rombongan_belajar::where(function($query){
+					$query->where('sekolah_id', session('sekolah_id'));
+					$query->where('semester_id', session('semester_id'));
+					$query->where('tingkat', 12);
+				})->get();
+			}
+			return view('laporan.waka.nilai_us', compact('rombongan_belajar'));
+		} else {
+			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
+				$query->whereNotNull('kelompok_id');
+				$query->whereNotNull('no_urut');
+			}])->where(function($query) use ($user){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('semester_id', session('semester_id'));
+				$query->where('jenis_rombel', 1);
+				$query->where('tingkat', 13);
+				$query->orWhere('tingkat', 12);
+				$query->where('guru_id', $user->guru_id);
+				$query->where('semester_id', session('semester_id'));
+				$query->where('jenis_rombel', 1);
+			})->first();
+			return view('laporan.nilai_us', compact('rombongan_belajar'));
+		}
+	}
+	public function nilai_un(Request $request){
+		if ($request->isMethod('post')) {
+			$messages = [
+				'nilai.*.required' => 'Nilai tidak boleh kosong',
+				'nilai.*.integer' => 'Nilai harus berupa angka',
+				'nilai.*.min' => 'Minimal nilai 0 (nol)',
+				'nilai.*.max' => 'Maksimal nilai 100 (seratus)',
+			];
+			$validator = Validator::make(request()->all(), [
+				'nilai.*' => 'required|integer|min:0|max:100',
+			],
+			$messages
+			)->validate();
+			foreach($request->nilai as $anggota_rombel_id => $nilai){
+				Nilai_un::updateOrCreate(
+					[
+						'sekolah_id' => $request->sekolah_id,
+						'anggota_rombel_id' => $anggota_rombel_id,
+						'pembelajaran_id' => $request->pembelajaran_id,
+					],
+					[
+						'nilai' => $nilai,
+						'last_sync' => date('Y-m-d H:i:s'),
+					]
+				);
+			}
+			return redirect()->back()->with(['success' => 'Nilai UN berhasil disimpan']);
+		}
+		$user = auth()->user();
+		if($user->hasRole('waka')){
+			$rombongan_belajar = Rombongan_belajar::where(function($query){
+				$query->where('sekolah_id', session('sekolah_id'));
+				$query->where('semester_id', session('semester_id'));
+				$query->where('tingkat', 13);
+			})->get();
+			if(!$rombongan_belajar->count()){
+				$rombongan_belajar = Rombongan_belajar::where(function($query){
+					$query->where('sekolah_id', session('sekolah_id'));
+					$query->where('semester_id', session('semester_id'));
+					$query->where('tingkat', 12);
+				})->get();
+			}
+			return view('laporan.waka.nilai_un', compact('rombongan_belajar'));
+		} else {
+			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
+				$query->whereNotNull('kelompok_id');
+				$query->whereNotNull('no_urut');
+				$query->whereIn('mata_pelajaran_id', ['300110000', '401000000', '300210000']);
+				$query->orWhere('kelompok_id', 10);
+				$query->whereNotNull('no_urut');
+			}])->where(function($query) use ($user){
+				$query->where('guru_id', $user->guru_id);
+				$query->where('semester_id', session('semester_id'));
+				$query->where('jenis_rombel', 1);
+				$query->where('tingkat', 13);
+				$query->orWhere('tingkat', 12);
+				$query->where('guru_id', $user->guru_id);
+				$query->where('semester_id', session('semester_id'));
+				$query->where('jenis_rombel', 1);
+			})->first();
+			return view('laporan.nilai_un', compact('rombongan_belajar'));
+		}
 	}
 }

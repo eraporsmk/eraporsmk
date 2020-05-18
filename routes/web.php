@@ -260,6 +260,8 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-capaian-kompetensi', array('as' => 'ajax.get_capaian_kompetensi', 'uses' => 'AjaxController@get_capaian_kompetensi'));
     Route::post('/ajax/get-analisis-individu', array('as' => 'ajax.get_analisis_individu', 'uses' => 'AjaxController@get_analisis_individu'));
     Route::post('/ajax/get-legger', array('as' => 'ajax.get_legger', 'uses' => 'AjaxController@get_legger'));
+    Route::post('/ajax/get-nilai-us', array('as' => 'ajax.get_nilai_us', 'uses' => 'AjaxController@get_nilai_us'));
+    Route::post('/ajax/get-nilai-un', array('as' => 'ajax.get_nilai_un', 'uses' => 'AjaxController@get_nilai_un'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {
@@ -269,6 +271,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     //Laporan Start//
     Route::group(['middleware' => ['role:wali|waka']], function () {
         Route::get('/laporan/catatan-akademik', 'LaporanController@index');
+        Route::get('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
+        Route::post('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
+        Route::get('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
+        Route::post('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
         Route::post('/laporan/simpan-catatan-akademik', array('as' => 'laporan.simpan_catatan_akademik', 'uses' => 'LaporanController@simpan_catatan_akademik'));
         Route::get('/laporan/nilai-karakter', 'LaporanController@nilai_karakter');
         Route::get('/laporan/list-nilai-karakter', 'LaporanController@list_nilai_karakter');

@@ -1,6 +1,8 @@
 <div id="form">
 <legend><h3>Versi 5.0.9</h3></legend>
 <ol>
+<li><b style="color:blue">[Pembaharuan]</b> Menu Nilai US/USBN di Login Wali Kelas</li>
+<li><b style="color:blue">[Pembaharuan]</b> Menu Nilai UN di Login Wali Kelas</li>
 <li><b style="color:green">[Perbaikan]</b> Cetak Sertifikat UKK</li>
 <li><b style="color:green">[Perbaikan]</b> Atur ulang pengguna dibagi 2 (dua) proses, untuk PTK dan untuk PD</li>
 <li><b style="color:green">[Perbaikan]</b> Proses kenaikan kelas dan kelulusan Peserta Didik</li>
