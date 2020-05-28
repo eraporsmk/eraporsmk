@@ -30,6 +30,8 @@ use App\Tahun_ajaran;
 use App\Nilai_us;
 use App\Nilai_un;
 use App\Jurusan_sp;
+use App\Kewirausahaan;
+use App\Anggota_kewirausahaan;
 use App\Exports\LaporanExport;
 use App\Imports\LaporanImport;
 use Validator;
@@ -315,6 +317,8 @@ class LaporanController extends Controller
 		$lokasi_prakerin = $request['lokasi_prakerin'];
 		$lama_prakerin = $request['lama_prakerin'];
 		$keterangan_prakerin = $request['keterangan_prakerin'];
+		$skala = $request['skala'];
+		$bidang_usaha = $request['bidang_usaha'];
 		$insert=0;
 		foreach($anggota_rombel_id as $key => $value){
 			$new = Prakerin::UpdateOrCreate(
@@ -324,7 +328,8 @@ class LaporanController extends Controller
 					'mitra_prakerin' 	=> $mitra_prakerin[$key],
 					'lokasi_prakerin'		=> $lokasi_prakerin[$key],
 					'lama_prakerin'		=> $lama_prakerin[$key],
-					'keterangan_prakerin'		=> $keterangan_prakerin[$key],
+					'skala'		=> $skala[$key],
+					'bidang_usaha'		=> $bidang_usaha[$key],
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
@@ -810,5 +815,108 @@ class LaporanController extends Controller
 			return response()->json($Import);
 		}
 		return response()->json(['error'=>$validator->errors()->all()]);
+	}
+	public function tambah_kewirausahaan(Request $request){
+		if ($request->isMethod('post')) {
+			$messages = [
+				'anggota_rombel_id.required' => 'Peserta didik tidak boleh kosong',
+				'pola.required' => 'Pola Kewirausahaan tidak boleh kosong',
+				'jenis.required' => 'Jenis Kewirausahaan tidak boleh kosong',
+				'nama_produk.required' => 'Nama produk tidak boleh kosong',
+			];
+			$validator = Validator::make(request()->all(), [
+				'anggota_rombel_id' => 'required',
+				'pola' => 'required',
+				'jenis' => 'required',
+				'nama_produk' => 'required',
+			],
+			$messages
+			)->validate();
+			$insert = Kewirausahaan::create([
+				'sekolah_id' => $request->sekolah_id,
+				'anggota_rombel_id' => $request->anggota_rombel_id,
+				'pola' => $request->pola,
+				'jenis' => $request->jenis,
+				'nama_produk' => $request->nama_produk,
+				'last_sync' => date('Y-m-d H:i:s'),
+			]);
+			if($request->anggota_wirausaha){
+				foreach($request->anggota_wirausaha as $anggota_wirausaha){
+					Anggota_kewirausahaan::create([
+							'kewirausahaan_id' => $insert->kewirausahaan_id,
+							'anggota_rombel_id' => $anggota_wirausaha,
+							'last_sync' => date('Y-m-d H:i:s'),
+					]);
+				}
+			}
+			return redirect()->route('laporan.kewirausahaan')->with(['success' => 'Data Kewirausahaan berhasil disimpan']);
+		}
+		$user = auth()->user();
+		$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
+			$query->with('pembelajaran');
+			$query->limit(3);
+		}])->whereHas('rombongan_belajar', function($query) use ($user){
+			$query->where('guru_id', $user->guru_id);
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', session('semester_id'));
+		})->order()->get();
+		return view('laporan.kewirausahaan.tambah', compact('user', 'get_siswa'));
+	}
+	public function kewirausahaan(Request $request){
+		$user = auth()->user();
+		return view('laporan.kewirausahaan.index', compact('user'));
+	}
+	public function list_kewirausahaan(){
+		$user = auth()->user();
+		$callback = function($q) use ($user){
+			if($user->hasRole('waka')){
+				$q->where('kewirausahaan.sekolah_id', session('sekolah_id'));
+				$q->where('semester_id', session('semester_id'));
+			} else {
+				//$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', session('semester_id'))->first();
+				$q->whereHas('rombongan_belajar', function($query) use ($user){
+					$query->where('guru_id', $user->guru_id);
+					$query->where('jenis_rombel', 1);
+					$query->where('semester_id', session('semester_id'));
+				});
+				$q->with('siswa');
+			}
+		};
+		$query = Kewirausahaan::query()->whereHas('anggota_rombel', $callback)->with(['anggota_rombel' => $callback, 'anggota.anggota_rombel' => $callback]);
+		return DataTables::of($query)
+			->addColumn('nama_siswa', function ($item) {
+				$return  = ($item->anggota->count()) ? $item->nama_anggota() : strtoupper($item->anggota_rombel->siswa->nama);
+				return $return;
+			})
+			->addColumn('actions', function ($item) use ($user){
+				$links = '<div class="text-center">';
+				if(!$user->hasRole('waka')){
+					$links .= '<a href="'.url('laporan/hapus-kewirausahaan/'.$item->kewirausahaan_id).'" class="btn btn-danger btn-sm confirm"><i class="fa fa-trash"></i> Hapus</a>';
+				} else {
+					$links .= '-';
+				}
+				$links .= '</div>';
+                return $links;
+
+            })
+            ->rawColumns(['nama_siswa', 'actions'])
+            ->make(true);  
+	}
+	public function hapus_kewirausahaan($id){
+		$delete = Kewirausahaan::find($id);
+		if($delete->delete()){
+			$output = [
+				'title' => 'Berhasil',
+				'text' => 'Data Kewirausahaan berhasil dihapus',
+				'icon' => 'success',
+			];
+		} else {
+			$output = [
+				'title' => 'Gagal',
+				'text' => 'Data Kewirausahaan gagal dihapus',
+				'icon' => 'error',
+			];
+		}
+		return response()->json($output);
 	}
 }

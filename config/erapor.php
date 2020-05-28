@@ -1,42 +1,7 @@
 <?php
 return [
-	'url_server' => 'http://app.erapor:8002/api/',
+	//'url_server' => 'http://app.erapor:8002/api/',
 	'url_server' => 'http://app.erapor-smk.net/api/',
-	'table_sync_old' => [
-		'ref.kompetensi_dasar',
-		//'sekolah',
-		'jurusan_sp',
-		'guru',
-		'rombongan_belajar',
-		'peserta_didik',
-		'pembelajaran',
-		'ekstrakurikuler',
-		'anggota_rombel',
-		'dudi',
-		'mou',
-		'absen',
-		'catatan_ppk',
-		'catatan_wali',
-		'deskripsi_mata_pelajaran',
-		'deskripsi_sikap',
-		'kd_nilai',
-		'nilai',
-		'nilai_akhir',
-		'nilai_ekstrakurikuler',
-		'nilai_sikap',
-		'nilai_ukk',
-		'prakerin',
-		'prestasi',
-		'nilai_remedial',
-		'rencana_penilaian',
-		'teknik_penilaian',
-		'bobot_keterampilan',
-		'nilai_rapor',
-		'kenaikan_kelas',
-		'indikator_karakter',
-		'users',
-		'role_user',
-	],
 	'table_sync' => [
 		'sekolah', //no semester
 		'jurusan_sp', //no semester
@@ -67,10 +32,11 @@ return [
 		'bobot_keterampilan',
 		'nilai_rapor',
 		'kenaikan_kelas',
-		//'indikator_karakter',
-		//'ref.sikap', //no semester
+		'kewirausahaan',
+		'anggota_kewirausahaan', //no semester
 		'ref.kompetensi_dasar', //no semester
-		//'ref.semester',
+		'nilai_un',
+		'nilai_us',
 		'users',
 		'role_user',
 	],

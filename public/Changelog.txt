@@ -3,6 +3,7 @@
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Menu Nilai US/USBN di Login Wali Kelas</li>
 <li><b style="color:blue">[Pembaharuan]</b> Menu Nilai UN di Login Wali Kelas</li>
+<li><b style="color:blue">[Pembaharuan]</b> Menu Kewirausahaan di Login Wali Kelas</li>
 <li><b style="color:green">[Perbaikan]</b> Cetak Sertifikat UKK</li>
 <li><b style="color:green">[Perbaikan]</b> Atur ulang pengguna dibagi 2 (dua) proses, untuk PTK dan untuk PD</li>
 <li><b style="color:green">[Perbaikan]</b> Proses kenaikan kelas dan kelulusan Peserta Didik</li>
@@ -10,6 +11,8 @@
 <li><b style="color:green">[Perbaikan]</b> Penilaian UKK dibawah perencanaan Multi Paket</li>
 <li><b style="color:green">[Perbaikan]</b> Jumlah rombel terkunci di tingkat 12 (dua belas)</li>
 <li><b style="color:green">[Perbaikan]</b> Sortable menu pembelajaran</li>
+<li><b style="color:green">[Perbaikan]</b> Penambahan form input di laman Praktik Kerja Lapangan</li>
+<li><b style="color:green">[Perbaikan]</b> Email peserta didik di login wali kelas</li>
 </ol>
 <legend><h3>Versi 5.0.8</h3></legend>
 <ol>

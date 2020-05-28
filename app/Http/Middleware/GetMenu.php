@@ -410,11 +410,22 @@ class GetMenu
 							'text' => 'Nilai US/USBN',
 							'url'  => 'laporan/nilai-us',
 							'icon' => 'hand-o-right',
+							'label'       => 'Baru',
+            				'label_color' => 'success'
 						],
 						[
 							'text' => 'Nilai UN',
 							'url'  => 'laporan/nilai-un',
 							'icon' => 'hand-o-right',
+							'label'       => 'Baru',
+            				'label_color' => 'success'
+						],
+						[
+							'text' => 'Kewirausahaan',
+							'url'  => 'laporan/kewirausahaan',
+							'icon' => 'hand-o-right',
+							'label'       => 'Baru',
+            				'label_color' => 'success'
 						],
 						[
 							'text' => 'Catatan Akademik',

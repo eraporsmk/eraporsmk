@@ -27,6 +27,8 @@ use App\Dudi;
 use App\Jurusan_sp;
 use App\Nilai_us;
 use App\Nilai_un;
+use App\Kewirausahaan;
+use App\Anggota_kewirausahaan;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -921,5 +923,41 @@ class AjaxController extends Controller
 			$query->where('pembelajaran_id', $request->pembelajaran_id);
 		}])->where('rombongan_belajar_id', $request->rombel_id)->order()->get();
 		return view('laporan.waka.nilai_un_result', compact('get_siswa', 'pembelajaran'));
+	}
+	public function get_wirausaha(Request $request){
+		$kewirausahaan = Kewirausahaan::where('anggota_rombel_id', $request->anggota_rombel_id)->get();
+		return view('laporan.kewirausahaan.result', compact('kewirausahaan'));
+	}
+	public function get_anggota_wirausaha(Request $request){
+		$anggota_rombel = Anggota_rombel::find($request->anggota_rombel_id);
+		$get_siswa = Anggota_rombel::with('siswa')->where('rombongan_belajar_id', $anggota_rombel->rombongan_belajar_id)->order()->get();
+		if($get_siswa->count()){
+			foreach($get_siswa as $siswa){
+				if($siswa->anggota_rombel_id != $request->anggota_rombel_id){
+					$record= array();
+					$record['value'] 	= $siswa->anggota_rombel_id;
+					$record['text'] 	= strtoupper($siswa->siswa->nama);
+					$output['results'][] = $record;
+				}
+			}
+		} else {
+			$record['value'] 	= '';
+			$record['text'] 	= 'Tidak ditemukan siswa di rombongan belajar terpilih';
+			$output['results'][] = $record;
+		}
+		/*$anggota_wirausaha = Anggota_kewirausahaan::where('anggota_rombel_id', $request->anggota_rombel_id)->get();
+		if($anggota_wirausaha->count()){
+			foreach($anggota_wirausaha as $anggota){
+				$record= array();
+				$record['value'] 	= $anggota->anggota_rombel_id;
+				$record['text'] 	= $anggota->kewirausahaan_id;
+				$output['results'][] = $record;
+			}
+		} else {
+			$record['value'] 	= '';
+			$record['text'] 	= 'Tidak ditemukan anggota kewirausahaan di kelas terpilih';
+			$output['results'][] = $record;
+		}*/
+		return response()->json($output);
 	}
 }

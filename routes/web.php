@@ -263,6 +263,8 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-legger', array('as' => 'ajax.get_legger', 'uses' => 'AjaxController@get_legger'));
     Route::post('/ajax/get-nilai-us', array('as' => 'ajax.get_nilai_us', 'uses' => 'AjaxController@get_nilai_us'));
     Route::post('/ajax/get-nilai-un', array('as' => 'ajax.get_nilai_un', 'uses' => 'AjaxController@get_nilai_un'));
+    Route::post('/ajax/get-wirausaha', array('as' => 'ajax.get_wirausaha', 'uses' => 'AjaxController@get_wirausaha'));
+    Route::post('/ajax/get-anggota-wirausaha', array('as' => 'ajax.get_anggota_wirausaha', 'uses' => 'AjaxController@get_anggota_wirausaha'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {
@@ -271,11 +273,18 @@ Route::group(['middleware' => ['get.menu']], function () {
     });
     //Laporan Start//
     Route::group(['middleware' => ['role:wali|waka']], function () {
-        Route::get('/laporan/catatan-akademik', 'LaporanController@index');
         Route::get('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
         Route::post('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
         Route::get('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
         Route::post('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
+        Route::get('/laporan/kewirausahaan', 'LaporanController@kewirausahaan')->name('laporan.kewirausahaan');
+        Route::get('/laporan/tambah-kewirausahaan', 'LaporanController@tambah_kewirausahaan')->name('laporan.tambah_kewirausahaan');
+        Route::post('/laporan/tambah-kewirausahaan', 'LaporanController@tambah_kewirausahaan')->name('laporan.tambah_kewirausahaan');
+        Route::get('/laporan/list-kewirausahaan', 'LaporanController@list_kewirausahaan')->name('laporan.list_kewirausahaan');
+        Route::get('/laporan/edit-kewirausahaan/{id}', 'LaporanController@edit_kewirausahaan')->name('laporan.edit_kewirausahaan');
+        Route::post('/laporan/edit-kewirausahaan/{id}', 'LaporanController@edit_kewirausahaan')->name('laporan.edit_kewirausahaan');
+        Route::get('/laporan/hapus-kewirausahaan/{id}', 'LaporanController@hapus_kewirausahaan')->name('laporan.hapus_kewirausahaan');
+        Route::get('/laporan/catatan-akademik', 'LaporanController@index');
         Route::get('/laporan/unduh-template/{query}/{id}', 'LaporanController@unduh_template')->name('laporan.unduh_template');
         Route::post('/laporan/import-excel', 'LaporanController@import_excel')->name('laporan.import_excel');
         Route::post('/laporan/simpan-catatan-akademik', array('as' => 'laporan.simpan_catatan_akademik', 'uses' => 'LaporanController@simpan_catatan_akademik'));

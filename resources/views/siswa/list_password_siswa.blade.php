@@ -30,7 +30,7 @@
 				<td>{{strtoupper($pengguna->siswa->nama)}}</td>
 				<td>{{$pengguna->siswa->jenis_kelamin}}</td>
 				<td>{{$pengguna->siswa->nisn}}</td>
-				<td>{{$pengguna->siswa->email}}</td>
+				<td>{{$pengguna->email}}</td>
 				<td>
 					@if(Hash::check(12345678, $pengguna->password) || Hash::check($pengguna->default_password, $pengguna->password))
 					{{$pengguna->default_password}}
