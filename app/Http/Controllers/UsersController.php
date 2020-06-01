@@ -457,19 +457,38 @@ class UsersController extends Controller
             }
         }
     }
-	public function reset_password($id){
+	public function reset_password(Request $request, $id){
 		$user = User::findOrFail($id);
 		if($user){
 			$user->password = Hash::make($user->default_password);
 			if($user->save()){
+				$output = [
+					'title' => 'Berhasil',
+					'text' => 'Password berhasil di atur ulang',
+					'icon' => 'success'
+				];
 				Alert::success('Password berhasil di atur ulang', 'Berhasil');
 			} else {
+				$output = [
+					'title' => 'Gagal',
+					'text' => 'Password gagal di atur ulang',
+					'icon' => 'error'
+				];
 				Alert::error('Password gagal di atur ulang', 'Gagal');
 			}
 		} else {
+			$output = [
+				'title' => 'Gagal',
+				'text' => 'Password gagal di atur ulang',
+				'icon' => 'error'
+			];
 			Alert::error('Pengguna tidak ditemukan', 'Gagal');
 		}
-		return redirect()->route('users');
+		if($request->ajax()){
+			return response()->json($output);
+		} else {
+			return redirect()->route('users');
+		}
 	}
 	public function generate(Request $request){
 		$user = auth()->user();

@@ -329,6 +329,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/cetak/rapor-top/{query}/{id}', 'CetakController@rapor_top');
     Route::get('/cetak/rapor-nilai/{query}/{id}', 'CetakController@rapor_nilai');
     Route::get('/cetak/rapor-pendukung/{query}/{id}', 'CetakController@rapor_pendukung');
+    Route::get('/cetak/rapor/{user_id}', 'CetakController@rapor_user')->name('cetak.rapor_user');
     //Route::post('/cetak/rapor-uts', array('as' => 'cetak.rapor_uts', 'uses' => 'CetakController@rapor_uts'));
     //Cetang End//
     Route::get('/excel-pembelajaran', 'ExcelController@pembelajaran');
