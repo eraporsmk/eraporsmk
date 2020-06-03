@@ -4,6 +4,11 @@
 @section('content_header')
     <h1>Beranda</h1>
 @stop
+@role('siswa')
+@section('content_header_right_hidden')
+<a href="{{route('cetak.rapor_user', ['user_id' => $user->user_id])}}" class="confirm btn btn-success pull-right">Cetak Rapor</a>
+@stop
+@endrole
 @section('box-title')
 Selamat Datang {{ $user->name }}
 @stop
@@ -450,6 +455,18 @@ function turn_on_icheck(){
 	});
 }
 $(document).ready( function () {
+	$('a.confirm').bind('click',function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		console.log(url);
+		$.get(url).done(function(data) {
+			swal({title: data.title, text: data.text,icon: data.icon, button: {text: "Cetak", closeModal: true},closeOnClickOutside: false}).then((result) => {
+				if(data.success){
+					window.open(url+'?cetak=1'); 
+				}
+			});
+		});
+	});
 	@role('admin')
 	console.log('admin');
 		$.get('{{route('updater.check')}}').done(function(response) {

@@ -20,6 +20,7 @@ use CustomHelper;
 use App\Rombongan_belajar;
 use App\Rencana_penilaian;
 use App\Rapor_pts;
+use App\Siswa;
 class CetakController extends Controller
 {
 	public function __construct()
@@ -238,9 +239,7 @@ class CetakController extends Controller
 						$query->where('anggota_rombel_id', $id);
 					};
 					$query->with('kelompok');
-					//$query->whereHas('nilai_akhir_pengetahuan', $callback);
 					$query->with(['nilai_akhir_pengetahuan' => $callback]);
-					//$query->whereHas('nilai_akhir_keterampilan', $callback);
 					$query->with(['nilai_akhir_keterampilan' => $callback]);
 					$query->whereNotNull('kelompok_id');
 					$query->orderBy('kelompok_id', 'asc');
@@ -326,5 +325,59 @@ class CetakController extends Controller
 		}
 		$pdf = PDF::loadView('cetak.perbaikan');
 		return $pdf->stream('document.pdf');
+	}
+	public function rapor_user(Request $request, $user_id){
+		$user = auth()->user();
+		$siswa = Siswa::with(['anggota_rombel' => function($query){
+			$query->where('semester_id', session('semester_id'));
+			$query->with(['rombongan_belajar' => function($query){
+				$query->with(['pembelajaran' => function($query){
+					$query->whereHas('nilai_akhir_pengetahuan', function($query){
+						$query->where('last_sync', '<', config('global.last_sync'));
+					});
+					$query->whereHas('nilai_akhir_keterampilan', function($query){
+						$query->where('last_sync', '<', config('global.last_sync'));
+					});
+					$query->with('kelompok');
+					$query->with('nilai_akhir_pengetahuan');
+					$query->with('nilai_akhir_keterampilan');
+					$query->whereNotNull('kelompok_id');
+					$query->orderBy('kelompok_id', 'asc');
+					$query->orderBy('no_urut', 'asc');
+				}]);
+				$query->with('semester');
+				$query->with('jurusan');
+				$query->with('kurikulum');
+			}, 'sekolah' => function($q){
+				$q->with('guru');
+			}]);
+		}, 'get_kecamatan' => function($query){
+			$query->with('get_kabupaten');
+		}, 'agama', 'pekerjaan_ayah', 'pekerjaan_ibu', 'pekerjaan_wali'])->find($user->peserta_didik_id);
+		if($request->cetak){
+			return $this->cetak_all($siswa->anggota_rombel->anggota_rombel_id);
+		} else {
+			if($siswa->anggota_rombel->rombongan_belajar->pembelajaran->count()){
+				$output = [
+					'success' => TRUE,
+					'title' => 'Validasi Selesai',
+					'text' => 'Silahkan klik Cetak',
+					'icon' => 'success'
+				];
+			} else {
+				$output = [
+					'success' => FALSE,
+					'title' => 'Validasi Gagal',
+					'text' => 'Data e-Rapor belum disinkronisasi ke server pusat. Silahkan hubungi administrator',
+					'icon' => 'error'
+				];
+			}
+			return response()->json($output);
+		}
+	}
+	public function cetak_all($anggota_rombel_id){
+		//$this->rapor_top(1, $anggota_rombel_id);
+		$this->rapor_nilai(1, $anggota_rombel_id);
+		$this->rapor_pendukung(1, $anggota_rombel_id);
 	}
 }

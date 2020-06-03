@@ -63,7 +63,7 @@ class UpdateController extends Controller
 		}
 		Artisan::call('migrate');
 		system('composer update');
-		File::put(base_path().'/version.txt', '5.0.8');
+		File::put(base_path().'/version.txt', '5.0.9');
 		echo 'sukses';
 	}
 	public function periksa_pembaharuan(Request $request){

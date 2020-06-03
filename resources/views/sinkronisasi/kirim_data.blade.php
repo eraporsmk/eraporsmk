@@ -127,8 +127,8 @@ $table_sync = config('erapor.table_sync');
 					$i=1;
 					$total = 0;
 					$result = 0;
-					$no_semester = ['sekolah', 'jurusan_sp', 'guru', 'peserta_didik', 'dudi', 'mou', 'absensi', 'catatan_ppk', 'catatan_wali', 'deskripsi_mata_pelajaran', 'deskripsi_sikap', 'kd_nilai', 'nilai', 'nilai_akhir', 'nilai_ekstrakurikuler', 'nilai_sikap', 'nilai_ukk', 'prakerin', 'prestasi', 'nilai_remedial', 'rencana_penilaian', 'teknik_penilaian', 'bobot_keterampilan', 'nilai_rapor', 'kenaikan_kelas', 'ref.kompetensi_dasar', 'users', 'role_user'];
-					$no_sekolah = ['users', 'ref.kompetensi_dasar', 'role_user'];
+					$no_semester = ['sekolah', 'jurusan_sp', 'guru', 'peserta_didik', 'dudi', 'mou', 'absensi', 'catatan_ppk', 'catatan_wali', 'deskripsi_mata_pelajaran', 'deskripsi_sikap', 'kd_nilai', 'nilai', 'nilai_akhir', 'nilai_ekstrakurikuler', 'nilai_sikap', 'nilai_ukk', 'prakerin', 'prestasi', 'nilai_remedial', 'rencana_penilaian', 'teknik_penilaian', 'bobot_keterampilan', 'nilai_rapor', 'kenaikan_kelas', 'ref.kompetensi_dasar', 'users', 'role_user', 'kewirausahaan', 'anggota_kewirausahaan', 'nilai_un', 'nilai_us'];
+					$no_sekolah = ['users', 'ref.kompetensi_dasar', 'role_user', 'anggota_kewirausahaan'];
 					foreach($table_sync as $sync){
 							$query = DB::table($sync);
 							if($sync == 'ref.kompetensi_dasar'){

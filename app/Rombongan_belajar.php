@@ -40,7 +40,7 @@ class Rombongan_belajar extends Model
 		return $this->hasMany('App\Anggota_rombel', 'rombongan_belajar_id', 'rombongan_belajar_id');
     }
 	public function pembelajaran(){
-		return $this->hasMany('App\Pembelajaran', 'rombongan_belajar_id', 'rombongan_belajar_id');
+		return $this->hasMany('App\Pembelajaran', 'rombongan_belajar_id', 'rombongan_belajar_id')->orderBy('kelompok_id')->orderBy('no_urut');
     }
 	public function one_pembelajaran(){
 		return $this->hasOne('App\Pembelajaran', 'rombongan_belajar_id', 'rombongan_belajar_id');

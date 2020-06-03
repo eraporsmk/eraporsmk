@@ -28,6 +28,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/progres-perencanaan-dan-penilaian', array('as' => 'progres_perencanaan_dan_penilaian', 'uses' => 'HomeController@progres_perencanaan_dan_penilaian'));
     Route::get('/detil-nilai/{pembelajaran_id}', array('as' => 'detil_nilai', 'uses' => 'HomeController@detil_nilai'));
     //home end
+    Route::group(['middleware' => ['role:admin|guru']], function () {
+        Route::get('/sinkronisasi/diterima-dikelas/{id}', 'SinkronisasiController@diterima_dikelas')->name('diterima_dikelas');
+        Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
+    });
     //admin area
     Route::group(['middleware' => ['role:admin']], function () {
         Route::prefix('users')->group(function () {
@@ -75,9 +79,8 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/sinkronisasi/proses-artisan/{server}/{data}/{aksi}/{satuan}', array('as' => 'sinkronisasi.proses_artisan_sync', 'uses' => 'SinkronisasiController@proses_artisan_sync'));
         Route::get('/sinkronisasi/hitung-data/{data}', array('as' => 'sinkronisasi.hitung_data', 'uses' => 'SinkronisasiController@hitung_data'));
         Route::get('/sinkronisasi/debug', 'SinkronisasiController@debug')->name('debug');
-        Route::get('/sinkronisasi/diterima-dikelas/{id}', 'SinkronisasiController@diterima_dikelas')->name('diterima_dikelas');
         //sinkronisasi end//
-        Route::get('/users/generate', 'UsersController@generate')->name('generate');
+        Route::get('/users/generate/{query}', 'UsersController@generate')->name('generate');
         Route::get('/role', 'RolesController@index')->name('role');
         Route::get('/role/list_role', 'UsersController@list_role')->name('list_role');
         Route::get('/role_index', array('as' => 'roles.index', 'uses' => 'RolesController@index'));
@@ -111,7 +114,6 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/guru/view/{guru_id}', array('as' => 'guru.view', 'uses' => 'GuruController@view'));
         Route::post('/guru/update-data', array('as' => 'guru.update_data', 'uses' => 'GuruController@update_data'));
         Route::get('/guru/hapus/{query}/{guru_id}', array('as' => 'guru.hapus', 'uses' => 'GuruController@hapus'));
-        Route::post('/pd/update-data', array('as' => 'siswa.update_data', 'uses' => 'SiswaController@update_data'));
         Route::get('/konfigurasi', 'ConfigController@index')->name('konfigurasi');
         Route::post('konfigurasi/simpan', 'ConfigController@simpan');
         Route::get('/changelog', 'ChangelogController@index')->name('changelog');
@@ -221,7 +223,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     //Query Ajax Start//
     Route::get('/ajax/get-bobot/{pembelajaran_id}/{metode_id}', array('as' => 'ajax.get_bobot', 'uses' => 'AjaxController@get_bobot'));
     Route::post('/ajax/get-rombel-filter', array('as' => 'ajax.get_rombel_filter', 'uses' => 'AjaxController@get_rombel_filter'));
+    Route::post('/ajax/get-rombel-jurusan', array('as' => 'ajax.get_rombel_jurusan', 'uses' => 'AjaxController@get_rombel_jurusan'));
     Route::post('/ajax/get-rombel', array('as' => 'ajax.get_rombel', 'uses' => 'AjaxController@get_rombel'));
+    Route::post('/get-next-rombel', 'AjaxController@get_next_rombel')->name('ajax.get_next_rombel');
+    Route::post('/get-single-rombel', 'AjaxController@get_single_rombel')->name('ajax.get_single_rombel');
     Route::post('/ajax/get-mapel', array('as' => 'ajax.get_mapel', 'uses' => 'AjaxController@get_mapel'));
     Route::post('/ajax/get-teknik', array('as' => 'ajax.get_teknik', 'uses' => 'AjaxController@get_teknik'));
     Route::post('/ajax/get-kd', array('as' => 'ajax.get_kd', 'uses' => 'AjaxController@get_kd'));
@@ -256,6 +261,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-capaian-kompetensi', array('as' => 'ajax.get_capaian_kompetensi', 'uses' => 'AjaxController@get_capaian_kompetensi'));
     Route::post('/ajax/get-analisis-individu', array('as' => 'ajax.get_analisis_individu', 'uses' => 'AjaxController@get_analisis_individu'));
     Route::post('/ajax/get-legger', array('as' => 'ajax.get_legger', 'uses' => 'AjaxController@get_legger'));
+    Route::post('/ajax/get-nilai-us', array('as' => 'ajax.get_nilai_us', 'uses' => 'AjaxController@get_nilai_us'));
+    Route::post('/ajax/get-nilai-un', array('as' => 'ajax.get_nilai_un', 'uses' => 'AjaxController@get_nilai_un'));
+    Route::post('/ajax/get-wirausaha', array('as' => 'ajax.get_wirausaha', 'uses' => 'AjaxController@get_wirausaha'));
+    Route::post('/ajax/get-anggota-wirausaha', array('as' => 'ajax.get_anggota_wirausaha', 'uses' => 'AjaxController@get_anggota_wirausaha'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {
@@ -264,7 +273,20 @@ Route::group(['middleware' => ['get.menu']], function () {
     });
     //Laporan Start//
     Route::group(['middleware' => ['role:wali|waka']], function () {
+        Route::get('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
+        Route::post('/laporan/nilai-us', 'LaporanController@nilai_us')->name('laporan.nilai_us');
+        Route::get('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
+        Route::post('/laporan/nilai-un', 'LaporanController@nilai_un')->name('laporan.nilai_un');
+        Route::get('/laporan/kewirausahaan', 'LaporanController@kewirausahaan')->name('laporan.kewirausahaan');
+        Route::get('/laporan/tambah-kewirausahaan', 'LaporanController@tambah_kewirausahaan')->name('laporan.tambah_kewirausahaan');
+        Route::post('/laporan/tambah-kewirausahaan', 'LaporanController@tambah_kewirausahaan')->name('laporan.tambah_kewirausahaan');
+        Route::get('/laporan/list-kewirausahaan', 'LaporanController@list_kewirausahaan')->name('laporan.list_kewirausahaan');
+        Route::get('/laporan/edit-kewirausahaan/{id}', 'LaporanController@edit_kewirausahaan')->name('laporan.edit_kewirausahaan');
+        Route::post('/laporan/edit-kewirausahaan/{id}', 'LaporanController@edit_kewirausahaan')->name('laporan.edit_kewirausahaan');
+        Route::get('/laporan/hapus-kewirausahaan/{id}', 'LaporanController@hapus_kewirausahaan')->name('laporan.hapus_kewirausahaan');
         Route::get('/laporan/catatan-akademik', 'LaporanController@index');
+        Route::get('/laporan/unduh-template/{query}/{id}', 'LaporanController@unduh_template')->name('laporan.unduh_template');
+        Route::post('/laporan/import-excel', 'LaporanController@import_excel')->name('laporan.import_excel');
         Route::post('/laporan/simpan-catatan-akademik', array('as' => 'laporan.simpan_catatan_akademik', 'uses' => 'LaporanController@simpan_catatan_akademik'));
         Route::get('/laporan/nilai-karakter', 'LaporanController@nilai_karakter');
         Route::get('/laporan/list-nilai-karakter', 'LaporanController@list_nilai_karakter');
@@ -307,6 +329,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/cetak/rapor-top/{query}/{id}', 'CetakController@rapor_top');
     Route::get('/cetak/rapor-nilai/{query}/{id}', 'CetakController@rapor_nilai');
     Route::get('/cetak/rapor-pendukung/{query}/{id}', 'CetakController@rapor_pendukung');
+    Route::get('/cetak/rapor/{user_id}', 'CetakController@rapor_user')->name('cetak.rapor_user');
     //Route::post('/cetak/rapor-uts', array('as' => 'cetak.rapor_uts', 'uses' => 'CetakController@rapor_uts'));
     //Cetang End//
     Route::get('/excel-pembelajaran', 'ExcelController@pembelajaran');

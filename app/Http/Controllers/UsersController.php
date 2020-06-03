@@ -457,129 +457,108 @@ class UsersController extends Controller
             }
         }
     }
-	public function reset_password($id){
+	public function reset_password(Request $request, $id){
 		$user = User::findOrFail($id);
 		if($user){
 			$user->password = Hash::make($user->default_password);
 			if($user->save()){
+				$output = [
+					'title' => 'Berhasil',
+					'text' => 'Password berhasil di atur ulang',
+					'icon' => 'success'
+				];
 				Alert::success('Password berhasil di atur ulang', 'Berhasil');
 			} else {
+				$output = [
+					'title' => 'Gagal',
+					'text' => 'Password gagal di atur ulang',
+					'icon' => 'error'
+				];
 				Alert::error('Password gagal di atur ulang', 'Gagal');
 			}
 		} else {
+			$output = [
+				'title' => 'Gagal',
+				'text' => 'Password gagal di atur ulang',
+				'icon' => 'error'
+			];
 			Alert::error('Pengguna tidak ditemukan', 'Gagal');
 		}
-		return redirect()->route('users');
+		if($request->ajax()){
+			return response()->json($output);
+		} else {
+			return redirect()->route('users');
+		}
 	}
-	public function generate(){
+	public function generate(Request $request){
 		$user = auth()->user();
 		$sekolah = Sekolah::find($user->sekolah_id);
 		$ajaran = config('site.semester');//CustomHelper::get_ta();
-		$find_guru = Guru::whereNotIn('guru_id',function($query) use ($user) {
-			$query->select('guru_id')->from('users')->whereNotNull('guru_id')->where('sekolah_id', '=', $user->sekolah_id);
-		})->where('sekolah_id', '=', $user->sekolah_id)->get();
-		//$find_guru = Guru::where('sekolah_id', $user->sekolah_id)->get();
-		$jenis_tu = CustomHelper::jenis_gtk('tendik');
-		$asesor = CustomHelper::jenis_gtk('asesor');
-		if($find_guru->count()){
-			foreach($find_guru as $guru){
-				$random = Str::random(8);
-				$guru->email = ($guru->email != $user->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
-				$guru->email = ($guru->email != $sekolah->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
-				$guru->email = strtolower($guru->email);
-				$find_user_email = User::where('email', $guru->email)->first();
-				if($find_user_email){
-					$guru->email = strtolower($random).'@erapor-smk.net';
-				}
-				$new_password = strtolower(Str::random(8));
-				$insert_user = array(
-					'name' => $guru->nama,
-					'email' => $guru->email,
-					'nuptk'	=> $guru->nuptk,
-					'password' => Hash::make($new_password),
-					'last_sync'	=> date('Y-m-d H:i:s'),
-					'sekolah_id'	=> $user->sekolah_id,
-					'password_dapo'	=> md5($new_password),
-					'guru_id'	=> $guru->guru_id,
-					'default_password' => $new_password,
-				);
-				$create_user = User::updateOrCreate(
-					['guru_id' => $guru->guru_id],
-					$insert_user
-				);
-				if(in_array($guru->jenis_ptk_id, $jenis_tu)){
-					$adminRole = Role::where('name', 'tu')->first();
-				} elseif(in_array($guru->jenis_ptk_id, $asesor)){
-					$adminRole = Role::where('name', 'user')->first();
-				} else {
-					$adminRole = Role::where('name', 'guru')->first();
-				}
-				$CheckadminRole = DB::table('role_user')->where('user_id', $create_user->user_id)->first();
-				if(!$CheckadminRole){
-					$create_user->attachRole($adminRole);
-				}
-				$find_rombel = Rombongan_belajar::where('guru_id', $guru->guru_id)->where('semester_id', $ajaran->semester_id)->where('jenis_rombel', 1)->first();
-				//echo $guru->guru_id.'=>'.$ajaran->semester_id;
-				if($find_rombel){
-					$WalasRole = Role::where('name', 'wali')->first();
-					$CheckWalasRole = DB::table('role_user')->where('user_id', $create_user->user_id)->where('role_id', $WalasRole->id)->first();
-					if(!$CheckWalasRole){
-						$create_user->attachRole($WalasRole);
+		if($request->route('query') == 'ptk'){
+			$find_guru = Guru::whereNotIn('guru_id',function($query) use ($user) {
+				$query->select('guru_id')->from('users')->whereNotNull('guru_id')->where('sekolah_id', '=', $user->sekolah_id);
+			})->where('sekolah_id', '=', $user->sekolah_id)->get();
+			$jenis_tu = CustomHelper::jenis_gtk('tendik');
+			$asesor = CustomHelper::jenis_gtk('asesor');
+			if($find_guru->count()){
+				foreach($find_guru as $guru){
+					$random = Str::random(8);
+					$guru->email = ($guru->email != $user->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
+					$guru->email = ($guru->email != $sekolah->email) ? $guru->email : strtolower($random).'@erapor-smk.net';
+					$guru->email = strtolower($guru->email);
+					$find_user_email = User::where('email', $guru->email)->first();
+					if($find_user_email){
+						$guru->email = strtolower($random).'@erapor-smk.net';
 					}
-				}
-				$find_ekskul = Ekstrakurikuler::where('guru_id', $guru->guru_id)->where('semester_id', $ajaran->semester_id)->first();
-				if($find_ekskul){
-					$PembinaRole = Role::where('name', 'pembina_ekskul')->first();
-					$CheckPembinaRole = DB::table('role_user')->where('user_id', $create_user->user_id)->where('role_id', $PembinaRole->id)->first();
-					if(!$CheckPembinaRole){
-						$create_user->attachRole($PembinaRole);
+					$new_password = strtolower(Str::random(8));
+					$insert_user = array(
+						'name' => $guru->nama,
+						'email' => $guru->email,
+						'nuptk'	=> $guru->nuptk,
+						'password' => Hash::make($new_password),
+						'last_sync'	=> date('Y-m-d H:i:s'),
+						'sekolah_id'	=> $user->sekolah_id,
+						'password_dapo'	=> md5($new_password),
+						'guru_id'	=> $guru->guru_id,
+						'default_password' => $new_password,
+					);
+					$create_user = User::updateOrCreate(
+						['guru_id' => $guru->guru_id],
+						$insert_user
+					);
+					if(in_array($guru->jenis_ptk_id, $jenis_tu)){
+						$adminRole = Role::where('name', 'tu')->first();
+					} elseif(in_array($guru->jenis_ptk_id, $asesor)){
+						$adminRole = Role::where('name', 'user')->first();
+					} else {
+						$adminRole = Role::where('name', 'guru')->first();
+					}
+					$CheckadminRole = DB::table('role_user')->where('user_id', $create_user->user_id)->first();
+					if(!$CheckadminRole){
+						$create_user->attachRole($adminRole);
+					}
+					$find_rombel = Rombongan_belajar::where('guru_id', $guru->guru_id)->where('semester_id', $ajaran->semester_id)->where('jenis_rombel', 1)->first();
+					if($find_rombel){
+						$WalasRole = Role::where('name', 'wali')->first();
+						$CheckWalasRole = DB::table('role_user')->where('user_id', $create_user->user_id)->where('role_id', $WalasRole->id)->first();
+						if(!$CheckWalasRole){
+							$create_user->attachRole($WalasRole);
+						}
+					}
+					$find_ekskul = Ekstrakurikuler::where('guru_id', $guru->guru_id)->where('semester_id', $ajaran->semester_id)->first();
+					if($find_ekskul){
+						$PembinaRole = Role::where('name', 'pembina_ekskul')->first();
+						$CheckPembinaRole = DB::table('role_user')->where('user_id', $create_user->user_id)->where('role_id', $PembinaRole->id)->first();
+						if(!$CheckPembinaRole){
+							$create_user->attachRole($PembinaRole);
+						}
 					}
 				}
 			}
-		}
-		$find_siswa = Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
-			$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
-		})->where('sekolah_id', '=', $user->sekolah_id)->get();
-		if($find_siswa->count()){
-			foreach($find_siswa as $siswa){
-				$random = Str::random(8);
-				$find_user = User::where('email', $siswa->email)->first();
-				$siswa->email = ($siswa->email != $user->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
-				$siswa->email = ($siswa->email != $sekolah->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
-				$siswa->email = (!$find_user) ? $siswa->email : strtolower($random).'@erapor-smk.net';
-				$siswa->email = strtolower($siswa->email);
-				$find_user_email = User::where('email', $siswa->email)->first();
-				if($find_user_email){
-					$siswa->email = strtolower($random).'@erapor-smk.net';
-				}
-				$new_password = strtolower(Str::random(8));
-				$insert_user = array(
-					'name' => $siswa->nama,
-					'email' => $siswa->email,
-					'nisn'	=> $siswa->nisn,
-					'password' => Hash::make($new_password),
-					'last_sync'	=> date('Y-m-d H:i:s'),
-					'sekolah_id'	=> $user->sekolah_id,
-					'password_dapo'	=> md5($new_password),
-					'peserta_didik_id'	=> $siswa->peserta_didik_id,
-					'default_password' => $new_password,
-				);
-				$create_user = User::updateOrCreate(
-					['peserta_didik_id' => $siswa->peserta_didik_id],
-					$insert_user
-				);
-				$adminRole = Role::where('name', 'siswa')->first();
-				$CheckadminRole = DB::table('role_user')->where('user_id', $create_user->user_id)->first();
-				if(!$CheckadminRole){
-					$create_user->attachRole($adminRole);
-				}
-			}
-		}
-		$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->get();
-		if($all_pengguna->count()){
-			foreach($all_pengguna as $pengguna){
-				$new_password = strtolower(Str::random(8));
-				if(!$pengguna->hasRole('admin')){
+			$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('guru')->get();
+			if($all_pengguna->count()){
+				foreach($all_pengguna as $pengguna){
+					$new_password = strtolower(Str::random(8));
 					if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
 						$pengguna->password = Hash::make($new_password);
 						$pengguna->default_password = $new_password;
@@ -587,8 +566,73 @@ class UsersController extends Controller
 					}
 				}
 			}
+			$response = [
+				'title' => 'Berhasil',
+				'text' => 'Pengguna PTK berhasil diperbaharui',
+				'icon' => 'success'
+			];
+		} elseif($request->route('query') == 'pd'){
+			$find_siswa = Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
+				$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
+			})->where('sekolah_id', '=', $user->sekolah_id)->get();
+			if($find_siswa->count()){
+				foreach($find_siswa as $siswa){
+					$random = Str::random(8);
+					$find_user = User::where('email', $siswa->email)->first();
+					$siswa->email = ($siswa->email != $user->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
+					$siswa->email = ($siswa->email != $sekolah->email) ? $siswa->email : strtolower($random).'@erapor-smk.net';
+					$siswa->email = (!$find_user) ? $siswa->email : strtolower($random).'@erapor-smk.net';
+					$siswa->email = strtolower($siswa->email);
+					$find_user_email = User::where('email', $siswa->email)->first();
+					if($find_user_email){
+						$siswa->email = strtolower($random).'@erapor-smk.net';
+					}
+					$new_password = strtolower(Str::random(8));
+					$insert_user = array(
+						'name' => $siswa->nama,
+						'email' => $siswa->email,
+						'nisn'	=> $siswa->nisn,
+						'password' => Hash::make($new_password),
+						'last_sync'	=> date('Y-m-d H:i:s'),
+						'sekolah_id'	=> $user->sekolah_id,
+						'password_dapo'	=> md5($new_password),
+						'peserta_didik_id'	=> $siswa->peserta_didik_id,
+						'default_password' => $new_password,
+					);
+					$create_user = User::updateOrCreate(
+						['peserta_didik_id' => $siswa->peserta_didik_id],
+						$insert_user
+					);
+					$adminRole = Role::where('name', 'siswa')->first();
+					$CheckadminRole = DB::table('role_user')->where('user_id', $create_user->user_id)->first();
+					if(!$CheckadminRole){
+						$create_user->attachRole($adminRole);
+					}
+				}
+			}
+			$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->get();
+			if($all_pengguna->count()){
+				foreach($all_pengguna as $pengguna){
+					$new_password = strtolower(Str::random(8));
+					if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
+						$pengguna->password = Hash::make($new_password);
+						$pengguna->default_password = $new_password;
+						$pengguna->save();
+					}
+				}
+			}
+			$response = [
+				'title' => 'Berhasil',
+				'text' => 'Pengguna Peserta Didik berhasil diperbaharui',
+				'icon' => 'success'
+			];
+		} else {
+			$response = [
+				'title' => 'Gagal',
+				'text' => 'Permintaan tidak dikenal',
+				'icon' => 'Error'
+			];
 		}
-		Alert::success('Pengguna berhasil di generate ulang')->persistent('Tutup');
-		return redirect()->route('users');
+		return response()->json($response);
 	}
 }

@@ -10,4 +10,7 @@ class Jurusan_sp extends Model
 	protected $table = 'jurusan_sp';
 	protected $primaryKey = 'jurusan_sp_id';
 	protected $guarded = [];
+	public function rombongan_belajar(){
+		return $this->hasMany('App\Rombongan_belajar', 'jurusan_sp_id', 'jurusan_sp_id');
+	}
 }

@@ -326,7 +326,7 @@ class SinkronisasiController extends Controller
 						'terkunci' => Rombongan_belajar::where(function($query){
 							$query->where('sekolah_id', session('sekolah_id'));
 							$query->where('semester_id', session('semester_id'));
-							$query->where('tingkat', 10);
+							$query->where('tingkat', 12);
 							$query->where('jenis_rombel', 1);
 							$query->where('kunci_nilai', 1);
 						})->count(),

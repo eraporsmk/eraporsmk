@@ -23,6 +23,6 @@ class Rencana_ukk extends Model
 		return $this->hasOne('App\Paket_ukk', 'paket_ukk_id', 'paket_ukk_id');
 	}
 	public function nilai_ukk(){
-		return $this->hasMany('App\Nilai_ukk', 'rencana_ukk_id', 'rencana_ukk_id');
+		return $this->hasOne('App\Nilai_ukk', 'rencana_ukk_id', 'rencana_ukk_id');
 	}
 }
