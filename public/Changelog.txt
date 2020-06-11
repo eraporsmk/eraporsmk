@@ -5,6 +5,7 @@
 <li><b style="color:blue">[Pembaharuan]</b> Mengaktifkan isian nama kelas di menu Kenaikan Kelas</li>
 <li><b style="color:blue">[Pembaharuan]</b> Mengaktifkan isian keterangan di menu Prakerin</li>
 <li><b style="color:green">[Perbaikan]</b> Atur Ulang Pengguna</li>
+<li><b style="color:green">[Perbaikan]</b> Urutan abjad di cetak rapor</li>
 </ol>
 <legend><h3>Versi 5.0.9</h3></legend>
 <ol>
