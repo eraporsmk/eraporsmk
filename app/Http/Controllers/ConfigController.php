@@ -32,11 +32,17 @@ class ConfigController extends Controller
 		$data['all_guru']= Guru::with(['gelar_depan', 'gelar_belakang'])->where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();
 		$data['all_data'] = Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'asc')->get();
 		$data['sekolah_id'] = $user->sekolah_id;
+		$data['all_rombel'] = Rombongan_belajar::where(function($query){
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', session('semester_id'));
+			$query->where('tingkat', 12);
+		})->get();
+		$data['rombel_4_tahun'] = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
 		//$data['sekolah'] = Sekolah::find($user->sekolah_id);
 		return view('config', $data);
     }
 	public function simpan(Request $request){
-		 $messages = [
+		$messages = [
     		'required' => ':attribute tidak boleh kosong',
     		//'mimes' => 		':attribute hanya diperbolehkan berekstensi .jpg, .png dan .jpeg',
   		];
@@ -54,6 +60,12 @@ class ConfigController extends Controller
 		);*/
 		Setting::where('key', '=', 'tanggal_rapor')->update(['value' => $request['tanggal_rapor']]);
 		Setting::where('key', '=', 'zona')->update(['value' => $request['zona']]);
+		if($request->empat_tahun){
+			Setting::updateOrCreate(
+				['key' => 'rombel_4_tahun'],
+				['value' => serialize($request->empat_tahun)]
+			);
+		}
 		$sekolah = Sekolah::find($request['sekolah_id']);
 		if($request['guru_id']){
 			$sekolah->guru_id = $request['guru_id'];

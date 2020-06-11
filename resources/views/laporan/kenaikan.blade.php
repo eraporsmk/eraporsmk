@@ -42,38 +42,28 @@
 						{{strtoupper($siswa->siswa->nama)}}
 					</td>
 					<td>
-						<?php
-						/*
 						<select name="status[]" id="status" class="form-control">
-							<option value="">== Pilih Status Kenaikan==</option>
 							@if($cari_tingkat_akhir)
-							<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
-							<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
+							<option value="">== Pilih Status Kenaikan==</option>
 							@else
-								@if($siswa->rombongan_belajar->tingkat == 12)
-									<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
-									<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
+								@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
+								<option value="">== Pilih Status Kenaikan==</option>
 								@else
-									<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
-									<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
+								<option value="">== Pilih Status Kelulusan==</option>
 								@endif
 							@endif
-						</select>
-						*/
-						?>
-						<select name="status[]" id="status" class="form-control">
-							@if($cari_tingkat_akhir)
-							<option value="">== Pilih Status Kenaikan==</option>
-							@else
-							<option value="">== Pilih Status Kelulusan==</option>
-							@endif
 							@if($cari_tingkat_akhir)
 							<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
 							<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
 							@else
 								@if($siswa->rombongan_belajar->tingkat == 12)
-									<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
-									<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
+									@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
+										<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
+										<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
+									@else
+										<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
+										<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
+									@endif
 								@else
 									<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
 									<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
@@ -83,10 +73,9 @@
 					</td>
 					<td>
 						<input type="hidden" class="form-control" name="rombongan_belajar[]" id="rombongan_belajar" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->rombongan_belajar) ? $siswa->kenaikan->rombongan_belajar->rombongan_belajar_id : '' : ''}}" />
-						<input type="text" class="form-control" id="disabled" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1 && $siswa->kenaikan->rombongan_belajar || $siswa->kenaikan->status == 2 && $siswa->kenaikan->rombongan_belajar) ? $siswa->kenaikan->rombongan_belajar->nama : '' : ''}}" disabled />
+						<input type="text" name="nama_kelas[]" id="nama_kelas" class="form-control" value="{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1 && $siswa->kenaikan->rombongan_belajar || $siswa->kenaikan->status == 2 && $siswa->kenaikan->rombongan_belajar) ? $siswa->kenaikan->nama_kelas : '' : ''}}" />
 					</td>
 				</tr>
-				{{--dd($siswa)--}}
 				@endforeach
 			</tbody>
 		</table>
@@ -103,7 +92,7 @@ $('select#status').change(function(e) {
 	var ini_id = $(this);
 	var kelas_sekarang = $(this).closest('td').prev('td').find('input#kelas_sekarang').val();
 	var next_td_value = $(this).closest('td').next('td').find('input#rombongan_belajar');
-	var next_td_disabled = $(this).closest('td').next('td').find('input#disabled');
+	var nama_kelas = $(this).closest('td').next('td').find('input#nama_kelas');
 	var rombongan_belajar_id = $(this).closest('td').prev('td').find('input#rombongan_belajar_id').val();
 	if(ini == ''){
 		return false;
@@ -111,11 +100,15 @@ $('select#status').change(function(e) {
 	console.log(ini);
 	if(ini == 3 || ini == 4){
 		$(next_td_value).val('');
-		$(next_td_disabled).val('');
+		$(nama_kelas).val('');
 	} else if(ini == 2){
 		$(next_td_value).val(rombongan_belajar_id);
-		$(next_td_disabled).val(kelas_sekarang);
+		$(nama_kelas).val(kelas_sekarang);
 	} else {
+		@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
+		$(nama_kelas).val(kelas_sekarang);
+		$(next_td_value).val(rombongan_belajar_id);
+		@else
 		$.ajax({
             url: '{{route('ajax.get_next_rombel')}}',
             type: 'post',
@@ -170,7 +163,7 @@ $('select#status').change(function(e) {
 					console.log(result);
 					if(result.nama){
 						$(next_td_value).val(result.rombongan_belajar_id);
-						$(next_td_disabled).val(result.nama);
+						$(nama_kelas).val(result.nama);
 						swal.stopLoading();
 						swal.close();
 					} else {
@@ -179,54 +172,9 @@ $('select#status').change(function(e) {
 						});
 					}
 				});
-				/*
-				Swal.fire({
-                    title: "Pilih Rombel",
-                    input: 'select',
-                    inputOptions: data.rombongan_belajar,
-                    inputPlaceholder: 'Pilih Rombongan Belajar',
-                    confirmButtonText: 'Pilih',
-                    showCancelButton: true,
-                    cancelButtonText: 'Batal',
-                    showLoaderOnConfirm: true,
-                    preConfirm: (value) => {
-                        if (value) {
-                            return fetch('{{route('ajax.get_single_rombel')}}',{
-								method: 'POST',
-								headers: {
-									"Content-Type": "application/json",
-									"Accept": "application/json, text-plain, * /*",
-									"X-Requested-With": "XMLHttpRequest",
-									"X-CSRF-TOKEN": "{{ csrf_token() }}"
-								},
-								credentials: "same-origin",
-								body:JSON.stringify({rombongan_belajar_id: value})
-							}).then(response => {
-								return response.json()
-							}).catch(error => {
-								Swal.showValidationMessage(
-									`Request failed: ${error}`
-								)
-							})
-                        } else {
-                            Swal.showValidationMessage(
-                                'Rombongan Belajar tidak boleh kosong'
-                            )
-                        }
-                    },
-                    allowOutsideClick: () => !Swal.isLoading(),
-                }).then((result) => {
-					console.log(result);
-					if(result.dismiss){
-						ini_id.val('');
-					} else {
-						$(next_td_value).val(result.value.rombongan_belajar_id);
-						$(next_td_disabled).val(result.value.nama);
-					}
-				});
-				*/
             }
 		});
+		@endif
 	}
 });
 </script>

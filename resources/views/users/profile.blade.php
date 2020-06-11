@@ -168,7 +168,7 @@
 	</div>
 	<div class="col-md-6">
 		<div class="form-group">
-			<?php $img = ($user->photo!= '')  ? url('storage/images/245/'.$user->photo) : url('vendor/img/avatar3.png'); ?><img
+			<?php $img = ($user->photo!= '')  ? asset('storage/images/245/'.$user->photo) : asset('vendor/img/avatar3.png'); ?><img
 				src="<?php echo $img;?>" class="img-responsive center-block" alt="{{$user->name}}" />
 			<div class="input-group" style="margin-top:10px;">
 				<label class="input-group-btn">
@@ -234,7 +234,7 @@
 		<div class="row">
 			<div class="col-sm-12">
 				<div class="form-group">
-					<?php $img = ($user->photo!= '')  ? url('storage/images/245/'.$user->photo) : url('vendor/img/avatar3.png'); ?><img
+					<?php $img = ($user->photo!= '')  ? asset('storage/images/245/'.$user->photo) : asset('vendor/img/avatar3.png'); ?><img
 						src="<?php echo $img;?>" class="user-image" alt="User Image" />
 					<div class="input-group" style="margin-top:10px;">
 						<label class="input-group-btn">

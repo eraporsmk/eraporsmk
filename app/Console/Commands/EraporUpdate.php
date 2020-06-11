@@ -47,9 +47,31 @@ class EraporUpdate extends Command
             $this->info($a->toJson());
         } else {
             $version = File::get(base_path().'/version.txt');
+            $db_version = File::get(base_path().'/db_version.txt');
             \Artisan::call('migrate');
+            \Artisan::call('cache:clear');
+            \Artisan::call('view:clear');
+            \Artisan::call('config:cache');
+            $path = base_path('bootstrap/cache');
+            $files = File::files($path);
+            $config = FALSE;
+            $config_ = FALSE;
+            foreach($files as $file){
+                if($file->getRelativePathname() == 'config-.php'){
+                    $config_ = $file->getPathname();
+                }
+                if($file->getRelativePathname() == 'config.php'){
+                    $config = $file->getPathname();
+                }
+            }
+            if($config_ && $config){
+                File::move($config_,$config);
+            } elseif($config_ && !$config){
+                File::move($config_,$files.'/config.php');
+            }
             Setting::where('key', 'app_version')->update(['value' => $version]);
-            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.0.9');
+            Setting::where('key', 'db_version')->update(['value' => $db_version]);
+            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.1.0');
         }
     }
 }

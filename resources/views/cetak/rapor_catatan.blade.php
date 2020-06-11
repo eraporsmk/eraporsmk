@@ -115,14 +115,17 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 	</tr>
 </table>
 <br />
-@if($cari_tingkat_akhir)
+<?php
+$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
+?>
+@if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
 <div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
 @else
 	@if($get_siswa->rombongan_belajar->semester->semester == 2)
-		@if($get_siswa->rombongan_belajar->tingkat == 12)
-		<div class="strong">F.&nbsp;&nbsp;Status Kelulusan</div>
+		@if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
+		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
 		@else
-		<div class="strong">E.&nbsp;&nbsp;Kenaikan Kelas</div>
+		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Kenaikan Kelas</div>
 		@endif
 	@endif
 @endif
@@ -134,7 +137,7 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 		@if($get_siswa->kenaikan->status == 3)
 			LULUS
 		@else
-			{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->rombongan_belajar->nama}}
+			{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->nama_kelas}}
 		@endif
 	@else
 		@if($get_siswa->rombongan_belajar->tingkat == 12)

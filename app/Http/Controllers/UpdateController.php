@@ -37,8 +37,8 @@ class UpdateController extends Controller
 		return view('update');
     }
 	public function update_versi(){
-		Setting::where('key', 'app_version')->update(['value' => '5.0.8']);
-		Setting::where('key', 'db_version')->update(['value' => '4.0.2']);
+		Setting::where('key', 'app_version')->update(['value' => '5.1.0']);
+		Setting::where('key', 'db_version')->update(['value' => '4.0.3']);
 		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
 		Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
 		Artisan::call('cache:clear');
