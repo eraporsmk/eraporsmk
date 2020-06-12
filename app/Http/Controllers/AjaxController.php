@@ -787,11 +787,13 @@ class AjaxController extends Controller
 		$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', $request['sekolah_id'])->where('semester_id', $request['semester_id'])->where('tingkat', 13)->first();
 		$rombongan_belajar = Rombongan_belajar::find($request['rombel_id']);
 		$get_siswa = Anggota_rombel::with('siswa')->with('kenaikan')->where('rombongan_belajar_id', $request['rombel_id'])->order()->get();
+		$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
 		$params = array(
 			'get_siswa'	=> $get_siswa,
 			'open'	=> ($guru_id == $rombongan_belajar->guru_id) ? 1 : 0,
 			'rombongan_belajar_id' => $request['rombel_id'],
 			'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
+			'rombel_4_tahun' => $rombel_4_tahun,
 		);
 		return view('laporan.waka.kenaikan_result')->with($params);
 	}

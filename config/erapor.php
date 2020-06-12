@@ -42,4 +42,5 @@ return [
 	],
 	'url_register' => 'https://data.dikdasmen.kemdikbud.go.id/sso/auth/?response_type=code&client_id=ssoSMK&state=300300&redirect_uri=http://103.40.55.249/Do/SSODPD',
 	'api_key' => '0b6743d7b41f2fb616058e49650269a42972fb5a69a9180741a3fe2a6f19fc46',
+	'access_update' => env('ACCESS_UPDATE', true),
 ];

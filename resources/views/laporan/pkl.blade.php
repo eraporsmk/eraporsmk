@@ -30,9 +30,10 @@
 					<th class="text-center" style="vertical-align:middle;">Nama Peserta Didik</th>
 					<th class="text-center" style="vertical-align:middle;">Mitra DU/DI</th>
 					<th class="text-center" style="vertical-align:middle;">Alamat</th>
-					<th class="text-center" style="vertical-align:middle;">Bidang Usaha</th>
+					<!--th class="text-center" style="vertical-align:middle;">Bidang Usaha</th-->
 					<th class="text-center" style="vertical-align:middle;">Skala Kesesuaian dengan Kompetensi Keahlian (1-10)</th>
 					<th class="text-center" style="vertical-align:middle;">Lamanya (bulan)</th>
+					<th class="text-center" style="vertical-align:middle;">Keterangan</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -58,19 +59,22 @@
 						<input type="text" class="form-control" name="lokasi_prakerin[]" id="lokasi_prakerin"
 							value="{{($siswa->prakerin) ? $siswa->prakerin->lokasi_prakerin : ''}}" />
 					</td>
-					<td>
+					<!--td>
 						<input type="text" class="form-control" name="bidang_usaha[]" id="bidang_usaha" value="{{($siswa->prakerin) ? $siswa->prakerin->bidang_usaha : ''}}" />
-					</td>
+					</td-->
 					<td>
 						<select class="form-control select2" name="skala[]" id="skala" style="width:100%">
 							<option value="">== Pilih Skala ==</option>
-							@for ($i = 1; $i < 10; $i++)
+							@for ($i = 1; $i < 11; $i++)
 							<option value="{{$i}}"{{($siswa->prakerin) ? ($siswa->prakerin->skala == $i) ? ' selected="selected"' : '' : ''}}>{{$i}}</option>
 							@endfor
 						</select>
 					</td>
 					<td>
 						<input type="number" class="form-control" name="lama_prakerin[]" value="{{($siswa->prakerin) ? $siswa->prakerin->lama_prakerin : ''}}" />
+					</td>
+					<td>
+						<input type="text" class="form-control" name="keterangan_prakerin[]" value="{{($siswa->prakerin) ? $siswa->prakerin->keterangan_prakerin : ''}}" />
 					</td>
 				</tr>
 				@endforeach

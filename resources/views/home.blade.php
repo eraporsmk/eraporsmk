@@ -469,6 +469,7 @@ $(document).ready( function () {
 	});
 	@role('admin')
 	console.log('admin');
+		@if(config('erapor.access_update'))
 		$.get('{{route('updater.check')}}').done(function(response) {
 			if(response.new_version){
 				swal({title: 'Pembaharuan Tersedia', text: 'Versi '+response.new_version+' tersedia',icon: 'success', button: {text: "Proses", closeModal: true},closeOnClickOutside: false}).then((result) => {
@@ -476,6 +477,7 @@ $(document).ready( function () {
 				});
 			}
 		});
+		@endif
 	@endrole
 	$('.select2').select2();
 	$('a.generate_nilai').bind('click',function(e) {
@@ -621,13 +623,6 @@ $(document).ready( function () {
 					closeOnClickOutside: false
 				})
 			});
-			/*
-			$.get(url).done(function(data) {
-				swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
-					window.location.replace('{{route('perencanaan_keterampilan')}}');
-				});
-			});
-			*/
 		});
 	});
 });

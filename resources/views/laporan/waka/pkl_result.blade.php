@@ -4,9 +4,10 @@
 			<th class="text-center" style="vertical-align:middle;">Nama Peserta Didik</th>
 			<th class="text-center" style="vertical-align:middle;">Mitra DU/DI</th>
 			<th class="text-center" style="vertical-align:middle;">Alamat</th>
-			<th class="text-center" style="vertical-align:middle;">Bidang Usaha</th>
+			<!--th class="text-center" style="vertical-align:middle;">Bidang Usaha</th-->
 			<th class="text-center" style="vertical-align:middle;">Skala Kesesuaian dengan Kompetensi Keahlian (1-10)</th>
 			<th class="text-center" style="vertical-align:middle;">Lamanya (bulan)</th>
+			<th class="text-center" style="vertical-align:middle;">Keterangan</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -35,18 +36,18 @@
 				{{($siswa->prakerin) ? $siswa->prakerin->lokasi_prakerin : '-'}}
 				@endif
 			</td>
-			<td>
+			<!--td>
 				@if($open)
 				<input type="text" class="form-control" name="bidang_usaha[]" id="bidang_usaha" value="{{($siswa->prakerin) ? $siswa->prakerin->bidang_usaha : ''}}" />
 				@else
 				{{($siswa->prakerin) ? $siswa->prakerin->bidang_usaha : '-'}}
 				@endif
-			</td>
+			</td-->
 			<td>
 				@if($open)
 				<select class="form-control select2" name="skala[]" id="skala" style="width:100%">
 					<option value="">== Pilih Skala ==</option>
-					@for ($i = 1; $i < 10; $i++)
+					@for ($i = 1; $i < 11; $i++)
 					<option value="{{$i}}"{{($siswa->prakerin) ? ($siswa->prakerin->skala == $i) ? ' selected="selected"' : '' : ''}}>{{$i}}</option>
 					@endfor
 				</select>
@@ -59,6 +60,13 @@
 				<input type="number" class="form-control" name="lama_prakerin[]" value="{{($siswa->prakerin) ? $siswa->prakerin->lama_prakerin : ''}}" />
 				@else
 				{{($siswa->prakerin) ? $siswa->prakerin->lama_prakerin : '-'}}
+				@endif
+			</td>
+			<td>
+				@if($open)
+				<input type="text" class="form-control" name="keterangan_prakerin[]" value="{{($siswa->prakerin) ? $siswa->prakerin->keterangan_prakerin : ''}}" />
+				@else
+				{{($siswa->prakerin) ? $siswa->prakerin->keterangan_prakerin : '-'}}
 				@endif
 			</td>
 		</tr>

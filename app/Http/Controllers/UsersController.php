@@ -458,10 +458,13 @@ class UsersController extends Controller
         }
     }
 	public function reset_password(Request $request, $id){
-		$user = User::findOrFail($id);
-		if($user){
-			$user->password = Hash::make($user->default_password);
-			if($user->save()){
+		$pengguna = User::find($id);
+		if($pengguna){
+			$random = Str::random(8);
+			$password = ($pengguna->default_password) ? $pengguna->default_password : strtolower($random);
+			$pengguna->password = Hash::make($password);
+			$pengguna->default_password = $password;
+			if($pengguna->save()){
 				$output = [
 					'title' => 'Berhasil',
 					'text' => 'Password berhasil di atur ulang',
@@ -558,11 +561,13 @@ class UsersController extends Controller
 			$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('guru')->get();
 			if($all_pengguna->count()){
 				foreach($all_pengguna as $pengguna){
-					$new_password = strtolower(Str::random(8));
-					if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
-						$pengguna->password = Hash::make($new_password);
-						$pengguna->default_password = $new_password;
-						$pengguna->save();
+					if(!$pengguna->hasRole('admin')){
+						$new_password = strtolower(Str::random(8));
+						if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
+							$pengguna->password = Hash::make($new_password);
+							$pengguna->default_password = $new_password;
+							$pengguna->save();
+						}
 					}
 				}
 			}
@@ -613,11 +618,13 @@ class UsersController extends Controller
 			$all_pengguna = User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->get();
 			if($all_pengguna->count()){
 				foreach($all_pengguna as $pengguna){
-					$new_password = strtolower(Str::random(8));
-					if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
-						$pengguna->password = Hash::make($new_password);
-						$pengguna->default_password = $new_password;
-						$pengguna->save();
+					if(!$pengguna->hasRole('admin')){
+						$new_password = strtolower(Str::random(8));
+						if(Hash::check(12345678, $pengguna->password) || !Hash::check($pengguna->default_password, $pengguna->password)){
+							$pengguna->password = Hash::make($new_password);
+							$pengguna->default_password = $new_password;
+							$pengguna->save();
+						}
 					}
 				}
 			}

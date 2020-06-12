@@ -58,6 +58,14 @@
 					@endforeach
 					</select>
 				</div>
+				<div class="form-group">
+					<label for="empat_tahun">Rombongan Belajar 4 Tahun</label>
+					<select class="form-control select2" name="empat_tahun[]" style="width: 100%;" multiple>
+					@foreach ($all_rombel as $rombel)
+						<option value="{{$rombel->rombongan_belajar_id}}" {{ (in_array($rombel->rombongan_belajar_id, $rombel_4_tahun)) ? "selected":"" }}>{{ $rombel->nama }}</option>
+					@endforeach
+					</select>
+				</div>
 			</div>
 			<div class="form-group col-md-4 text-center">
 				<label for="logo">Logo Sekolah</label>

@@ -72,8 +72,6 @@ class ProsesData extends Command
 		} else {
 			self::{$function}($arguments['response']['data']);
 		}
-		//echo $arguments['response']['query'];
-		//CustomHelper::test($arguments);
     }
 	private function sekolah($response){
 		$user = auth()->user();
@@ -157,7 +155,6 @@ class ProsesData extends Command
 				$kabupaten = $get_kabupaten->nama;
 			}
 		}
-		//dd($query);
 		$sekolah->npsn = $query->npsn;
 		$sekolah->nama = $query->nama;
 		$sekolah->nss = $query->nss;
@@ -234,7 +231,6 @@ class ProsesData extends Command
 				'ptk_id'	=> $data->ptk_id,
 			);
 			$find_gelar = $data->rwy_pend_formal;
-			//($response) ? $response->rwy_pend_formal : '';
 			if($find_gelar){
 				foreach($find_gelar as $gelar){
 					if($gelar->gelar_akademik_id){
@@ -328,7 +324,6 @@ class ProsesData extends Command
 				'kode_pos' 			=> ($data->kode_pos) ? $data->kode_pos : 0,
 				'no_telp' 			=> ($data->nomor_telepon_seluler) ? $data->nomor_telepon_seluler : 0,
 				'sekolah_asal' 		=> ($data->sekolah_asal) ? $data->sekolah_asal : 0,
-				//'diterima_kelas' 	=> 0,
 				'diterima' 			=> ($data->tanggal_masuk_sekolah) ? $data->tanggal_masuk_sekolah : 0,
 				'kode_wilayah' 		=> $data->kode_wilayah,
 				'email' 			=> $data->email,
@@ -347,7 +342,7 @@ class ProsesData extends Command
 				['peserta_didik_id_dapodik' => $data->peserta_didik_id],
 				$insert_siswa
 			);
-			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
+			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', session('semester_id'))->first();
 			if($find_rombel){
 				$insert_anggota_rombel = array(
 					'sekolah_id'				=> session('sekolah_id'),
@@ -386,7 +381,7 @@ class ProsesData extends Command
 			if($find_siswa){
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $find_siswa->peserta_didik_id)->where('semester_id', '=', session('semester_id'))->onlyTrashed()->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', session('semester_id'))->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> session('sekolah_id'),
@@ -449,7 +444,7 @@ class ProsesData extends Command
 				);
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $create_siswa->peserta_didik_id)->where('semester_id', '=', session('semester_id'))->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', session('semester_id'))->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> session('sekolah_id'),
@@ -471,7 +466,6 @@ class ProsesData extends Command
 	}
 	private function pembelajaran($response){
 		$user = auth()->user();
-		//$sekolah = Sekolah::find($user->sekolah_id);
 		$jumlah = count($response);
 		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
@@ -572,7 +566,7 @@ class ProsesData extends Command
 		foreach($dapodik as $data){
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_anggota_ekskul.json', json_encode($record));
-			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
+			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', session('semester_id'))->first();
 			if($find_rombel){
 				$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->first();
 				if($find_siswa){
@@ -823,10 +817,6 @@ class ProsesData extends Command
 				'deleted_at'				=> $data->deleted_at,
 				'last_sync'					=> $data->last_sync,
 			);
-			//$query = Mata_pelajaran::find($data->mata_pelajaran_id);
-			//if(!$query){
-				//Mata_pelajaran::create($insert_mata_pelajaran);
-			//}
 			Mata_pelajaran::updateOrCreate(
 				['mata_pelajaran_id' => $data->mata_pelajaran_id],
 				$insert_mata_pelajaran

@@ -319,6 +319,7 @@ class LaporanController extends Controller
 		$keterangan_prakerin = $request['keterangan_prakerin'];
 		$skala = $request['skala'];
 		$bidang_usaha = $request['bidang_usaha'];
+		$keterangan_prakerin = $request['keterangan_prakerin'];
 		$insert=0;
 		foreach($anggota_rombel_id as $key => $value){
 			$new = Prakerin::UpdateOrCreate(
@@ -330,6 +331,7 @@ class LaporanController extends Controller
 					'lama_prakerin'		=> $lama_prakerin[$key],
 					'skala'		=> $skala[$key],
 					'bidang_usaha'		=> $bidang_usaha[$key],
+					'keterangan_prakerin'		=> $keterangan_prakerin[$key],
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
@@ -468,9 +470,11 @@ class LaporanController extends Controller
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
 			})->order()->get();
+			$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
+				'rombel_4_tahun' => $rombel_4_tahun,
 			);
 			return view('laporan.kenaikan')->with($params);
 		}
@@ -499,6 +503,7 @@ class LaporanController extends Controller
 						'sekolah_id'=> $sekolah_id,
 						'status' 	=> $status[$key],
 						'rombongan_belajar_id'		=> $rombongan_belajar_id,
+						'nama_kelas' => $request->nama_kelas[$key],
 						'last_sync'	=> date('Y-m-d H:i:s'),
 					]
 				);

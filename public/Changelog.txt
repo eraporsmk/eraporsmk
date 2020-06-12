@@ -1,10 +1,17 @@
 <div id="form">
+<legend><h3>Versi 5.1.0</h3></legend>
+<ol>
+<li><b style="color:blue">[Pembaharuan]</b> Tambahan isian Rombel 4 tahun di menu Pengaturan Umum</li>
+<li><b style="color:blue">[Pembaharuan]</b> Mengaktifkan isian nama kelas di menu Kenaikan Kelas</li>
+<li><b style="color:blue">[Pembaharuan]</b> Mengaktifkan isian keterangan di menu Prakerin</li>
+<li><b style="color:green">[Perbaikan]</b> Atur Ulang Pengguna</li>
+<li><b style="color:green">[Perbaikan]</b> Urutan abjad di cetak rapor</li>
+</ol>
 <legend><h3>Versi 5.0.9</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Menu Nilai US/USBN di Login Wali Kelas</li>
 <li><b style="color:blue">[Pembaharuan]</b> Menu Nilai UN di Login Wali Kelas</li>
 <li><b style="color:blue">[Pembaharuan]</b> Menu Kewirausahaan di Login Wali Kelas</li>
-<!--li><b style="color:blue">[Pembaharuan]</b> Cetak rapor di login peserta didik</li-->
 <li><b style="color:blue">[Pembaharuan]</b> Atur ulang sandi di login wali kelas</li>
 <li><b style="color:green">[Perbaikan]</b> Cetak Sertifikat UKK</li>
 <li><b style="color:green">[Perbaikan]</b> Atur ulang pengguna dibagi 2 (dua) proses, untuk PTK dan untuk PD</li>
