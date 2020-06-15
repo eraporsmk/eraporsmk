@@ -121,7 +121,7 @@ class AmbilData extends Command
 			}
 		} catch (\Exception $e) {
 			$result['status'] = 0;
-			$result['message'] = 'Server tidak merespon. Silahkan ulangi beberapa saat lagi.';
+			$result['message'] = $e->getMessage();
 			$result['icon'] = 'error';
 			echo json_encode($result);
 		}

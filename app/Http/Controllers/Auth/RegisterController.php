@@ -65,7 +65,6 @@ class RegisterController extends Controller
 		->returnResponseObject()
 		->withData($data_sync)
 		->post();
-		//dd($curl);
 		$response_token = 'Server tidak merespon';
 		if($curl->status == 200){
 			$find_key = HTMLDomParser::str_get_html($curl->content)->find('input[type=hidden]');

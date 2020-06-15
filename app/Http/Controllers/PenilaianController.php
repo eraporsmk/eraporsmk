@@ -330,21 +330,21 @@ class PenilaianController extends Controller
 		return (new NilaiExport)->query($id, $get_mapel_agama)->download($nama_file);
 	}
 	public function import_excel(Request $request){
-		$validator = Validator::make($request->all(), [
-			'file' => 'required|mimes:csv,xls,xlsx'
-		]);
-		if ($validator->passes()) {
-			$file = $request->file('file');
-			//$nama_file = rand().$file->getClientOriginalName();
-			//$file->move('excel',$nama_file);
-			$Import = new NilaiImport();
-			$rows = Excel::import($Import, $file);
-			//if(File::exists(public_path('/excel/'.$nama_file))) {
-				//File::delete(public_path('/excel/'.$nama_file));
-			//}
-			return response()->json($Import);
-		}
-		return response()->json(['error'=>$validator->errors()->all()]);
+		$file = $request->file('file');
+		dd($file->getClientOriginalExtension());
+		$messages = [
+            'file.required' => 'File tidak boleh kosong',
+            'file.mimes' => 'File harus berekstensi .XLS/.XLSX',
+        ];
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xls,xlsx'
+         ],
+        $messages
+        )->validate();
+		$file = $request->file('file');
+		$Import = new NilaiImport();
+		$rows = Excel::import($Import, $file);
+		return response()->json($Import);
 	}
 	public function delete_remedial($remedial_id){
 		$find = Remedial::find($remedial_id);
