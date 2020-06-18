@@ -113,8 +113,8 @@ class KirimNilai extends Command
 					$insert_nilai = [
 						'nilai_kognitif_angka' 	=> $nilai_pengetahuan_value,
 						'nilai_kognitif_huruf' 	=> CustomHelper::konversi_huruf($kkm, $nilai_pengetahuan_value, $produktif),
-						'nilai_afektif_angka'	=> $nilai_keterampilan_value,
-						'nilai_afektif_huruf'	=> CustomHelper::konversi_huruf($kkm, $nilai_keterampilan_value, $produktif),
+						'nilai_psim_angka'		=> $nilai_keterampilan_value,
+						'nilai_psim_huruf'		=> CustomHelper::konversi_huruf($kkm, $nilai_keterampilan_value, $produktif),
 						'rapor_ke' 				=> $pembelajaran->no_urut,
 						'soft_delete' 			=> 0,
 						'updater_id' 			=> $matev_rapor->updater_id,
