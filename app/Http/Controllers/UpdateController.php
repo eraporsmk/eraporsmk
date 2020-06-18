@@ -37,6 +37,9 @@ class UpdateController extends Controller
 		return view('update');
     }
 	public function update_versi(){
+		Artisan::call('erapor:update');
+		echo 'sukses';
+		exit;
 		Setting::where('key', 'app_version')->update(['value' => '5.1.0']);
 		Setting::where('key', 'db_version')->update(['value' => '4.0.3']);
 		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);

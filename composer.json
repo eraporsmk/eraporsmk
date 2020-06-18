@@ -14,6 +14,7 @@
         "blueimp/jquery-file-upload": "^9.31",
         "carlos-meneses/laravel-mpdf": "^2.1",
         "chumper/zipper": "^1.0",
+        "doctrine/dbal": "^2.10",
         "fideloper/proxy": "^4.0",
         "gecche/laravel-multidomain": "1.*",
         "guzzlehttp/guzzle": "^6.4",
