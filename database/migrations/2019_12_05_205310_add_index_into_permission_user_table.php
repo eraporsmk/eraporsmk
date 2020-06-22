@@ -14,7 +14,7 @@ class AddIndexIntoPermissionUserTable extends Migration
     public function up()
     {
         Schema::table('permission_user', function (Blueprint $table) {
-            $table->index('user_id', 'permission_id');
+            //$table->index('user_id', 'permission_id');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIndexIntoPermissionUserTable extends Migration
     public function down()
     {
         Schema::table('permission_user', function (Blueprint $table) {
-            $table->dropIndex(['user_id', 'permission_id']);
+            //$table->dropIndex(['user_id', 'permission_id']);
         });
     }
 }

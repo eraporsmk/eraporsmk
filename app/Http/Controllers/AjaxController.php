@@ -541,9 +541,11 @@ class AjaxController extends Controller
 			$query->with(['kelas' => function($q){
 				$q->where('jenis_rombel', 1);
 			}]);
-			$query->whereIn('peserta_didik_id', function($q) use ($rombongan_belajar_id){
-				$q->select('peserta_didik_id')->from('anggota_rombel')->where('rombongan_belajar_id', $rombongan_belajar_id);
-			});
+			if($rombongan_belajar_id){
+				$query->whereIn('peserta_didik_id', function($q) use ($rombongan_belajar_id){
+					$q->select('peserta_didik_id')->from('anggota_rombel')->where('rombongan_belajar_id', $rombongan_belajar_id);
+				});
+			}
 		};
 		$get_siswa = Anggota_rombel::with('nilai_ekskul')->whereHas('siswa', $callback)->with(['siswa' => $callback])->where('rombongan_belajar_id', $rombongan_belajar_id_ekskul)->order()->get();
 		$params = array(

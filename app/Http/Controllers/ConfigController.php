@@ -8,6 +8,7 @@ use App\Semester;
 use App\Setting;
 use App\Guru;
 use App\Sekolah;
+use App\Rombel4_tahun;
 use CustomHelper;
 use App\Exports\RekapNilaiExport;
 use App\Nilai;
@@ -34,10 +35,12 @@ class ConfigController extends Controller
 		$data['sekolah_id'] = $user->sekolah_id;
 		$data['all_rombel'] = Rombongan_belajar::where(function($query){
 			$query->where('jenis_rombel', 1);
+			$query->where('sekolah_id', session('sekolah_id'));
 			$query->where('semester_id', session('semester_id'));
 			$query->where('tingkat', 12);
 		})->get();
-		$data['rombel_4_tahun'] = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
+		$data['rombel_4_tahun'] = Rombel4_tahun::select('rombongan_belajar_id')->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
+		//(config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
 		//$data['sekolah'] = Sekolah::find($user->sekolah_id);
 		return view('config', $data);
     }
@@ -61,10 +64,27 @@ class ConfigController extends Controller
 		Setting::where('key', '=', 'tanggal_rapor')->update(['value' => $request['tanggal_rapor']]);
 		Setting::where('key', '=', 'zona')->update(['value' => $request['zona']]);
 		if($request->empat_tahun){
-			Setting::updateOrCreate(
+			foreach($request->empat_tahun as $empat_tahun){
+				$rombel_4_tahun[] = $empat_tahun;
+				Rombel4_tahun::updateOrCreate(
+					[
+						'rombongan_belajar_id' => $empat_tahun,
+						'sekolah_id' => $request->sekolah_id,
+						'semester_id' => session('semester_id')
+					],
+					[
+						'last_sync' => date('Y-m-d H:i:s')
+					]
+				);
+			}
+			Rombel4_tahun::whereNotIn('rombongan_belajar_id', $rombel_4_tahun)->where('sekolah_id', $request->sekolah_id)->where('semester_id', session('semester_id'))->delete();
+			/*Setting::updateOrCreate(
 				['key' => 'rombel_4_tahun'],
 				['value' => serialize($request->empat_tahun)]
-			);
+			);*/
+		} else {
+			Rombel4_tahun::where('sekolah_id', $request->sekolah_id)->where('semester_id', session('semester_id'))->delete();
+			//Setting::where('key', 'rombel_4_tahun')->delete();
 		}
 		$sekolah = Sekolah::find($request['sekolah_id']);
 		if($request['guru_id']){

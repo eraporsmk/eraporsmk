@@ -168,44 +168,48 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/referensi/edit-paket-ukk/{id}', 'ReferensiController@edit_paket_ukk')->name('edit_paket_ukk');
         Route::post('/referensi/update-ukk', array('as' => 'referensi.update_ukk', 'uses' => 'ReferensiController@update_ukk'));
     });
-    Route::group(['middleware' => ['role:guru']], function () {
+    Route::group(['middleware' => ['role:guru|pembina_ekskul']], function () {
         //Perencanaan Start//
-        Route::get('/perencanaan/rasio', 'PerencanaanController@index')->name('rasio');
-        Route::post('/perencanaan/simpan-rasio', array('as' => 'simpan_rasio', 'uses' => 'PerencanaanController@simpan_rasio'));
-        Route::get('/perencanaan/pengetahuan', 'PerencanaanController@pengetahuan')->name('perencanaan_pengetahuan');
-        Route::get('/perencanaan/tambah-pengetahuan', 'PerencanaanController@tambah_pengetahuan');
-        Route::get('/perencanaan/keterampilan', 'PerencanaanController@keterampilan')->name('perencanaan_keterampilan');
-        Route::get('/perencanaan/tambah-keterampilan', 'PerencanaanController@tambah_keterampilan');
-        Route::post('/perencanaan/simpan-perencanaan', array('as' => 'simpan_perencanaan', 'uses' => 'PerencanaanController@simpan_perencanaan'));
-        Route::get('/perencanaan/list-rencana/{kompetensi_id}', array('as' => 'perencanaan.list_rencana', 'uses' => 'PerencanaanController@list_rencana'));
-        Route::get('/perencanaan/edit/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.edit_rencana', 'uses' => 'PerencanaanController@edit_rencana'));
-        Route::get('/perencanaan/delete/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.delete', 'uses' => 'PerencanaanController@delete'));
-        Route::get('/perencanaan/copy-rencana/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.copy_rencana', 'uses' => 'PerencanaanController@copy_rencana'));
-        Route::post('/perencanaan/duplikasi-rencana', array('as' => 'perencanaan.duplikasi_rencana', 'uses' => 'PerencanaanController@duplikasi_rencana'));
-        Route::get('/perencanaan/bobot', 'PerencanaanController@bobot')->name('list_bobot');
-        Route::post('/perencanaan/simpan-bobot', array('as' => 'simpan_bobot', 'uses' => 'PerencanaanController@simpan_bobot'));
-        Route::get('/perencanaan/ukk', 'PerencanaanController@ukk')->name('perencanaan_ukk');
-        Route::get('/perencanaan/tambah-ukk', 'PerencanaanController@tambah_ukk')->name('perencanaan.tambah_ukk');
-        Route::post('/perencanaan/simpan-ukk', array('as' => 'perencanaan.simpan_ukk', 'uses' => 'PerencanaanController@simpan_ukk'));
-        Route::get('/perencanaan/list-ukk', array('as' => 'perencanaan.list_ukk', 'uses' => 'PerencanaanController@list_ukk'));
-        Route::get('/perencanaan/view-ukk/{ukk_id}', array('as' => 'perencanaan.view_ukk', 'uses' => 'PerencanaanController@view_ukk'));
-        Route::get('/perencanaan/edit-ukk/{ukk_id}', array('as' => 'perencanaan.edit_ukk', 'uses' => 'PerencanaanController@edit_ukk'));
-        Route::post('/perencanaan/update-ukk', array('as' => 'perencanaan.update_ukk', 'uses' => 'PerencanaanController@update_ukk'));
-        Route::get('/perencanaan/delete-ukk/{ukk_id}', array('as' => 'perencanaan.delete_ukk', 'uses' => 'PerencanaanController@delete_ukk'));
+        Route::prefix('perencanaan')->group(function () {
+            Route::get('/rasio', 'PerencanaanController@index')->name('rasio');
+            Route::post('/simpan-rasio', array('as' => 'simpan_rasio', 'uses' => 'PerencanaanController@simpan_rasio'));
+            Route::get('/pengetahuan', 'PerencanaanController@pengetahuan')->name('perencanaan_pengetahuan');
+            Route::get('/tambah-pengetahuan', 'PerencanaanController@tambah_pengetahuan');
+            Route::get('/keterampilan', 'PerencanaanController@keterampilan')->name('perencanaan_keterampilan');
+            Route::get('/tambah-keterampilan', 'PerencanaanController@tambah_keterampilan');
+            Route::post('/simpan-perencanaan', array('as' => 'simpan_perencanaan', 'uses' => 'PerencanaanController@simpan_perencanaan'));
+            Route::get('/list-rencana/{kompetensi_id}', array('as' => 'perencanaan.list_rencana', 'uses' => 'PerencanaanController@list_rencana'));
+            Route::get('/edit/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.edit_rencana', 'uses' => 'PerencanaanController@edit_rencana'));
+            Route::get('/delete/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.delete', 'uses' => 'PerencanaanController@delete'));
+            Route::get('/copy-rencana/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.copy_rencana', 'uses' => 'PerencanaanController@copy_rencana'));
+            Route::post('/duplikasi-rencana', array('as' => 'perencanaan.duplikasi_rencana', 'uses' => 'PerencanaanController@duplikasi_rencana'));
+            Route::get('/bobot', 'PerencanaanController@bobot')->name('list_bobot');
+            Route::post('/simpan-bobot', array('as' => 'simpan_bobot', 'uses' => 'PerencanaanController@simpan_bobot'));
+            Route::get('/ukk', 'PerencanaanController@ukk')->name('perencanaan_ukk');
+            Route::get('/tambah-ukk', 'PerencanaanController@tambah_ukk')->name('perencanaan.tambah_ukk');
+            Route::post('/simpan-ukk', array('as' => 'perencanaan.simpan_ukk', 'uses' => 'PerencanaanController@simpan_ukk'));
+            Route::get('/list-ukk', array('as' => 'perencanaan.list_ukk', 'uses' => 'PerencanaanController@list_ukk'));
+            Route::get('/view-ukk/{ukk_id}', array('as' => 'perencanaan.view_ukk', 'uses' => 'PerencanaanController@view_ukk'));
+            Route::get('/edit-ukk/{ukk_id}', array('as' => 'perencanaan.edit_ukk', 'uses' => 'PerencanaanController@edit_ukk'));
+            Route::post('/update-ukk', array('as' => 'perencanaan.update_ukk', 'uses' => 'PerencanaanController@update_ukk'));
+            Route::get('/delete-ukk/{ukk_id}', array('as' => 'perencanaan.delete_ukk', 'uses' => 'PerencanaanController@delete_ukk'));
+        });
         //Perencanaan End//
         //Penilaian Start//
-        Route::get('/penilaian/list-sikap', array('as' => 'penilaian.list_sikap', 'uses' => 'PenilaianController@list_sikap'));
-        Route::get('/penilaian/get-list-sikap', array('as' => 'penilaian.get_list_sikap', 'uses' => 'PenilaianController@get_list_sikap'));
-        Route::get('/penilaian/edit-sikap/{id}', array('as' => 'penilaian.edit_sikap', 'uses' => 'PenilaianController@edit_sikap'));
-        Route::get('/penilaian/delete-sikap/{id}', array('as' => 'penilaian.delete_sikap', 'uses' => 'PenilaianController@delete_sikap'));
-        Route::post('/penilaian/update-sikap', 'PenilaianController@update_sikap')->name('penilaian.update_sikap');
-        Route::get('/penilaian/{kompetensi_id}', array('as' => 'penilaian.form_penilaian', 'uses' => 'PenilaianController@index'));
-        Route::post('/penilaian/simpan-nilai', 'PenilaianController@simpan_nilai')->name('penilaian.simpan_nilai');
-        Route::post('/penilaian/simpan-nilai-ukk', 'PenilaianController@simpan_nilai_ukk')->name('penilaian.simpan_nilai_ukk');
-        Route::post('/penilaian/simpan_nilai_ekskul', 'PenilaianController@simpan_nilai_ekskul')->name('penilaian.simpan_nilai_ekskul');
-        Route::post('/penilaian/import_excel', 'PenilaianController@import_excel');
-        Route::get('/penilaian/delete-remedial/{remedial_id}', array('as' => 'penilaian.delete_remedial', 'uses' => 'PenilaianController@delete_remedial'));
-        Route::post('/penilaian/reset-remedial', array('as' => 'penilaian.reset_remedial', 'uses' => 'PenilaianController@reset_remedial'));
+        Route::prefix('penilaian')->group(function () {
+            Route::get('/list-sikap', array('as' => 'penilaian.list_sikap', 'uses' => 'PenilaianController@list_sikap'));
+            Route::get('/get-list-sikap', array('as' => 'penilaian.get_list_sikap', 'uses' => 'PenilaianController@get_list_sikap'));
+            Route::get('/edit-sikap/{id}', array('as' => 'penilaian.edit_sikap', 'uses' => 'PenilaianController@edit_sikap'));
+            Route::get('/delete-sikap/{id}', array('as' => 'penilaian.delete_sikap', 'uses' => 'PenilaianController@delete_sikap'));
+            Route::post('/update-sikap', 'PenilaianController@update_sikap')->name('penilaian.update_sikap');
+            Route::get('/{kompetensi_id}', array('as' => 'penilaian.form_penilaian', 'uses' => 'PenilaianController@index'));
+            Route::post('/simpan-nilai', 'PenilaianController@simpan_nilai')->name('penilaian.simpan_nilai');
+            Route::post('/simpan-nilai-ukk', 'PenilaianController@simpan_nilai_ukk')->name('penilaian.simpan_nilai_ukk');
+            Route::post('/simpan_nilai_ekskul', 'PenilaianController@simpan_nilai_ekskul')->name('penilaian.simpan_nilai_ekskul');
+            Route::post('/import_excel', 'PenilaianController@import_excel');
+            Route::get('/delete-remedial/{remedial_id}', array('as' => 'penilaian.delete_remedial', 'uses' => 'PenilaianController@delete_remedial'));
+            Route::post('/reset-remedial', array('as' => 'penilaian.reset_remedial', 'uses' => 'PenilaianController@reset_remedial'));
+        });
         //Penilaian End//
         //Monitoring Start//
         Route::get('/monitoring/rekap-nilai/', 'MonitoringController@index');

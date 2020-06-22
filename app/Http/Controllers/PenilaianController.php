@@ -135,10 +135,12 @@ class PenilaianController extends Controller
 		foreach($all_nilai as $key => $value){
 			if($value){
 				$nilai_ekskul = Nilai_ekstrakurikuler::updateOrCreate(
-					['anggota_rombel_id' => $anggota_rombel_id[$key]],
+					[
+						'anggota_rombel_id' => $anggota_rombel_id[$key],
+						'ekstrakurikuler_id' 	=> $ekstrakurikuler_id,
+					],
 					[
 						'sekolah_id' 			=> $sekolah_id, 
-						'ekstrakurikuler_id' 	=> $ekstrakurikuler_id,
 						'nilai'					=> $value,
 						'deskripsi_ekskul'		=> $deskripsi_ekskul[$key],
 						'last_sync'				=> date('Y-m-d H:i:s'),
@@ -147,6 +149,8 @@ class PenilaianController extends Controller
 				if($nilai_ekskul){
 					$insert++;
 				}
+			} else {
+				Nilai_ekstrakurikuler::where('anggota_rombel_id', $anggota_rombel_id[$key])->where('ekstrakurikuler_id', $ekstrakurikuler_id)->delete();
 			}
 		}
 		if($insert){
