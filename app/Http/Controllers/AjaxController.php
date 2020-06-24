@@ -882,6 +882,7 @@ class AjaxController extends Controller
             foreach($all_rombel as $rombel){
                 $record[$rombel->rombongan_belajar_id] 	= $rombel->nama;   
             }
+	    $record[$rombongan_belajar_id] = 'Entry manual';		
 	    $output = $record;
         } else {
             $record[$rombongan_belajar_id] = 'Entry manual';
