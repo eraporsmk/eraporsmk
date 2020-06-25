@@ -79,7 +79,7 @@
                 <input type="hidden" name="_token" value="{{ Session::token() }}">
                 <input name="_method" type="hidden" value="PUT">
                 <button type="submit" class="btn btn-success">Simpan</button>
-				<a class="btn btn-primary" href="{{ route('user.reset_password', ['id' => $user->user_id]) }}">Atur ulang kata sandi</a>
+				<a class="btn btn-primary" href="{{ route('user.reset_password', ['id' => $pengguna->user_id]) }}">Atur ulang kata sandi</a>
             </div>
         </div>
     </form>
