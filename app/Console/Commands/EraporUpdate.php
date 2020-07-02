@@ -47,7 +47,7 @@ class EraporUpdate extends Command
             $a = collect($a);
             $this->info($a->toJson());
         } else {
-            system('composer update');
+            //system('composer update');
             $version = File::get(base_path().'/version.txt');
             $db_version = File::get(base_path().'/db_version.txt');
             \Artisan::call('migrate');
