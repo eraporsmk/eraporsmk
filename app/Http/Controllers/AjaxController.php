@@ -880,11 +880,12 @@ class AjaxController extends Controller
 		})->get();
 		if($all_rombel->count()){
             foreach($all_rombel as $rombel){
-                $record[$rombel->rombongan_belajar_id] 	= $rombel->nama;
-                $output = $record;
+                $record[$rombel->rombongan_belajar_id] 	= $rombel->nama;   
             }
+	    $record[$rombongan_belajar_id] = 'Entry manual';		
+	    $output = $record;
         } else {
-            $record[''] 	= 'Tidak ditemukan data rombongan belajar';
+            $record[$rombongan_belajar_id] = 'Entry manual';
             $output= $record;
         }
 		$response = [
