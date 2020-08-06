@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use File;
 use App\Setting;
+use App\Tahun_ajaran;
 use App\Semester;
 class EraporUpdate extends Command
 {
@@ -71,11 +72,38 @@ class EraporUpdate extends Command
             } elseif($config_ && !$config){
                 File::move($config_,$files.'/config.php');
             }
-            Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
-		    Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
+            //Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
+            //Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
+            Tahun_ajaran::updateOrCreate(
+                [
+                    'tahun_ajaran_id' => 2020,
+                    'nama' => '2020/2021',
+                    'periode_aktif' => 1,
+                    'tanggal_mulai' => '2020-07-20',
+                    'tanggal_selesai' => '2021-06-01',
+                ],
+                [
+                    'last_sync' => date('Y-m-d H:i:s'),
+                ]
+            );
+            Semester::updateOrCreate(
+                [
+                    'semester_id' => '20201',
+                    'tahun_ajaran_id' => 2020,
+                    'nama' => '2020/2021 Ganjil',
+                    'semester' => 1,
+                    'periode_aktif' => 1,
+                    'tanggal_mulai' => '2020-07-01',
+                    'tanggal_selesai' => '2021-12-31',
+                ],
+                [
+                    'last_sync' => date('Y-m-d H:i:s'),
+                ]
+            );
+            Semester::where('semester_id', '!=', '20201')->update(['periode_aktif' => 0]);
             Setting::where('key', 'app_version')->update(['value' => $version]);
             Setting::where('key', 'db_version')->update(['value' => $db_version]);
-            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.1.0');
+            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.1.1');
         }
     }
 }
