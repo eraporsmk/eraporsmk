@@ -74,6 +74,8 @@ class SinkronisasiController extends Controller
 			'npsn'				=> $sekolah->npsn
 		);
 		$host_server_direktorat = ServerProvider::url_server_direktorat('status');
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/status';
+		//dd($host_server_direktorat);
 		try {
 			$curl = Curl::to($host_server_direktorat)
 			->withHeader('x-api-key:'.session('sekolah_id'))
@@ -115,7 +117,7 @@ class SinkronisasiController extends Controller
 		} catch (\Exception $e) {
 			$response = new \StdClass();
 			$response->error = TRUE;
-			$response->message = 'Server tidak merespon. Silahkan ulangi beberapa saat lagi.';
+			$response->message = $e->getMessage();
 		}
 		$data['dapodik'] = $response;
 		$data['erapor'] = (object) $this->data_erapor();
@@ -123,7 +125,8 @@ class SinkronisasiController extends Controller
     }
 	public function diterima_dikelas($id){
 		$user = auth()->user();
-		$host_server_direktorat = ServerProvider::url_server_direktorat('diterima-dikelas');
+		//$host_server_direktorat = ServerProvider::url_server_direktorat('diterima-dikelas');
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/diterima-dikelas';
 		$curl = Curl::to($host_server_direktorat)
 		->withHeader('x-api-key:'.session('sekolah_id'))
 		->withOption('USERPWD', "admin:1234")
@@ -607,6 +610,7 @@ class SinkronisasiController extends Controller
 			})->groupBy('kurikulum_id')->get()->toArray();
 		}
 		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/'.$aksi;
 		$host_erapor_server = ServerProvider::url_server_erapor($aksi);
 		$data_sync = array(
 			'username_dapo'		=> $user->email,
@@ -641,6 +645,7 @@ class SinkronisasiController extends Controller
 		$sekolah = Sekolah::find(session('sekolah_id'));
 		$aksi = 'rombongan_belajar_sync';
 		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/'.$aksi;
 		$data_sync = array(
 			'username_dapo'		=> $user->email,
 			'password_dapo'		=> trim($user->password_dapo),
@@ -914,6 +919,7 @@ class SinkronisasiController extends Controller
 		$last_sync = $last_sync->value;
 		$updated_at = $last_sync;
 		$host_server_direktorat = ServerProvider::url_server_direktorat($aksi);
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/'.$aksi;
 		$host_erapor_server = ServerProvider::url_server_erapor($aksi);
 		$data_sync = array(
 			'username_dapo'		=> $user->email,

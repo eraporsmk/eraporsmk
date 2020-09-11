@@ -112,7 +112,6 @@ class AmbilData extends Command
 					$result['icon'] = 'error';
 					echo json_encode($result);
 				} else {
-					dd($curl);
 					$result['status'] = 0;
 					$result['message'] = $host_server;//'Server tidak merespon';
 					$result['icon'] = 'error';
