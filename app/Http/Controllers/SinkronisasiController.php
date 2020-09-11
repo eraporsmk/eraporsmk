@@ -103,6 +103,7 @@ class SinkronisasiController extends Controller
 				$response->message = $response->message;
 				$response->error = TRUE;
 			} else {
+				$response = new \StdClass();
 				$response->error = TRUE;
 				$response->message = 'Server tidak merespon';
 			}
