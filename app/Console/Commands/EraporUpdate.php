@@ -77,26 +77,26 @@ class EraporUpdate extends Command
             Tahun_ajaran::updateOrCreate(
                 [
                     'tahun_ajaran_id' => 2020,
+                ],
+                [
                     'nama' => '2020/2021',
                     'periode_aktif' => 1,
                     'tanggal_mulai' => '2020-07-20',
                     'tanggal_selesai' => '2021-06-01',
-                ],
-                [
                     'last_sync' => date('Y-m-d H:i:s'),
                 ]
             );
             Semester::updateOrCreate(
                 [
                     'semester_id' => '20201',
+                ],
+                [
                     'tahun_ajaran_id' => 2020,
                     'nama' => '2020/2021 Ganjil',
                     'semester' => 1,
                     'periode_aktif' => 1,
                     'tanggal_mulai' => '2020-07-01',
                     'tanggal_selesai' => '2021-12-31',
-                ],
-                [
                     'last_sync' => date('Y-m-d H:i:s'),
                 ]
             );
