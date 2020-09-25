@@ -825,8 +825,6 @@ class ProsesData extends Command
 		}
 	}
 	private function mapel_kur($response){
-		Storage::disk('public')->put('proses_mapel_kur.json', json_encode($response));
-		dd($response);
 		$user = auth()->user();
 		$jumlah = count($response);
 		$dapodik = CustomHelper::array_to_object($response);
