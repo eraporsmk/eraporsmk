@@ -549,6 +549,7 @@ class ProsesData extends Command
 	}
 	private function pembelajaran($response){
 		$user = auth()->user();
+		$sekolah_id = ($user) ? $user->sekolah_id : NULL;
 		$jumlah = count($response);
 		$dapodik = CustomHelper::array_to_object($response);
 		$i=1;
@@ -558,9 +559,10 @@ class ProsesData extends Command
 		Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 		$pembelajaran_id = [];
 		foreach($dapodik as $data){
+			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($data));
 			$pembelajaran_id[] = $data->pembelajaran_id;
 			if(!$sekolah_id){
-				$sekolah_id = $data->sekolah_id;
+				$sekolah_id = $data->ptk_terdaftar->sekolah_id;
 			}
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
