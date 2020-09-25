@@ -65,7 +65,7 @@ class ProsesData extends Command
      */
     public function handle()
     {
-        $arguments = $this->arguments();
+		$arguments = $this->arguments();
 		$function = $arguments['response']['query'];
 		if($function == 'count_kd'){
 			self::{$function}($arguments['response']['data'], $arguments['response']['count'], $arguments['response']['page']);
@@ -825,6 +825,8 @@ class ProsesData extends Command
 		}
 	}
 	private function mapel_kur($response){
+		Storage::disk('public')->put('proses_mapel_kur.json', json_encode($response));
+		dd($response);
 		$user = auth()->user();
 		$jumlah = count($response);
 		$dapodik = CustomHelper::array_to_object($response);
@@ -877,6 +879,11 @@ class ProsesData extends Command
 			Storage::disk('public')->put('proses_wilayah.json', json_encode($record));
 			$find_induk = Mst_wilayah::find($data->mst_kode_wilayah);
 			if($find_induk){
+				if(!isset($data->created_at)){
+					$data->created_at = date('Y-m-d H:i:s', strtotime($data->create_date));
+					$data->updated_at = date('Y-m-d H:i:s', strtotime($data->last_update));
+					$data->deleted_at = ($data->expired_date) ? date('Y-m-d H:i:s', strtotime($data->expired_date)) : NULL;
+				}
 				$insert_wilayah = array(
 					'nama'				=> $data->nama,
 					'id_level_wilayah'	=> $data->id_level_wilayah,

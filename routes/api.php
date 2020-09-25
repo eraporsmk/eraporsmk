@@ -18,4 +18,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 Route::group(['prefix' => 'dapodik'], function(){
     Route::post('cek-koneksi', 'DapodikController@cek_koneksi');
+    Route::post('kirim-data', 'DapodikController@kirim_data');
 });
