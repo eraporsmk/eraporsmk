@@ -72,7 +72,7 @@ class ProsesData extends Command
 		} else {
 			self::{$function}($arguments['response']['data']);
 		}
-    }
+	}
 	private function sekolah($response){
 		$user = auth()->user();
 		$sekolah_id = ($user) ? $user->sekolah_id : $response->sekolah_id;
@@ -1046,6 +1046,17 @@ class ProsesData extends Command
 				);
 			}
 			$i++;
+		}
+	}
+	private function kelengkapan_data($response){
+		Storage::disk('public')->put('kelengkapan_data.json', json_encode($response));
+		$dapodik = CustomHelper::array_to_object($response);
+		foreach($dapodik as $data){
+			$find_siswa = Siswa::where('peserta_didik_id_dapodik', $data->peserta_didik_id)->first();
+			if($find_siswa){
+				$find_siswa->diterima_kelas = $data->rombongan_belajar->nama;
+				$find_siswa->save();
+			}
 		}
 	}
 }
