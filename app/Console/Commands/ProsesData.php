@@ -696,9 +696,6 @@ class ProsesData extends Command
 		Storage::disk('public')->put('proses_dudi.json', json_encode($record));
 		
 		foreach($dapodik as $data){
-			if(!$sekolah_id){
-				$sekolah_id = $data->sekolah_id;
-			}
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_dudi.json', json_encode($record));
 			$insert_dudi = array(
