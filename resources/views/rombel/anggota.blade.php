@@ -37,7 +37,7 @@
 				<td><?php echo strtoupper($siswa->tempat_lahir).', '.CustomHelper::TanggalIndo($siswa->tanggal_lahir); ?></td>
 				<td class="text-center"><?php echo $siswa->agama->nama; ?></td>
 				@if($all_anggota->jenis_rombel == 51)
-				<td class="text-center">{{$siswa->kelas->nama}}</td>
+				<td class="text-center">{{($siswa->kelas) ? $siswa->kelas->nama : '-'}}</td>
 				@endif
 				<td class="text-center"><a class="btn btn-sm btn-danger confirm" href="<?php echo url('rombel/keluarkan/'.$anggota->anggota_rombel_id); ?>">Keluarkan</a></td>
 			</tr>

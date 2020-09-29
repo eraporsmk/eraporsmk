@@ -262,7 +262,7 @@ class ProsesData extends Command
 			if($find_gelar){
 				foreach($find_gelar as $gelar){
 					if($gelar->gelar_akademik_id){
-						$find_gelar_ptk = Gelar_ptk::where([['ptk_id', '=', $data->ptk_id], ['gelar_akademik_id', '=', $gelar->gelar_akademik_id]])->first();
+						$find_gelar_ptk = Gelar_ptk::where([['ptk_id', $data->ptk_id], ['gelar_akademik_id', $gelar->gelar_akademik_id]])->first();
 						if($find_gelar_ptk){
 							$find_gelar_ptk->delete();
 						}
@@ -293,8 +293,8 @@ class ProsesData extends Command
 			$rombongan_belajar_id[] = $data->rombongan_belajar_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_rombongan_belajar.json', json_encode($record));
-			$get_jurusan_id = Jurusan_sp::where('jurusan_sp_id_dapodik', '=', $data->jurusan_sp->jurusan_sp_id)->first();
-			$get_wali = Guru::where('guru_id_dapodik', '=', $data->ptk_id)->first();
+			$get_jurusan_id = Jurusan_sp::where('jurusan_sp_id_dapodik', $data->jurusan_sp->jurusan_sp_id)->first();
+			$get_wali = Guru::where('guru_id_dapodik', $data->ptk_id)->first();
 			$insert_rombel = array(
 				'sekolah_id' 			=> $sekolah_id,
 				'jurusan_id' 			=> $data->jurusan_sp->jurusan_id,
@@ -395,9 +395,9 @@ class ProsesData extends Command
 				$insert_siswa
 			);
 			if(isset($data->rombongan_belajar_id)){
-				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', $data->semester_id)->first();
+				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $data->semester_id)->first();
 			} else {
-				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', '=', $semester_id)->first();
+				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 			}
 			if($find_rombel){
 				$insert_anggota_rombel = array(
@@ -455,11 +455,11 @@ class ProsesData extends Command
 			}
 			$record['inserted'] = $i;
 			//Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
-			$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->onlyTrashed()->first();
+			$find_siswa = Siswa::where('peserta_didik_id_dapodik', $data->peserta_didik_id)->onlyTrashed()->first();
 			if($find_siswa){
-				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $find_siswa->peserta_didik_id)->where('semester_id', '=', $semester_id)->onlyTrashed()->first();
+				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $find_siswa->peserta_didik_id)->where('semester_id', $semester_id)->onlyTrashed()->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', $semester_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> $sekolah_id,
@@ -521,12 +521,12 @@ class ProsesData extends Command
 					['peserta_didik_id_dapodik' => $data->peserta_didik_id],
 					$insert_siswa
 				);
-				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , '=', $create_siswa->peserta_didik_id)->where('semester_id', '=', $semester_id)->first();
+				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $create_siswa->peserta_didik_id)->where('semester_id', $semester_id)->first();
 				if(!$find_anggota_rombel){
 					if(isset($data->rombongan_belajar_id)){
-						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', $data->semester_id)->first();
+						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $data->semester_id)->first();
 					} else {
-						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', '=', $semester_id)->first();
+						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					}
 					if($find_rombel){
 						$insert_anggota_rombel = array(
@@ -566,8 +566,8 @@ class ProsesData extends Command
 			}
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
-			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->first();
-			$get_guru = Guru::where('guru_id_dapodik', '=', $data->ptk_terdaftar->ptk_id)->first();
+			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->first();
+			$get_guru = Guru::where('guru_id_dapodik', $data->ptk_terdaftar->ptk_id)->first();
 			$insert_pembelajaran = array(
 				'sekolah_id'				=> $sekolah_id,
 				'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
@@ -600,14 +600,18 @@ class ProsesData extends Command
 		$record['inserted'] = $i;
 		Storage::disk('public')->put('proses_ekskul.json', json_encode($record));
 		$ekskul_id = [];
+		$semester_id = NULL;
 		foreach($dapodik as $data){
-			$ekskul_id[] = $data->ID_kelas_ekskul;
+			$id_kelas_ekskul = isset($data->ID_kelas_ekskul) ? $data->ID_kelas_ekskul : $data->id_kelas_ekskul;
+			$ekskul_id[] = $id_kelas_ekskul;
 			if(!$sekolah_id){
-				$sekolah_id = $data->sekolah_id;
+				$sekolah_id = $data->rombongan_belajar->sekolah_id;
 			}
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_ekskul.json', json_encode($record));
-			$get_wali = Guru::where('guru_id_dapodik', $data->rombongan_belajar->wali_kelas->ptk_id)->first();
+			$guru_id_dapodik = isset($data->rombongan_belajar->wali_kelas->ptk_id) ? $data->rombongan_belajar->wali_kelas->ptk_id : $data->rombongan_belajar->ptk_id;
+			$get_wali = Guru::where('guru_id_dapodik', $guru_id_dapodik)->first();
+			$semester_id = isset($data->semester_id) ? $data->semester_id : $data->rombongan_belajar->semester_id;
 			if($get_wali){
 				$insert_rombel = array(
 					'sekolah_id' 			=> $sekolah_id,
@@ -615,13 +619,13 @@ class ProsesData extends Command
 					'nama' 					=> $data->rombongan_belajar->nama,
 					'guru_id' 				=> $get_wali->guru_id,
 					'tingkat' 				=> $data->rombongan_belajar->tingkat_pendidikan_id,
-					'ptk_id' 				=> $data->rombongan_belajar->wali_kelas->ptk_id,
+					'ptk_id' 				=> $guru_id_dapodik,
 					'rombel_id_dapodik'		=> $data->rombongan_belajar_id,
 					'jenis_rombel'			=> $data->rombongan_belajar->jenis_rombel,
 					'last_sync'				=> date('Y-m-d H:i:s'),
 				);
 				$create_rombel = Rombongan_belajar::updateOrCreate(
-					['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => $data->semester_id],
+					['rombel_id_dapodik' => $data->rombongan_belajar_id, 'semester_id' => $semester_id],
 					$insert_rombel
 				);
 				$insert_ekskul = array(
@@ -634,14 +638,14 @@ class ProsesData extends Command
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				);
 				Ekstrakurikuler::updateOrCreate(
-					['id_kelas_ekskul' => $data->ID_kelas_ekskul, 'semester_id' => $data->semester_id],
+					['id_kelas_ekskul' => $id_kelas_ekskul, 'semester_id' => $semester_id],
 					$insert_ekskul
 				);
 			}
 			$i++;
 		}
 		if($ekskul_id){
-			Ekstrakurikuler::where('sekolah_id', $sekolah_id)->where('semester_id', $data->semester_id)->whereNotIn('id_kelas_ekskul', $ekskul_id)->delete();
+			Ekstrakurikuler::where('sekolah_id', $sekolah_id)->where('semester_id', $semester_id)->whereNotIn('id_kelas_ekskul', $ekskul_id)->delete();
 		}
 	}
 	private function anggota_ekskul($response){
@@ -658,24 +662,25 @@ class ProsesData extends Command
 		
 		foreach($dapodik as $data){
 			if(!$sekolah_id){
-				$sekolah_id = $data->sekolah_id;
+				$sekolah_id = $data->rombongan_belajar->sekolah_id;
 			}
+			$semester_id = isset($data->semester_id) ? $data->semester_id : $data->rombongan_belajar->semester_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_anggota_ekskul.json', json_encode($record));
-			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', '=', $data->rombongan_belajar_id)->where('semester_id', '=', $data->semester_id)->first();
+			$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 			if($find_rombel){
-				$find_siswa = Siswa::where('peserta_didik_id_dapodik', '=', $data->peserta_didik_id)->first();
+				$find_siswa = Siswa::where('peserta_didik_id_dapodik', $data->peserta_didik_id)->first();
 				if($find_siswa){
 					$insert_anggota_ekskul = array(
 						'sekolah_id'				=> $sekolah_id,
-						'semester_id' 				=> $data->semester_id, 
+						'semester_id' 				=> $semester_id, 
 						'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 						'peserta_didik_id' 			=> $find_siswa->peserta_didik_id,
 						'anggota_rombel_id_dapodik'	=> $data->anggota_rombel_id,
 						'last_sync'			=> date('Y-m-d H:i:s'),
 					);
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $data->semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
 						$insert_anggota_ekskul
 					);
 					$i++;
@@ -698,58 +703,115 @@ class ProsesData extends Command
 		foreach($dapodik as $data){
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_dudi.json', json_encode($record));
-			$insert_dudi = array(
-				'sekolah_id'		=> $data->sekolah_id,
-				'nama'				=> $data->nama_dudi,
-				'bidang_usaha_id'	=> $data->dudi->bidang_usaha_id,
-				'nama_bidang_usaha'	=> $data->nama_bidang_usaha,
-				'alamat_jalan'		=> $data->dudi->alamat_jalan,
-				'rt'				=> $data->dudi->rt,
-				'rw'				=> $data->dudi->rw,
-				'nama_dusun'		=> $data->dudi->nama_dusun,
-				'desa_kelurahan'	=> $data->dudi->desa_kelurahan,
-				'kode_wilayah'		=> $data->dudi->kode_wilayah,
-				'kode_pos'			=> $data->dudi->kode_pos,
-				'lintang'			=> $data->dudi->lintang,
-				'bujur'				=> $data->dudi->bujur,
-				'nomor_telepon'		=> $data->dudi->nomor_telepon,
-				'nomor_fax'			=> $data->dudi->nomor_fax,
-				'email'				=> $data->dudi->email,
-				'website'			=> $data->dudi->website,
-				'npwp'				=> $data->dudi->npwp,
-				'last_sync'			=> date('Y-m-d H:i:s'),
-			);
-			$create_dudi = Dudi::updateOrCreate(
-				['dudi_id_dapodik' => $data->dudi_id],
-				$insert_dudi
-			);
-			$insert_mou = array(
-				'id_jns_ks'			=> $data->id_jns_ks,
-				'dudi_id'			=> $create_dudi->dudi_id,
-				'dudi_id_dapodik'	=> $data->dudi_id,
-				'sekolah_id'		=> $data->sekolah_id,
-				'nomor_mou'			=> $data->nomor_mou,
-				'judul_mou'			=> $data->judul_mou,
-				'tanggal_mulai'		=> $data->tanggal_mulai,
-				'tanggal_selesai'	=> ($data->tanggal_selesai) ? $data->tanggal_selesai : date('Y-m-d'),
-				'nama_dudi'			=> $data->nama_dudi,
-				'npwp_dudi'			=> $data->npwp_dudi,
-				'nama_bidang_usaha'	=> $data->nama_bidang_usaha,
-				'telp_kantor'		=> $data->telp_kantor,
-				'fax'				=> $data->fax,
-				'contact_person'	=> $data->contact_person,
-				'telp_cp'			=> $data->telp_cp,
-				'jabatan_cp'		=> $data->jabatan_cp,
-				'last_sync'			=> date('Y-m-d H:i:s'),
-			);
-			$create_mou = Mou::updateOrCreate(
-				['mou_id_dapodik' => $data->mou_id],
-				$insert_mou
-			);
+			if(!$sekolah_id){
+				$sekolah_id = $data->mou->sekolah_id;
+			}
+			if(isset($data->id_jns_ks)){
+				$insert_dudi = array(
+					'sekolah_id'		=> $sekolah_id,
+					'nama'				=> $data->nama_dudi,
+					'bidang_usaha_id'	=> $data->dudi->bidang_usaha_id,
+					'nama_bidang_usaha'	=> $data->nama_bidang_usaha,
+					'alamat_jalan'		=> $data->dudi->alamat_jalan,
+					'rt'				=> $data->dudi->rt,
+					'rw'				=> $data->dudi->rw,
+					'nama_dusun'		=> $data->dudi->nama_dusun,
+					'desa_kelurahan'	=> $data->dudi->desa_kelurahan,
+					'kode_wilayah'		=> $data->dudi->kode_wilayah,
+					'kode_pos'			=> $data->dudi->kode_pos,
+					'lintang'			=> $data->dudi->lintang,
+					'bujur'				=> $data->dudi->bujur,
+					'nomor_telepon'		=> $data->dudi->nomor_telepon,
+					'nomor_fax'			=> $data->dudi->nomor_fax,
+					'email'				=> $data->dudi->email,
+					'website'			=> $data->dudi->website,
+					'npwp'				=> $data->dudi->npwp,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_dudi = Dudi::updateOrCreate(
+					['dudi_id_dapodik' => $data->dudi_id],
+					$insert_dudi
+				);	
+				$insert_mou = array(
+					'id_jns_ks'			=> $data->id_jns_ks,
+					'dudi_id'			=> $create_dudi->dudi_id,
+					'dudi_id_dapodik'	=> $data->dudi_id,
+					'sekolah_id'		=> $sekolah_id,
+					'nomor_mou'			=> $data->nomor_mou,
+					'judul_mou'			=> $data->judul_mou,
+					'tanggal_mulai'		=> $data->tanggal_mulai,
+					'tanggal_selesai'	=> ($data->tanggal_selesai) ? $data->tanggal_selesai : date('Y-m-d'),
+					'nama_dudi'			=> $data->nama_dudi,
+					'npwp_dudi'			=> $data->npwp_dudi,
+					'nama_bidang_usaha'	=> $data->nama_bidang_usaha,
+					'telp_kantor'		=> $data->telp_kantor,
+					'fax'				=> $data->fax,
+					'contact_person'	=> $data->contact_person,
+					'telp_cp'			=> $data->telp_cp,
+					'jabatan_cp'		=> $data->jabatan_cp,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_mou = Mou::updateOrCreate(
+					['mou_id_dapodik' => $data->mou_id],
+					$insert_mou
+				);
+			} else {
+				$insert_dudi = array(
+					'sekolah_id'		=> $sekolah_id,
+					'nama'				=> $data->nama,
+					'bidang_usaha_id'	=> $data->bidang_usaha_id,
+					'nama_bidang_usaha'	=> $data->mou->nama_bidang_usaha,
+					'alamat_jalan'		=> $data->alamat_jalan,
+					'rt'				=> $data->rt,
+					'rw'				=> $data->rw,
+					'nama_dusun'		=> $data->nama_dusun,
+					'desa_kelurahan'	=> $data->desa_kelurahan,
+					'kode_wilayah'		=> $data->kode_wilayah,
+					'kode_pos'			=> $data->kode_pos,
+					'lintang'			=> $data->lintang,
+					'bujur'				=> $data->bujur,
+					'nomor_telepon'		=> $data->nomor_telepon,
+					'nomor_fax'			=> $data->nomor_fax,
+					'email'				=> $data->email,
+					'website'			=> $data->website,
+					'npwp'				=> $data->npwp,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_dudi = Dudi::updateOrCreate(
+					['dudi_id_dapodik' => $data->dudi_id],
+					$insert_dudi
+				);	
+				$insert_mou = array(
+					'id_jns_ks'			=> $data->mou->id_jns_ks,
+					'dudi_id'			=> $create_dudi->dudi_id,
+					'dudi_id_dapodik'	=> $data->mou->dudi_id,
+					'sekolah_id'		=> $sekolah_id,
+					'nomor_mou'			=> $data->mou->nomor_mou,
+					'judul_mou'			=> $data->mou->judul_mou,
+					'tanggal_mulai'		=> $data->mou->tanggal_mulai,
+					'tanggal_selesai'	=> ($data->mou->tanggal_selesai) ? $data->mou->tanggal_selesai : date('Y-m-d'),
+					'nama_dudi'			=> $data->mou->nama_dudi,
+					'npwp_dudi'			=> $data->mou->npwp_dudi,
+					'nama_bidang_usaha'	=> $data->mou->nama_bidang_usaha,
+					'telp_kantor'		=> $data->mou->telp_kantor,
+					'fax'				=> $data->mou->fax,
+					'contact_person'	=> $data->mou->contact_person,
+					'telp_cp'			=> $data->mou->telp_cp,
+					'jabatan_cp'		=> $data->mou->jabatan_cp,
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				);
+				$create_mou = Mou::updateOrCreate(
+					['mou_id_dapodik' => $data->mou->mou_id],
+					$insert_mou
+				);
+			}
+			if(!isset($data->akt_pd)){
+				$data->akt_pd = $data->mou->akt_pd;
+			}
 			if($data->akt_pd){
 				foreach($data->akt_pd as $akt_pd){
 					$insert_akt_pd = array(
-						'sekolah_id'	=> $data->sekolah_id,
+						'sekolah_id'	=> $sekolah_id,
 						'mou_id'		=> $create_mou->mou_id,
 						'id_jns_akt_pd'	=> $akt_pd->id_jns_akt_pd,
 						'judul_akt_pd'	=> $akt_pd->judul_akt_pd,
@@ -768,7 +830,7 @@ class ProsesData extends Command
 							$find_siswa = Siswa::where('peserta_didik_id_dapodik', $anggota_akt_pd->registrasi_peserta_didik->peserta_didik_id)->first();
 							if($find_siswa){
 								$insert_anggota_akt_pd = array(
-									'sekolah_id'		=> $data->sekolah_id,
+									'sekolah_id'		=> $sekolah_id,
 									'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
 									'peserta_didik_id'	=> $find_siswa->peserta_didik_id,
 									'nm_pd'				=> $anggota_akt_pd->nm_pd,
@@ -788,7 +850,7 @@ class ProsesData extends Command
 							$find_guru = Guru::where('guru_id_dapodik', $bimbing_pd->ptk_id)->first();
 							if($find_guru){
 									$insert_bimbing_pd = array(
-									'sekolah_id'		=> $data->sekolah_id,
+									'sekolah_id'		=> $sekolah_id,
 									'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
 									'guru_id'			=> $find_guru->guru_id,
 									'ptk_id'			=> $bimbing_pd->ptk_id,
