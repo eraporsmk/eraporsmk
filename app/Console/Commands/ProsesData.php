@@ -1118,4 +1118,43 @@ class ProsesData extends Command
 			}
 		}
 	}
+	private function registrasi($response){
+		$dapodik = CustomHelper::array_to_object($response);
+		$insert_sekolah = array(
+			'npsn' 					=> $dapodik->sekolah->npsn,
+			'nss' 					=> $dapodik->sekolah->nss,
+			'nama' 					=> $dapodik->sekolah->nama,
+			'alamat' 				=> $dapodik->sekolah->alamat_jalan,
+			'desa_kelurahan'		=> $dapodik->sekolah->desa_kelurahan,
+			'kode_wilayah'			=> $dapodik->sekolah->kode_wilayah,
+			'kecamatan' 			=> $dapodik->sekolah->wilayah->parrent_recursive->nama,
+			'kabupaten' 			=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->nama,
+			'provinsi' 				=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
+			'kode_pos' 				=> $dapodik->sekolah->kode_pos,
+			'lintang' 				=> 0,//$dapodik->lintang,
+			'bujur' 				=> 0,//$dapodik->bujur,
+			'no_telp' 				=> $dapodik->sekolah->nomor_telepon,
+			'no_fax' 				=> $dapodik->sekolah->nomor_fax,
+			'email' 				=> $dapodik->sekolah->email,
+			'website' 				=> $dapodik->sekolah->website,
+			'status_sekolah'		=> $dapodik->sekolah->status_sekolah,
+			'last_sync'				=> date('Y-m-d H:i:s'),
+		);
+		$sekolah = Sekolah::updateOrCreate(
+			['sekolah_id' => $dapodik->sekolah->sekolah_id],
+			$insert_sekolah
+		);
+		foreach($dapodik->pengguna as $pengguna){
+			$user = User::updateOrCreate(
+				['name' => $pengguna->name, 'email' => $pengguna->email],
+				['password' => Hash::make($pengguna->password), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
+			);
+			$adminRole = Role::where('name', 'admin')->first();
+			$user = User::where('email', $pengguna->email)->first();
+			$CheckadminRole = DB::table('role_user')->where('user_id', $user->user_id)->first();
+			if(!$CheckadminRole){
+				$user->attachRole($adminRole);
+			}
+		}
+	}
 }
