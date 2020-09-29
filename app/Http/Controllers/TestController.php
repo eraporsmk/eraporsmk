@@ -14,6 +14,7 @@ class TestController extends Controller
         $this->path = storage_path('backup');
     }
 	public function index(){
+		dd(config());
 		//echo 'test';
 		//$a = 'pg_dump -U postgres -h 127.0.0.1 -p 5432 erapor_git > erapor_smk.sql';
 		//$last_line = system('composer update', $retval);
