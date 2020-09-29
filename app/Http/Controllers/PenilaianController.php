@@ -335,7 +335,7 @@ class PenilaianController extends Controller
 	}
 	public function import_excel(Request $request){
 		$file = $request->file('file');
-		dd($file->getClientOriginalExtension());
+		//dd($file->getClientOriginalExtension());
 		$messages = [
             'file.required' => 'File tidak boleh kosong',
             'file.mimes' => 'File harus berekstensi .XLS/.XLSX',
