@@ -1,10 +1,10 @@
 <div id="form">
-<!--legend><h3>Versi 5.1.1</h3></legend>
+<legend><h3>Versi 5.1.1</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Registrasi pengguna eRapor SMK menggunakan eRapor Synchronizer</li>
 <li><b style="color:blue">[Pembaharuan]</b> Mengirim data Dapodik lokal ke aplikasi eRapor SMK menggunakan eRapor Synchronizer</li>
 <li><b style="color:green">[Perbaikan]</b> Import nilai</li>
-</ol-->
+</ol>
 <legend><h3>Versi 5.1.0</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Tambahan isian Rombel 4 tahun di menu Pengaturan Umum</li>
