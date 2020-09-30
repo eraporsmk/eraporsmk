@@ -16,3 +16,7 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::group(['prefix' => 'dapodik'], function(){
+    Route::post('cek-koneksi', 'DapodikController@cek_koneksi');
+    Route::post('kirim-data', 'DapodikController@kirim_data');
+});

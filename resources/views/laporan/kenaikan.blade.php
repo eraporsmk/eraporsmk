@@ -43,31 +43,31 @@
 					</td>
 					<td>
 						<select name="status[]" id="status" class="form-control">
-							@if($cari_tingkat_akhir)
-							<option value="">== Pilih Status Kenaikan==</option>
-							@else
+							@if($siswa->rombongan_belajar->tingkat == 13) 
+								<option value="">== Pilih Status Kelulusan==</option>
+							@elseif($siswa->rombongan_belajar->tingkat == 12)
 								@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
 								<option value="">== Pilih Status Kenaikan==</option>
 								@else
 								<option value="">== Pilih Status Kelulusan==</option>
 								@endif
+							@else 
+								<option value="">== Pilih Status Kenaikan==</option>
 							@endif
-							@if($cari_tingkat_akhir)
-							<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
-							<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
-							@else
-								@if($siswa->rombongan_belajar->tingkat == 12)
-									@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
-										<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
-										<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
-									@else
-										<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
-										<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
-									@endif
-								@else
+							@if($siswa->rombongan_belajar->tingkat == 13) 
+								<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
+								<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
+							@elseif($siswa->rombongan_belajar->tingkat == 12)
+								@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
 									<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
 									<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
+								@else
+									<option value="3"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 3) ? ' selected="selected"' : '' : ''}}>Lulus</option>
+									<option value="4"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 4) ? ' selected="selected"' : '' : ''}}>Tidak Lulus</option>
 								@endif
+							@else
+								<option value="1"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 1) ? ' selected="selected"' : '' : ''}}>Naik Ke Kelas</option>
+								<option value="2"{{($siswa->kenaikan) ? ($siswa->kenaikan->status == 2) ? ' selected="selected"' : '' : ''}}>Tidak Naik</option>
 							@endif
 						</select>
 					</td>
@@ -105,7 +105,7 @@ $('select#status').change(function(e) {
 		$(next_td_value).val(rombongan_belajar_id);
 		$(nama_kelas).val(kelas_sekarang);
 	} else {
-		@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun))
+		@if(in_array($siswa->rombongan_belajar_id, $rombel_4_tahun) && !$cari_tingkat_akhir)
 		$(nama_kelas).val(kelas_sekarang);
 		$(next_td_value).val(rombongan_belajar_id);
 		@else

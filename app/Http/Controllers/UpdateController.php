@@ -14,6 +14,7 @@ use App\Anggota_rombel;
 use App\Ekstrakurikuler;
 use App\Siswa;
 use App\Semester;
+use App\Tahun_ajaran;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 class UpdateController extends Controller
@@ -37,10 +38,62 @@ class UpdateController extends Controller
 		return view('update');
     }
 	public function update_versi(){
-		Setting::where('key', 'app_version')->update(['value' => '5.1.0']);
-		Setting::where('key', 'db_version')->update(['value' => '4.0.3']);
-		Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
-		Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
+		Artisan::call('erapor:update');
+		echo 'sukses';
+		exit;
+		Setting::where('key', 'app_version')->update(['value' => '5.1.1']);
+		Setting::where('key', 'db_version')->update(['value' => '4.0.4']);
+		$new_tahun = [
+			[
+				'tahun_ajaran_id' 	=> 2020,
+				'nama'				=> "2020/2021",
+				'periode_aktif'		=> 1,
+				'tanggal_mulai'		=> "2020-07-25",
+				'tanggal_selesai'	=> "2021-06-01"
+			]
+		];
+		$new_semester = [
+			[
+				'semester_id' 		=> "20201",
+				'tahun_ajaran_id'	=> 2020,
+				'nama' 				=> "2020/2021 Ganjil",
+				'semester' 			=> 1,
+				'periode_aktif'		=> 1,
+				'tanggal_mulai'		=> "2020-07-01",
+				'tanggal_selesai'	=> "2020-12-31"
+			],
+			[
+				'semester_id' 		=> "20202",
+				'tahun_ajaran_id'	=> 2020,
+				'nama' 				=> "2020/2021 Genap",
+				'semester' 			=> 2,
+				'periode_aktif'		=> 0,
+				'tanggal_mulai'		=> "2021-01-01",
+				'tanggal_selesai'	=> "2021-07-15"
+			]
+		];
+		foreach($new_tahun as $tahun){
+			Tahun_ajaran::updateOrCreate(
+				$tahun,
+				[
+					'created_at' 		=> date('Y-m-d H:i:s'),
+					'updated_at' 		=> date('Y-m-d H:i:s'),
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				]
+			);
+		}
+		foreach($new_semester as $semester){
+			Semester::updateOrCreate(
+				$semester,
+				[
+					'created_at' 		=> date('Y-m-d H:i:s'),
+					'updated_at' 		=> date('Y-m-d H:i:s'),
+					'last_sync'			=> date('Y-m-d H:i:s'),
+				]
+			);
+		}
+		Semester::where('semester_id', '!=', '20201')->update(['periode_aktif' => 0]);
+		Semester::where('semester_id', '20201')->update(['periode_aktif' => 1]);
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
 		Artisan::call('config:cache');

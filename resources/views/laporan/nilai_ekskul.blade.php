@@ -27,7 +27,7 @@
 					@if($siswa->anggota_ekskul->count())
 					@foreach($siswa->anggota_ekskul as $anggota_ekskul)
 				<tr>
-					<td style="vertical-align:middle;">{{$anggota_ekskul->kelas_ekskul->nama_ekskul}}</td>
+					<td style="vertical-align:middle;">{{$anggota_ekskul->kelas_ekskul->nama}}</td>
 					<td style="vertical-align:middle;">{{CustomHelper::nama_guru($anggota_ekskul->kelas_ekskul->wali->gelar_depan, $anggota_ekskul->kelas_ekskul->wali->nama, $anggota_ekskul->kelas_ekskul->wali->gelar_belakang)}}</td>
 					<td>
 						<?php

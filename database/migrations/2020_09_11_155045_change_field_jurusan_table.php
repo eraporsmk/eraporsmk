@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddLastsyncIntoRoleUserTable extends Migration
+class ChangeFieldJurusanTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddLastsyncIntoRoleUserTable extends Migration
      */
     public function up()
     {
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->timestamp('last_sync')->useCurrent();
+        Schema::table('ref.jurusan', function(Blueprint $table) {
+            $table->decimal('jenjang_pendidikan_id', 2, 0)->nullable()->change();
         });
     }
 
@@ -25,8 +25,8 @@ class AddLastsyncIntoRoleUserTable extends Migration
      */
     public function down()
     {
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->dropColumn('last_sync');
+        Schema::table('ref.jurusan', function(Blueprint $table) {
+            $table->decimal('jenjang_pendidikan_id', 1, 0)->nullable()->change();
         });
     }
 }

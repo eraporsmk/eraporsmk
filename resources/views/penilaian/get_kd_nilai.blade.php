@@ -95,14 +95,24 @@ $(function() {
 		done: function(e, data) {
 			//console.log(data.result.sheetData[0]);
 			if(typeof data.result.title == 'undefined'){
-				var cari_form = $('body').find('.set_nilai');
-				$(cari_form).each(function(i,v) {
-					var cari_input = $(this).next().find('input[type=text]');
-					$(cari_input).each(function(a,b) {
-						//console.log(data.result.sheetData[0][i].nilai[a]);
-						$(this).val(data.result.sheetData[0][i].nilai[a]);
+				if(data.result.sheetData[0][0].rerata == 'ERROR') {
+					swal({
+						title: 'ERROR', 
+						text: 'Ada nilai dengan format tidak sesuai. Silakan perbaiki lalu unggah kembali !',
+						icon: "error",
+						dangerMode: "true", 
+						closeOnClickOutside: true
 					});
-				});
+				} else {
+					var cari_form = $('body').find('.set_nilai');
+					$(cari_form).each(function(i,v) {
+						var cari_input = $(this).next().find('input[type=text]');
+						$(cari_input).each(function(a,b) {
+							//console.log(data.result.sheetData[0][i].nilai[a]);
+							$(this).val(data.result.sheetData[0][i].nilai[a]);
+						});
+					});
+				}
 			}
 			$.each(data.result.files, function(index, file) {
 				console.log('ini');

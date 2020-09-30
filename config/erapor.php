@@ -1,7 +1,7 @@
 <?php
 return [
-	'url_server' => 'http://app.erapor:8002/api/',
-	//'url_server' => 'http://app.erapor-smk.net/api/',
+	//'url_server' => 'http://app.erapor:8002/api/',
+	'url_server' => 'http://app.erapor-smk.net/api/',
 	'table_sync' => [
 		'sekolah', //no semester
 		'jurusan_sp', //no semester

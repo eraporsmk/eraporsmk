@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use HTMLDomParser;
 use Illuminate\Http\Request;
 use App\Mst_wilayah;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
 class RegisterController extends Controller
 {
     use RegistersUsers;
@@ -39,7 +41,7 @@ class RegisterController extends Controller
      * @param Request $request
      * @return User
      */
-    protected function register(Request $request)
+	protected function register(Request $request)
     {
         /** @var User $user */
         $validatedData = $request->validate([
@@ -48,77 +50,101 @@ class RegisterController extends Controller
             'password' => 'required|string|min:1|confirmed',
         ]);
 		$semester = CustomHelper::get_ta();
-		$data_sync = array(
-			'username_dapo'		=> $validatedData['email'],
-			'password_dapo'		=> md5($validatedData['password']),
-			'npsn'				=> $validatedData['name'],
-			'tahun_ajaran_id'	=> $semester->tahun_ajaran_id,
-			'semester_id'		=> $semester->semester_id,
-			'user'				=> $validatedData['email'],
-			'pass'				=> $validatedData['password'],
-		);
-		$url_register = config('erapor.url_register');
-		//echo $url_register;
-		$curl = Curl::to($url_register)
-		->withHeaders(['Referer: http://103.40.55.249/Do/SSODPD'])
-		->allowRedirect()
-		->returnResponseObject()
-		->withData($data_sync)
-		->post();
-		//dd($curl);
-		$response_token = 'Server tidak merespon';
-		if($curl->status == 200){
-			$find_key = HTMLDomParser::str_get_html($curl->content)->find('input[type=hidden]');
-			if($find_key){
-				$name = $find_key[0];
-				$access_token = 'http://103.40.55.249/Do/GetLoginInfo/?access_token='.substr($name->value,1).'&key='.config('erapor.api_key');
-				$curl_token = Curl::to($access_token)->returnResponseObject()->get();
-				if($curl_token->status == 200){
-					$response_token = json_decode($curl_token->content);
-					$set_data = $response_token->sekolah_profile;
-					$get_kode_wilayah = Mst_wilayah::where('nama', $set_data->desa)->first();
-					$insert_sekolah = array(
-						'npsn' 					=> $set_data->npsn,
-						'nss' 					=> 0,
-						'nama' 					=> $set_data->nama_sekolah,
-						'alamat' 				=> $set_data->alamat,
-						'desa_kelurahan'		=> $set_data->desa,
-						'kode_wilayah'			=> ($get_kode_wilayah) ? $get_kode_wilayah->kode_wilayah : $set_data->kd_kec,
-						'kecamatan' 			=> $set_data->kec,
-						'kabupaten' 			=> $set_data->kab,
-						'provinsi' 				=> $set_data->prov,
-						'kode_pos' 				=> $set_data->kode_pos,
-						'lintang' 				=> 0,//$set_data->lintang,
-						'bujur' 				=> 0,//$set_data->bujur,
-						'no_telp' 				=> $set_data->no_telepon,
-						'no_fax' 				=> $set_data->no_telepon,
-						'email' 				=> $set_data->email,
-	//					'website' 				=> $set_data->website,
-						'status_sekolah'		=> 0,
-						'last_sync'				=> date('Y-m-d H:i:s'),
-					);
-					$sekolah = Sekolah::updateOrCreate(
-						['sekolah_id' => $set_data->sekolah_id],
-						$insert_sekolah
-					);
-					$data_user = $response_token->user_profile;
-					$user = User::updateOrCreate(
-						['name' => $data_user->nama, 'email' => $request['email']],
-						['password' => Hash::make($request['password']), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $sekolah->sekolah_id, 'password_dapo'	=> md5(1)]
-					);
-					$adminRole = Role::where('name', 'admin')->first();
-					$user = User::where('email', $request['email'])->first();
-					$CheckadminRole = DB::table('role_user')->where('user_id', $user->user_id)->first();
-					if(!$CheckadminRole){
-						$user->attachRole($adminRole);
+		$npsn = $validatedData['name'];
+		$content = @file_get_contents('http://103.40.55.242/erapor_server/sync/get_sekolah/'.$npsn);
+		$content = json_decode($content, true);
+		$data = NULL;
+		if($content){
+			foreach($content['data'] as $a){
+				$b = (object) $a;
+				if($b->username == $validatedData['email']){
+					$data = $b;
+				}
+			}
+		}
+		$host_server_direktorat = 'http://103.40.55.242/erapor_server/api/';
+		$client = new Client([
+			'base_uri' => $host_server_direktorat,
+			'verify' => false,
+		]);
+		if($data){
+			$data_sync = [
+				'username_dapo'		=> $data->username,
+				'password_dapo'		=> $data->password_lama,
+				'npsn'				=> $data->npsn,
+				'tahun_ajaran_id'	=> $semester->tahun_ajaran_id,
+				'semester_id'		=> $semester->semester_id,
+				'sekolah_id'		=> $data->sekolah_id,
+			];
+			$response = $client->request('POST', 'register', [
+				'form_params'   => $data_sync,
+				'auth' => ['admin', '1234'],
+				'headers' => [
+					'x-api-key' => $data->sekolah_id,
+				]
+			]);
+			$code = $response->getStatusCode();
+			if($code == 200){
+				$body = json_decode($response->getBody());
+				$set_data = $body->data;
+				$get_kode_wilayah = $set_data->wilayah;//Mst_wilayah::with(['parrentRecursive'])->find($set_data->kode_wilayah);
+				$kode_wilayah = $set_data->kode_wilayah;
+				$kecamatan = '-';
+				$kabupaten = '-';
+				$provinsi = '-';
+				if($get_kode_wilayah){
+					$kode_wilayah = $get_kode_wilayah->kode_wilayah;
+					if($get_kode_wilayah->parrent_recursive){
+						$kecamatan = $get_kode_wilayah->parrent_recursive->nama;
+						if($get_kode_wilayah->parrent_recursive->parrent_recursive){
+							$kabupaten = $get_kode_wilayah->parrent_recursive->parrent_recursive->nama;
+						}
+						if($get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive){
+							$provinsi = $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama;
+						}
 					}
 				}
+				$insert_sekolah = array(
+					'npsn' 					=> $set_data->npsn,
+					'nss' 					=> $set_data->nss,
+					'nama' 					=> $set_data->nama,
+					'alamat' 				=> $set_data->alamat_jalan,
+					'desa_kelurahan'		=> $set_data->desa_kelurahan,
+					'kode_wilayah'			=> $kode_wilayah,
+					'kecamatan' 			=> $kecamatan,
+					'kabupaten' 			=> $kabupaten,
+					'provinsi' 				=> $provinsi,
+					'kode_pos' 				=> $set_data->kode_pos,
+					'lintang' 				=> 0,//$set_data->lintang,
+					'bujur' 				=> 0,//$set_data->bujur,
+					'no_telp' 				=> $set_data->nomor_telepon,
+					'no_fax' 				=> $set_data->nomor_fax,
+					'email' 				=> $set_data->email,
+					'website' 				=> $set_data->website,
+					'status_sekolah'		=> 0,
+					'last_sync'				=> date('Y-m-d H:i:s'),
+				);
+				$sekolah = Sekolah::updateOrCreate(
+					['sekolah_id' => $set_data->sekolah_id],
+					$insert_sekolah
+				);
+				$user = User::updateOrCreate(
+					['name' => 'Administrator', 'email' => $request['email']],
+					['password' => Hash::make($request['password']), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $sekolah->sekolah_id, 'password_dapo'	=> md5(1)]
+				);
+				$adminRole = Role::where('name', 'admin')->first();
+				$user = User::where('email', $request['email'])->first();
+				$CheckadminRole = DB::table('role_user')->where('user_id', $user->user_id)->first();
+				if(!$CheckadminRole){
+					$user->attachRole($adminRole);
+				}
 			} else {
-				return redirect()->back()->withInput($request->input())->with('error', 'GAGAL melakukan Autentikasi, email dan password tidak cocok atau pengguna tidak diijinkan');
+				return redirect()->back()->withInput($request->input())->with('error', 'Server tidak merespon');
 			}
 		} else {
-			return redirect()->back()->withInput($request->input())->with('error', 'Server tidak merespon');
+			return redirect()->back()->withInput($request->input())->with('error', 'GAGAL melakukan Autentikasi, email dan password tidak cocok atau pengguna tidak diijinkan');
 		}
 		return redirect('login')->with('success', 'Registrasi berhasil.');
-    }
+	}
+
 }
