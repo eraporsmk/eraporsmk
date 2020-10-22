@@ -450,7 +450,7 @@ class ProsesData extends Command
 			if(!$sekolah_id){
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
 			}
-			if(!isset($data->nipd) == NULL){
+			if(!isset($data->nipd)){
 				$data->nipd = $data->registrasi_peserta_didik->nipd;
 				$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
 				$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
