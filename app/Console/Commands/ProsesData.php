@@ -261,7 +261,7 @@ class ProsesData extends Command
 			$find_gelar = $data->rwy_pend_formal;
 			if($find_gelar){
 				foreach($find_gelar as $gelar){
-					if($gelar->gelar_akademik_id){
+					if($gelar->gelar_akademik_id && $gelar->gelar_akademik_id != '9999'){
 						$find_gelar_ptk = Gelar_ptk::where([['ptk_id', $data->ptk_id], ['gelar_akademik_id', $gelar->gelar_akademik_id]])->first();
 						if($find_gelar_ptk){
 							$find_gelar_ptk->delete();
