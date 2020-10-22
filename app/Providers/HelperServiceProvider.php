@@ -12,6 +12,7 @@ use App\Agama;
 use App\Anggota_rombel;
 use App\Semester;
 use App\Setting;
+use App\Status_penilaian;
 use UserHelp;
 class HelperServiceProvider extends ServiceProvider
 {
@@ -32,7 +33,17 @@ class HelperServiceProvider extends ServiceProvider
     public function boot()
     {
 		//
-    }
+	}
+	public static function status_penilaian($sekolah_id, $semester_id){
+		$status = Status_penilaian::firstOrCreate(
+			[
+				'sekolah_id' => $sekolah_id,
+				'semester_id' => $semester_id,
+			],
+			['status' => 1]
+		);
+		return $status;		
+	}
 	public static function prepare_send($str){
 		return rawurlencode(base64_encode(gzcompress(self::encryptor(serialize($str)))));
 	}

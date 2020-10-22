@@ -132,6 +132,7 @@ class HomeController extends Controller
 				$query->where('semester_id', session('semester_id'));
 			}])->find($user->user_id);
 		}
+		$status_penilaian = CustomHelper::status_penilaian(session('sekolah_id'), session('semester_id'));
 		$params = array(
 			'user' 				=> $user,
 			'pengguna'			=> $user,
@@ -142,6 +143,7 @@ class HomeController extends Controller
 			'all_pembelajaran'	=> $pembelajaran,
 			'rombongan_belajar'	=> $rombongan_belajar,
 			'all_jurusan'		=> $all_jurusan,
+			'status_penilaian'	=> $status_penilaian,
 		);
 		return view('home')->with($params);
     }
@@ -175,11 +177,13 @@ class HomeController extends Controller
 		$kunci_nilai = ($status) ? 0 : 1;
 		$text = ($status) ? 'Status Penilaian di aktifkan' : 'Status Penilaian berhasil di nonaktifkan';
 		Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', $user->periode_aktif)->update(['kunci_nilai' => $kunci_nilai]);
-		$status_penilaian = Setting::updateOrCreate(
+		$status_penilaian = CustomHelper::status_penilaian(session('sekolah_id'), session('semester_id'));
+		$status_penilaian->status = $kunci_nilai;
+		/*$status_penilaian = Setting::updateOrCreate(
 			['key' => 'status_penilaian'],
 			['value' => $kunci_nilai]
-		);
-		if($status_penilaian){
+		);*/
+		if($status_penilaian->save()){
 			$output = [
 				'title' => 'Berhasil',
 				'icon' => 'success',

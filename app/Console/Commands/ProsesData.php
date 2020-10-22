@@ -334,7 +334,7 @@ class ProsesData extends Command
 			//Storage::disk('public')->put('proses_siswa_aktif.json', json_encode($data));
 			if(isset($data->anggota_rombel_id)){
 				$anggota_rombel_id[] = $data->anggota_rombel_id;
-				$semester_id = $data->semester_id;
+				$semester_id = session('semester_id');
 			} else {
 				$semester_id = $data->anggota_rombel->rombongan_belajar->semester_id;
 				$anggota_rombel_id[] = $data->anggota_rombel->anggota_rombel_id;
@@ -395,7 +395,7 @@ class ProsesData extends Command
 				$insert_siswa
 			);
 			if(isset($data->rombongan_belajar_id)){
-				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $data->semester_id)->first();
+				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 			} else {
 				$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 			}
@@ -408,7 +408,7 @@ class ProsesData extends Command
 				);
 				if(isset($data->anggota_rombel_id)){
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $data->semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
 						$insert_anggota_rombel
 					);
 				} else {
@@ -439,16 +439,18 @@ class ProsesData extends Command
 		Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
 		
 		foreach($dapodik as $data){
-			Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($data));
+			//Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($data));
 			if(isset($data->anggota_rombel_id)){
-				$semester_id = $data->semester_id;
+				$semester_id = session('semester_id');
+				$anggota_rombel_id = $data->anggota_rombel_id;
 			} else {
 				$semester_id = $data->anggota_rombel->rombongan_belajar->semester_id;
+				$anggota_rombel_id = $data->anggota_rombel->anggota_rombel_id;
 			}
 			if(!$sekolah_id){
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
 			}
-			if(!isset($data->nipd)){
+			if(!isset($data->nipd) == NULL){
 				$data->nipd = $data->registrasi_peserta_didik->nipd;
 				$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
 				$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
@@ -468,7 +470,7 @@ class ProsesData extends Command
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
 						$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-							['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
+							['anggota_rombel_id_dapodik' => $anggota_rombel_id, 'semester_id' => $semester_id],
 							$insert_anggota_rombel
 						);
 						$create_anggota_rombel->delete();
@@ -524,7 +526,7 @@ class ProsesData extends Command
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $create_siswa->peserta_didik_id)->where('semester_id', $semester_id)->first();
 				if(!$find_anggota_rombel){
 					if(isset($data->rombongan_belajar_id)){
-						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $data->semester_id)->first();
+						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					} else {
 						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					}
@@ -536,7 +538,7 @@ class ProsesData extends Command
 							'last_sync'					=> date('Y-m-d H:i:s'),
 						);
 						$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-							['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
+							['anggota_rombel_id_dapodik' => $anggota_rombel_id, 'semester_id' => $semester_id],
 							$insert_anggota_rombel
 						);
 						$create_anggota_rombel->delete();
