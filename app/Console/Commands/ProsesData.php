@@ -443,9 +443,11 @@ class ProsesData extends Command
 			if(isset($data->anggota_rombel_id)){
 				$semester_id = session('semester_id');
 				$anggota_rombel_id = $data->anggota_rombel_id;
+				$rombongan_belajar_id = $data->rombongan_belajar_id;
 			} else {
 				$semester_id = $data->anggota_rombel->rombongan_belajar->semester_id;
 				$anggota_rombel_id = $data->anggota_rombel->anggota_rombel_id;
+				$rombongan_belajar_id = $data->anggota_rombel->rombongan_belajar_id;
 			}
 			if(!$sekolah_id){
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
@@ -461,7 +463,7 @@ class ProsesData extends Command
 			if($find_siswa){
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $find_siswa->peserta_didik_id)->where('semester_id', $semester_id)->onlyTrashed()->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> $sekolah_id,
@@ -525,11 +527,7 @@ class ProsesData extends Command
 				);
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $create_siswa->peserta_didik_id)->where('semester_id', $semester_id)->first();
 				if(!$find_anggota_rombel){
-					if(isset($data->rombongan_belajar_id)){
-						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
-					} else {
-						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
-					}
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> $sekolah_id,
