@@ -84,16 +84,12 @@ class AmbilData extends Command
 						$function_name = str_replace('-', '_', $arguments['aksi']);
 						self::{$function_name}($response->dapodik, 0, $satuan);
 					}
-					//dd($response);
 				} else {
 					$result['status'] = 0;
 					$result['message'] = $response->error;
 					$result['icon'] = 'error';
 					echo json_encode($result);
 				}
-			//echo $curl;
-			//echo $curl->content;
-			//dd($curl);
 			} else {
 				$curl = Curl::to($host_server)
 				->withHeader('x-api-key:'.$arguments['sekolah_id'])

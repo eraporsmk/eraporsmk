@@ -42,7 +42,7 @@ class SinkronisasiController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+		$this->middleware('auth');
     }
 	public function index(){
 		Storage::disk('public')->delete('proses_sekolah.json');

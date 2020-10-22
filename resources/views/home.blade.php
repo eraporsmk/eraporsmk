@@ -141,10 +141,10 @@ Selamat Datang {{ $user->name }}
 					<tr>
 						<td>Status Penilaian</td>
 						<td>: <div class="btn-group" id="status" data-toggle="buttons">
-							<label class="btn btn-default btn-on btn-sm{{(config('global.status_penilaian') == 0) ? ' active' : ''}}">
-							<input class="status" type="radio" value="1" name="status"{{(config('global.status_penilaian') == 0) ? ' checked' : ''}}>AKTIF</label>
-							<label class="btn btn-default btn-off btn-sm{{(config('global.status_penilaian') == 1) ? ' active' : ''}}">
-							<input class="status" type="radio" value="0" name="status"{{(config('global.status_penilaian') == 1) ? ' checked' : ''}}>Non AKtif</label>
+							<label class="btn btn-default btn-on btn-sm{{($status_penilaian->status == 0) ? ' active' : ''}}">
+							<input class="status" type="radio" value="1" name="status"{{($status_penilaian->status == 0) ? ' checked' : ''}}>AKTIF</label>
+							<label class="btn btn-default btn-off btn-sm{{($status_penilaian->status == 1) ? ' active' : ''}}">
+							<input class="status" type="radio" value="0" name="status"{{($status_penilaian->status == 1) ? ' checked' : ''}}>Non AKtif</label>
 						  </div>
 						</td>
 					</tr>
