@@ -559,7 +559,7 @@ class ProsesData extends Command
 		Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 		$pembelajaran_id = [];
 		foreach($dapodik as $data){
-			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($data));
+			//Storage::disk('public')->put('proses_pembelajaran.json', json_encode($data));
 			$pembelajaran_id[] = $data->pembelajaran_id;
 			if(!$sekolah_id){
 				$sekolah_id = $data->ptk_terdaftar->sekolah_id;
