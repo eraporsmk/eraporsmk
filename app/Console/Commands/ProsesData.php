@@ -568,21 +568,23 @@ class ProsesData extends Command
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->first();
 			$get_guru = Guru::where('guru_id_dapodik', $data->ptk_terdaftar->ptk_id)->first();
-			$insert_pembelajaran = array(
-				'sekolah_id'				=> $sekolah_id,
-				'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
-				'guru_id'					=> $get_guru->guru_id,
-				'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
-				'nama_mata_pelajaran'		=> $data->nama_mata_pelajaran,
-				'kkm'						=> 0,
-				'is_dapodik'				=> 1,
-				'last_sync'					=> date('Y-m-d H:i:s'),
-			);
-			Pembelajaran::updateOrCreate(
-				['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => $data->semester_id],
-				$insert_pembelajaran
-			);
-			$i++;
+			if($rombongan_belajar){
+				$insert_pembelajaran = array(
+					'sekolah_id'				=> $sekolah_id,
+					'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
+					'guru_id'					=> $get_guru->guru_id,
+					'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
+					'nama_mata_pelajaran'		=> $data->nama_mata_pelajaran,
+					'kkm'						=> 0,
+					'is_dapodik'				=> 1,
+					'last_sync'					=> date('Y-m-d H:i:s'),
+				);
+				Pembelajaran::updateOrCreate(
+					['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => $data->semester_id],
+					$insert_pembelajaran
+				);
+				$i++;
+			}
 		}
 		if($pembelajaran_id){
 			Pembelajaran::where('sekolah_id', $sekolah_id)->where('semester_id', $data->semester_id)->whereNotIn('pembelajaran_id_dapodik', $pembelajaran_id)->delete();
