@@ -673,7 +673,7 @@ class UsersController extends Controller
 			}*/
 			Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
 				$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
-			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(200, function ($find_siswa) use ($user, $sekolah){
+			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(100, function ($find_siswa) use ($user, $sekolah){
 				foreach($find_siswa as $siswa){
 					$random = Str::random(8);
 					$find_user = User::where('email', $siswa->email)->first();
@@ -708,7 +708,7 @@ class UsersController extends Controller
 					}
 				}
 			});
-			User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->chunk(200, function ($all_pengguna) {
+			User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->chunk(100, function ($all_pengguna) {
 				foreach($all_pengguna as $pengguna){
 					if(Hash::check(12345678, $pengguna->password) || !$pengguna->default_password){
 						$new_password = strtolower(Str::random(8));
