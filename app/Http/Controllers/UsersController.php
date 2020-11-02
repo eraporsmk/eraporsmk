@@ -673,7 +673,7 @@ class UsersController extends Controller
 			}*/
 			Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
 				$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
-			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(200, function ($find_siswa) use ($user){
+			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(200, function ($find_siswa) use ($user, $sekolah){
 				foreach($find_siswa as $siswa){
 					$random = Str::random(8);
 					$find_user = User::where('email', $siswa->email)->first();
