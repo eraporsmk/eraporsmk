@@ -671,7 +671,8 @@ class UsersController extends Controller
 					}
 				}
 			}*/
-			Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
+			Artisan::call('generate:user', ['query' => 'pd', 'user' => $user, 'sekolah' => $sekolah]);
+			/*Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
 				$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
 			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(100, function ($find_siswa) use ($user, $sekolah){
 				foreach($find_siswa as $siswa){
@@ -717,7 +718,7 @@ class UsersController extends Controller
 						$pengguna->save();
 					}
 				}
-			});
+			});*/
 			$response = [
 				'title' => 'Berhasil',
 				'text' => 'Pengguna Peserta Didik berhasil diperbaharui',
