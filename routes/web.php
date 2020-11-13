@@ -22,6 +22,8 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/test/{npsn}', 'TestController@index')->name('test_npsn');
     //home start
     Route::get('/', 'HomeController@index')->name('home');
+    Route::get('/atur-password-dapodik', 'HomeController@atur_password_dapodik')->name('atur_password_dapodik');
+    Route::post('/atur-password-dapodik', 'HomeController@atur_password_dapodik')->name('atur_password_dapodik');
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/kunci-nilai/{rombongan_belajar_id}/{status}', array('as' => 'kunci_nilai', 'uses' => 'HomeController@kunci_nilai'));
     Route::get('/generate-nilai/{pembelajaran_id}/{kompetensi_id}', array('as' => 'generate_nilai', 'uses' => 'HomeController@generate_nilai'));

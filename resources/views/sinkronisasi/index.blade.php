@@ -1,42 +1,43 @@
 @extends('adminlte::page')
 
 @section('content_header')
-    <h1>Sinkronisasi Dapodik</h1>
+<h1>Sinkronisasi Dapodik</h1>
 @stop
 
 @section('content')
-	@if ($message = Session::get('success'))
-      <div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-          <strong>Sukses!</strong> {{ $message }}
-      </div>
-    @endif
+@if ($message = Session::get('success'))
+<div class="alert alert-success alert-block alert-dismissable"><i class="fa fa-check"></i>
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<strong>Sukses!</strong> {{ $message }}
+</div>
+@endif
 
-    @if ($message = Session::get('error'))
-      <div class="alert alert-danger alert-block alert-dismissable"><i class="fa fa-ban"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <strong>Error!</strong> {{ $message }}
-      </div>
-    @endif
-	@if ($dapodik)
-		@if (!$dapodik->error)
-		<div class="progress active" style="display:none;">
-			<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" style="width: 0%"></div>
-		</div>
-		<div class="status bg-black-active color-palette text-center" style="margin-bottom:10px; padding:10px 0px; display:none;">Memulai proses sinkronisasi</div>
-		<a class="btn btn-lg btn-block btn-success" href="javascript:void(0)" id="sinkron">Proses Sinkronisasi</a>
-		<table class="table table-bordered table-striped table-hover">
-            <thead>
-				<tr>
-					<th class="text-center">Data</th>
-					<th class="text-center">Jml Data Dapodik</th>
-					<th class="text-center">Jml Data Erapor</th>
-					<th class="text-center">Jml Data Sudah Tersinkronisasi</th>
-					<th class="text-center">Status</th>
-	            </tr>
-            </thead>
-			<tbody>
-			<?php
+@if ($message = Session::get('error'))
+<div class="alert alert-danger alert-block alert-dismissable"><i class="fa fa-ban"></i>
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<strong>Error!</strong> {{ $message }}
+</div>
+@endif
+@if ($dapodik)
+@if (!$dapodik->error)
+<div class="progress active" style="display:none;">
+	<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" style="width: 0%"></div>
+</div>
+<div class="status bg-black-active color-palette text-center"
+	style="margin-bottom:10px; padding:10px 0px; display:none;">Memulai proses sinkronisasi</div>
+<a class="btn btn-lg btn-block btn-success" href="javascript:void(0)" id="sinkron">Proses Sinkronisasi</a>
+<table class="table table-bordered table-striped table-hover">
+	<thead>
+		<tr>
+			<th class="text-center">Data</th>
+			<th class="text-center">Jml Data Dapodik</th>
+			<th class="text-center">Jml Data Erapor</th>
+			<th class="text-center">Jml Data Sudah Tersinkronisasi</th>
+			<th class="text-center">Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php
 			//dd($data);
 			$make_array = array(
 				0 => 
@@ -237,27 +238,48 @@
 					$id_sekolah_dapodik = '';
 				}
 			?>
-				<tr>
-					<td><?php echo $d['nama']; ?></td>
-					<td class="text-center"><?php echo $d['get_dapodik']; ?></td>
-					<td class="text-center"><?php echo $d['get_erapor']; ?></td>
-					<td class="text-center"><?php echo $d['get_sinkron']; ?></td>
-					<td><small class="label bg-<?php echo $label; ?>"><?php echo $status; ?></small></td>
-					<td class="text-center"><a href="javascript:void(0)" data-server="<?php echo $d['server']; ?>" data-query="<?php echo $d['data']; ?>" data-aksi="<?php echo $d['aksi']; ?>" class="sinkron btn <?php echo $btn; ?> btn-block btn-xs"><?php echo $text; ?></a></td>
-				</tr>
-			<?php } ?>
-			</tbody>
-		</table>
-		@else
-		<div class="callout callout-danger lead">Anda terhubung ke server direktorat.<br />{{ $dapodik->message }}</div>
-		@endif
-	@else
-	<div class="callout callout-danger lead">Anda tidak terhubung ke server direktorat.<br />Pastikan PC/Laptop Anda terhubung ke internet!</div>
-	@endif
+		<tr>
+			<td><?php echo $d['nama']; ?></td>
+			<td class="text-center"><?php echo $d['get_dapodik']; ?></td>
+			<td class="text-center"><?php echo $d['get_erapor']; ?></td>
+			<td class="text-center"><?php echo $d['get_sinkron']; ?></td>
+			<td><small class="label bg-<?php echo $label; ?>"><?php echo $status; ?></small></td>
+			<td class="text-center"><a href="javascript:void(0)" data-server="<?php echo $d['server']; ?>"
+					data-query="<?php echo $d['data']; ?>" data-aksi="<?php echo $d['aksi']; ?>"
+					class="sinkron btn <?php echo $btn; ?> btn-block btn-xs"><?php echo $text; ?></a></td>
+		</tr>
+		<?php } ?>
+	</tbody>
+</table>
+@else
+<div class="callout callout-danger lead">
+	Anda terhubung ke server direktorat.<br />
+	{{ $dapodik->message }} <br>
+	Klik <a href="{{route('atur_password_dapodik')}}" class="toggle-modal">disini</a> untuk memperbaharui password dapodik!
+</div>
+@endif
+@else
+<div class="callout callout-danger lead">Anda tidak terhubung ke server direktorat.<br />Pastikan PC/Laptop Anda
+	terhubung ke internet!</div>
+@endif
+<div id="modal_content" class="modal fade"></div>
 @stop
 
 @section('js')
 <script>
+	$('a.toggle-modal').bind('click',function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		if (url.indexOf('#') == 0) {
+			$('#modal_content').modal('open');
+	        $('.editor').wysihtml5();
+		} else {
+			$.get(url, function(data) {
+				$('#modal_content').modal();
+				$('#modal_content').html(data);
+			});
+		}
+	});
 var BarWidth = setInterval(frame, 1000);
 var ProsesSinkronTable;
 var Proses_Sinkron = function(m) {

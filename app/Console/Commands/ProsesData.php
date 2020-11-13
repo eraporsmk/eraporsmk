@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-
+ini_set('max_execution_time', 0);
 use Illuminate\Console\Command;
 use App\Sekolah;
 use App\User;
@@ -452,11 +452,9 @@ class ProsesData extends Command
 			if(!$sekolah_id){
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
 			}
-			if(!isset($data->nipd)){
-				$data->nipd = $data->registrasi_peserta_didik->nipd;
-				$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
-				$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
-			}
+			$data->nipd = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->nipd : NULL;
+			$data->sekolah_asal = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->sekolah_asal : NULL;
+			$data->tanggal_masuk_sekolah = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->tanggal_masuk_sekolah : NULL;
 			$record['inserted'] = $i;
 			//Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
 			$find_siswa = Siswa::where('peserta_didik_id_dapodik', $data->peserta_didik_id)->onlyTrashed()->first();

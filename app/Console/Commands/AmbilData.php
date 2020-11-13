@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-
+ini_set('max_execution_time', 0);
 use Illuminate\Console\Command;
 use Ixudra\Curl\Facades\Curl;
 use App\Providers\HelperServiceProvider;

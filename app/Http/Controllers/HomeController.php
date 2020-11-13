@@ -26,6 +26,7 @@ use App\Remedial;
 use Session;
 use App\Setting;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 class HomeController extends Controller
 {
     /**
@@ -416,5 +417,44 @@ class HomeController extends Controller
 			'pembelajaran'		=> $pembelajaran,
 		);
         return view('monitoring.detil_nilai')->with($params);
+	}
+	public function atur_password_dapodik(Request $request){
+		$user = auth()->user();
+		if ($request->isMethod('post')) {
+			$messages = [
+				'password.required' => 'Kata Sandi Lama Dapodik tidak boleh kosong',
+				'password_confirmation.required' => 'Konfirmasi Kata Sandi Lama Dapodik tidak boleh kosong',
+				'password_confirmation.same' => 'Konfirmasi Kata Sandi Lama Dapodik tidak sama dengan Kata Sandi Lama Dapodik',
+			];
+			$validator = Validator::make(request()->all(), [
+				'password'			=> 'required',
+				'password_confirmation'	=> 'required|same:password',
+			],
+			$messages
+			)->validate();
+			$user->password_dapo = $request->password;
+			if($user->save()){
+				$output = [
+					'title' => 'Berhasil',
+					'icon' => 'success',
+					'success' => 'TRUE',
+					'message' => 'Password dapodik lama berhasil diperbaharui',
+				];
+			} else {
+				$output = [
+					'title' => 'Gagal',
+					'icon' => 'error',
+					'success' => FALSE,
+					'message' => 'Password dapodik lama gagal diperbaharui',
+				];
+			}
+			return response()->json($output);
+		} else {
+			$params = array(
+				'user' 				=> $user,
+				'modal_s' => 'modal-sm',
+			);
+			return view('users.password-dapo')->with($params);
+		}
 	}
 }
