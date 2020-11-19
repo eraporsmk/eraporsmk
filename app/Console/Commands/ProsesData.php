@@ -566,7 +566,7 @@ class ProsesData extends Command
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->first();
 			$get_guru = Guru::where('guru_id_dapodik', $data->ptk_terdaftar->ptk_id)->first();
-			if($rombongan_belajar){
+			if($rombongan_belajar && $get_guru){
 				$insert_pembelajaran = array(
 					'sekolah_id'				=> $sekolah_id,
 					'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
