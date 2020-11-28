@@ -32,6 +32,7 @@ use App\Anggota_akt_pd;
 use App\Bimbing_pd;
 use App\Kompetensi_dasar;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 class ProsesData extends Command
 {
     /**
@@ -1120,6 +1121,66 @@ class ProsesData extends Command
 	}
 	private function registrasi($response){
 		$dapodik = CustomHelper::array_to_object($response);
+		$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive = array(
+			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
+			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
+			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
+			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->asal_wilayah,
+			'kode_bps'			=> NULL,
+			'kode_dagri'		=> NULL,
+			'kode_keu'			=> NULL,
+			'last_sync'			=> date('Y-m-d H:i:s') 
+		);
+		Mst_wilayah::updateOrCreate(
+			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah],
+			$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive
+		);
+		$insert_wilayah_parrent_recursive_parrent_recursive = array(
+			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->nama,
+			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
+			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->negara_id,
+			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->asal_wilayah,
+			'kode_bps'			=> NULL,
+			'kode_dagri'		=> NULL,
+			'kode_keu'			=> NULL,
+			'last_sync'			=> date('Y-m-d H:i:s')
+		);
+		Mst_wilayah::updateOrCreate(
+			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->kode_wilayah],
+			$insert_wilayah_parrent_recursive_parrent_recursive
+		);
+		$insert_wilayah_parrent_recursive = array(
+			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->nama,
+			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->id_level_wilayah,
+			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->mst_kode_wilayah,
+			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->negara_id,
+			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->asal_wilayah,
+			'kode_bps'			=> NULL,
+			'kode_dagri'		=> NULL,
+			'kode_keu'			=> NULL,
+			'last_sync'			=> date('Y-m-d H:i:s')
+		);
+		Mst_wilayah::updateOrCreate(
+			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->kode_wilayah],
+			$insert_wilayah_parrent_recursive
+		);
+		$insert_wilayah = array(
+			'nama'				=> $dapodik->sekolah->wilayah->nama,
+			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->id_level_wilayah,
+			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->mst_kode_wilayah,
+			'negara_id'			=> $dapodik->sekolah->wilayah->negara_id,
+			'asal_wilayah'		=> $dapodik->sekolah->wilayah->asal_wilayah,
+			'kode_bps'			=> NULL,
+			'kode_dagri'		=> NULL,
+			'kode_keu'			=> NULL,
+			'last_sync'			=> $dapodik->sekolah->wilayah->last_sync
+		);
+		Mst_wilayah::updateOrCreate(
+			['kode_wilayah' => $dapodik->sekolah->wilayah->kode_wilayah],
+			$insert_wilayah
+		);
 		$insert_sekolah = array(
 			'npsn' 					=> $dapodik->sekolah->npsn,
 			'nss' 					=> $dapodik->sekolah->nss,
