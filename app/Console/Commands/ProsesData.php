@@ -548,6 +548,68 @@ class ProsesData extends Command
 					$data->email = ($data->email != $sekolah->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 				}
 				$data->email = strtolower($data->email);
+				if(isset($data->wilayah)){
+					$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive = array(
+						'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
+						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
+						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+						'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
+						'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->asal_wilayah,
+						'kode_bps'			=> NULL,
+						'kode_dagri'		=> NULL,
+						'kode_keu'			=> NULL,
+						'last_sync'			=> date('Y-m-d H:i:s') 
+					);
+					Mst_wilayah::updateOrCreate(
+						['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah],
+						$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive
+					);
+					$insert_wilayah_parrent_recursive_parrent_recursive = array(
+						'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->nama,
+						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
+						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+						'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->negara_id,
+						'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->asal_wilayah,
+						'kode_bps'			=> NULL,
+						'kode_dagri'		=> NULL,
+						'kode_keu'			=> NULL,
+						'last_sync'			=> date('Y-m-d H:i:s')
+					);
+					Mst_wilayah::updateOrCreate(
+						['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->kode_wilayah],
+						$insert_wilayah_parrent_recursive_parrent_recursive
+					);
+					$insert_wilayah_parrent_recursive = array(
+						'nama'				=> $data->wilayah->parrent_recursive->nama,
+						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->id_level_wilayah,
+						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->mst_kode_wilayah,
+						'negara_id'			=> $data->wilayah->parrent_recursive->negara_id,
+						'asal_wilayah'		=> $data->wilayah->parrent_recursive->asal_wilayah,
+						'kode_bps'			=> NULL,
+						'kode_dagri'		=> NULL,
+						'kode_keu'			=> NULL,
+						'last_sync'			=> date('Y-m-d H:i:s')
+					);
+					Mst_wilayah::updateOrCreate(
+						['kode_wilayah' => $data->wilayah->parrent_recursive->kode_wilayah],
+						$insert_wilayah_parrent_recursive
+					);
+					$insert_wilayah = array(
+						'nama'				=> $data->wilayah->nama,
+						'id_level_wilayah'	=> $data->wilayah->id_level_wilayah,
+						'mst_kode_wilayah'	=> $data->wilayah->mst_kode_wilayah,
+						'negara_id'			=> $data->wilayah->negara_id,
+						'asal_wilayah'		=> $data->wilayah->asal_wilayah,
+						'kode_bps'			=> NULL,
+						'kode_dagri'		=> NULL,
+						'kode_keu'			=> NULL,
+						'last_sync'			=> $data->wilayah->last_sync
+					);
+					Mst_wilayah::updateOrCreate(
+						['kode_wilayah' => $data->wilayah->kode_wilayah],
+						$insert_wilayah
+					);
+				}
 				$insert_siswa = array(
 					'sekolah_id'		=> $sekolah_id,
 					'nama' 				=> $data->nama,
