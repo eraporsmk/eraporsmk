@@ -388,6 +388,7 @@ Selamat Datang {{ $user->name }}
 						</tr>
 					</thead>
 					<tbody>
+						@if($user->siswa->anggota_rombel->rombongan_belajar)
 						@foreach($user->siswa->anggota_rombel->rombongan_belajar->pembelajaran as $pembelajaran)
 						<?php
 						//dd($pembelajaran);
@@ -413,6 +414,11 @@ Selamat Datang {{ $user->name }}
 							</td>
 						</tr>
 						@endforeach
+						@else
+						<tr>
+							<td colspan="8" class="text-center">Anda tidak memiliki Rombongan Belajar di semester ini.</td>
+						</tr>
+						@endif
 					</tbody>
 				</table>
 			</div>
