@@ -366,7 +366,7 @@ Selamat Datang {{ $user->name }}
 	@endrole
 	@role('siswa')
 	@if($pengguna)
-		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{$pengguna->siswa->anggota_rombel->rombongan_belajar->nama}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang)}}</span></h4>
+		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{($pengguna->siswa->anggota_rombel->rombongan_belajar) ? $pengguna->siswa->anggota_rombel->rombongan_belajar->nama : '-'}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{($user->siswa->anggota_rombel->rombongan_belajar) ? CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang) : '-'}}</span></h4>
 		<h4 class="page-header">Daftar Mata Pelajaran</h4>
 		<div class="row">
 			<div class="col-lg-12 col-xs-12" style="margin-bottom:20px;">
