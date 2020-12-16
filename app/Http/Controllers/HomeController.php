@@ -120,7 +120,7 @@ class HomeController extends Controller
 			}
 		}
 		if($user->hasRole('siswa')){
-			$user = User::wherehas('siswa.anggota_rombel', function($query){
+			$user_siswa = User::wherehas('siswa.anggota_rombel', function($query){
 				$query->whereHas('rombongan_belajar', function($query){
 					$query->where('jenis_rombel', 1);
 					$query->where('semester_id', session('semester_id'));
@@ -132,6 +132,9 @@ class HomeController extends Controller
 				}, 'rombongan_belajar.wali', 'rombongan_belajar.wali.gelar_depan', 'rombongan_belajar.wali.gelar_belakang']);
 				$query->where('semester_id', session('semester_id'));
 			}])->find($user->user_id);
+			if($user_siswa){
+				$user = $user_siswa;
+			}
 		}
 		$status_penilaian = CustomHelper::status_penilaian(session('sekolah_id'), session('semester_id'));
 		$params = array(
