@@ -186,6 +186,14 @@ class UsersController extends Controller
 					$query->whereIn('user_id',function($q) {
 						$q->select('user_id')->from('role_user')->where('role_id', '=', request('filter_akses'));
 					});
+					if(request('filter_akses') == 5){
+						$query->wherehas('siswa.anggota_rombel', function($query){
+							$query->whereHas('rombongan_belajar', function($query){
+								$query->where('jenis_rombel', 1);
+								$query->where('semester_id', session('semester_id'));
+							});
+						});
+					}
 				}
 			}, true)
 			->addColumn('jenis_pengguna', function ($item) {
