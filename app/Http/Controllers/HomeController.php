@@ -120,12 +120,30 @@ class HomeController extends Controller
 			}
 		}
 		if($user->hasRole('siswa')){
+			/*
 			$user_siswa = User::wherehas('siswa.anggota_rombel', function($query){
 				$query->whereHas('rombongan_belajar', function($query){
 					$query->where('jenis_rombel', 1);
 					$query->where('semester_id', session('semester_id'));
 				});
-			})->with(['siswa', 'siswa.anggota_rombel' => function($query){
+			})->with(['siswa.anggota_rombel' => function($query){
+				$query->with(['rombongan_belajar' => function($query){
+					$query->where('jenis_rombel', 1);
+					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
+				}, 'rombongan_belajar.wali', 'rombongan_belajar.wali.gelar_depan', 'rombongan_belajar.wali.gelar_belakang']);
+				$query->where('semester_id', session('semester_id'));
+			}])->find($user->user_id);
+			*/
+			$user_siswa = User::wherehas('anggota_rombel', function($query){
+				$query->whereHas('rombongan_belajar', function($query){
+					$query->where('jenis_rombel', 1);
+					$query->where('semester_id', session('semester_id'));
+				});
+			})->with(['siswa.anggota_rombel' => function($query){
+				$query->whereHas('rombongan_belajar', function($query){
+					$query->where('jenis_rombel', 1);
+					$query->where('semester_id', session('semester_id'));
+				});
 				$query->with(['rombongan_belajar' => function($query){
 					$query->where('jenis_rombel', 1);
 					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
