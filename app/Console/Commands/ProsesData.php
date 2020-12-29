@@ -484,9 +484,9 @@ class ProsesData extends Command
 			$i++;
 		}
 		if($anggota_rombel_id){
-			Anggota_rombel::whereHas('rombongan_belajar', function($query){
-				$query->where('jenis_rombel', 1);
-			})->where('sekolah_id', $sekolah_id)->where('semester_id', $semester_id)->whereNotIn('anggota_rombel_id_dapodik', $anggota_rombel_id)->delete();
+			//Anggota_rombel::whereHas('rombongan_belajar', function($query){
+				//$query->where('jenis_rombel', 1);
+			//})->where('sekolah_id', $sekolah_id)->where('semester_id', $semester_id)->whereNotIn('anggota_rombel_id_dapodik', $anggota_rombel_id)->delete();
 		}
 	}
 	private function siswa_keluar($response){
