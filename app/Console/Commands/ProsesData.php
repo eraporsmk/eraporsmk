@@ -465,18 +465,17 @@ class ProsesData extends Command
 			if($find_rombel){
 				$insert_anggota_rombel = array(
 					'sekolah_id'				=> $sekolah_id,
-					'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 					'peserta_didik_id' 			=> $create_siswa->peserta_didik_id,
 					'last_sync'					=> date('Y-m-d H:i:s'),
 				);
 				if(isset($data->anggota_rombel_id)){
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'rombongan_belajar_id' => $find_rombel->rombongan_belajar_id, 'semester_id' => $semester_id],
 						$insert_anggota_rombel
 					);
 				} else {
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'semester_id' => $semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'rombongan_belajar_id' => $find_rombel->rombongan_belajar_id, 'semester_id' => $semester_id],
 						$insert_anggota_rombel
 					);
 				}
