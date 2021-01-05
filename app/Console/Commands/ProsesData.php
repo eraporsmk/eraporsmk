@@ -939,7 +939,7 @@ class ProsesData extends Command
 						'mou_id'		=> $create_mou->mou_id,
 						'id_jns_akt_pd'	=> $akt_pd->id_jns_akt_pd,
 						'judul_akt_pd'	=> $akt_pd->judul_akt_pd,
-						'sk_tugas'		=> $akt_pd->sk_tugas,
+						'sk_tugas'		=> ($akt_pd->sk_tugas) ? $akt_pd->sk_tugas : '-',
 						'tgl_sk_tugas'	=> $akt_pd->tgl_sk_tugas,
 						'ket_akt'		=> $akt_pd->ket_akt,
 						'a_komunal'		=> $akt_pd->a_komunal,
