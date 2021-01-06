@@ -299,12 +299,12 @@ class HomeController extends Controller
 					if($kompetensi_id == 1){
 						$find_nilai_rapor->nilai_p = $nilai_akhir;
 						$find_nilai_rapor->rasio_p = $rasio_p;
-						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_p + $nilai_akhir) - $kkm;
+						$find_nilai_rapor->total_nilai = ($nilai_p * $rasio_p) + ($nilai_k * $rasio_k);//($find_nilai_rapor->nilai_p + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					} else {
 						$find_nilai_rapor->nilai_k = $nilai_akhir;
 						$find_nilai_rapor->rasio_k = $rasio_k;
-						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_k + $nilai_akhir) - $kkm;
+						$find_nilai_rapor->total_nilai = ($nilai_p * $rasio_p) + ($nilai_k * $rasio_k);//($find_nilai_rapor->nilai_k + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					}
 				} else {
