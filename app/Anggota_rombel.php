@@ -65,7 +65,8 @@ class Anggota_rombel extends Model
 		return $this->hasOne('App\Catatan_wali', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
 	public function nilai_rapor(){
-		return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderBy('total_nilai', 'ASC');
+		//return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderBy('total_nilai', 'ASC');
+		return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderByRaw('((nilai_p * rasio_p) + (nilai_k * rasio_k))');
 	}
 	public function v_nilai_akhir_p(){
 		return $this->hasOne('App\NilaiAkhirPengetahuan', 'anggota_rombel_id', 'anggota_rombel_id');
