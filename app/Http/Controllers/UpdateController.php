@@ -41,7 +41,7 @@ class UpdateController extends Controller
 		Artisan::call('erapor:update');
 		echo 'sukses';
 		exit;
-		Setting::where('key', 'app_version')->update(['value' => '5.1.1']);
+		Setting::where('key', 'app_version')->update(['value' => '5.1.2']);
 		Setting::where('key', 'db_version')->update(['value' => '4.0.4']);
 		$new_tahun = [
 			[
@@ -58,7 +58,7 @@ class UpdateController extends Controller
 				'tahun_ajaran_id'	=> 2020,
 				'nama' 				=> "2020/2021 Ganjil",
 				'semester' 			=> 1,
-				'periode_aktif'		=> 1,
+				'periode_aktif'		=> 0,
 				'tanggal_mulai'		=> "2020-07-01",
 				'tanggal_selesai'	=> "2020-12-31"
 			],
@@ -67,7 +67,7 @@ class UpdateController extends Controller
 				'tahun_ajaran_id'	=> 2020,
 				'nama' 				=> "2020/2021 Genap",
 				'semester' 			=> 2,
-				'periode_aktif'		=> 0,
+				'periode_aktif'		=> 1,
 				'tanggal_mulai'		=> "2021-01-01",
 				'tanggal_selesai'	=> "2021-07-15"
 			]
@@ -92,8 +92,8 @@ class UpdateController extends Controller
 				]
 			);
 		}
-		Semester::where('semester_id', '!=', '20201')->update(['periode_aktif' => 0]);
-		Semester::where('semester_id', '20201')->update(['periode_aktif' => 1]);
+		Semester::where('semester_id', '!=', '20202')->update(['periode_aktif' => 0]);
+		Semester::where('semester_id', '20202')->update(['periode_aktif' => 1]);
 		Artisan::call('cache:clear');
 		Artisan::call('view:clear');
 		Artisan::call('config:cache');
