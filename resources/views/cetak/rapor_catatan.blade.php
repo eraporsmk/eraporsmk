@@ -178,16 +178,18 @@ NIP. {{$get_siswa->rombongan_belajar->wali->nip}}
 </table>
 <table width="100%" style="margin-top:10px;">
   <tr>
-    <td style="width:100%;text-align:center;">
+	<td style="width:40%;">
+	</td>
+    <td style="width:60%;">
 		<p>Mengetahui,<br>Kepala Sekolah</p>
-	<br>
-<br>
-<br>
-<br>
-<br>
-<p><u>{{ CustomHelper::nama_guru($get_siswa->sekolah->guru->gelar_depan, $get_siswa->sekolah->guru->nama, $get_siswa->sekolah->guru->gelar_belakang) }}</u><br />
-NIP. {{$get_siswa->sekolah->guru->nip}}
-</p>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<p><u>{{ CustomHelper::nama_guru($get_siswa->sekolah->guru->gelar_depan, $get_siswa->sekolah->guru->nama, $get_siswa->sekolah->guru->gelar_belakang) }}</u><br />
+		NIP. {{$get_siswa->sekolah->guru->nip}}
+		</p>
 	</td>
   </tr>
 </table>
