@@ -1,4 +1,8 @@
 <div id="form">
+<legend><h3>Versi 5.1.2</h3></legend>
+<ol>
+<li><b style="color:blue">[Pembaharuan]</b> Penambahan pengiriman data referensi Kompetensi Dasar menggunakan eRapor Synchronizer</li>
+</ol>
 <legend><h3>Versi 5.1.1</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Registrasi pengguna eRapor SMK menggunakan eRapor Synchronizer</li>
