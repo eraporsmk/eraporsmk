@@ -343,13 +343,13 @@ class HelperServiceProvider extends ServiceProvider
 			if(!$n){
 				$predikat 	= '';
 			} elseif($n >= 91){
-				$predikat 	= 'Very Competent';
+				$predikat 	= 'Highly Competent';
 			} elseif($n >= 80 && $n <= 90){
 				$predikat 	= 'Competent';
 			} elseif($n >= 70 && $n <= 79){
-				$predikat 	= 'Ample Competent';
+				$predikat 	= 'Partly Competent';
 			} elseif($n < 70){
-				$predikat 	= 'Not Competent';
+				$predikat 	= 'Not Yet Competent';
 			}
 		}
 		return $predikat;
