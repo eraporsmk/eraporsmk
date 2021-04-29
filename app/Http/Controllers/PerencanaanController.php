@@ -670,7 +670,7 @@ class PerencanaanController extends Controller
 		$rencana_ukk = Rencana_ukk::find($request->rencana_ukk_id);
 		$rencana_ukk->internal = $request->internal;
 		$rencana_ukk->eksternal = $request->eksternal;
-		$rencana_ukk->tanggal_sertifikat = $request->tanggal_sertifikat;
+		$rencana_ukk->tanggal_sertifikat = date('Y-m-d', strtotime($request->tanggal_sertifikat));
 		$rencana_ukk->last_sync = date('Y-m-d H:i:s');
 		if($rencana_ukk->save()){
 			return redirect()->route('perencanaan_ukk')->with(['success' => 'Data Rencana UKK berhasil diperbaharui']);
@@ -704,7 +704,7 @@ class PerencanaanController extends Controller
 			],
 			[
 			'sekolah_id' 			=> $request['sekolah_id'],
-			'tanggal_sertifikat'	=> $request['tanggal_sertifikat'],
+			'tanggal_sertifikat'	=> date('Y-m-d', strtotime($request['tanggal_sertifikat'])),
 			'last_sync' 			=> date('Y-m-d H:i:s'), 
 			]
 		);
