@@ -117,7 +117,7 @@ class EraporUpdate extends Command
             Semester::where('semester_id', '!=', '20202')->update(['periode_aktif' => 0]);
             Setting::where('key', 'app_version')->update(['value' => $version]);
             Setting::where('key', 'db_version')->update(['value' => $db_version]);
-            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi 5.1.2');
+            $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi '.$version);
         }
     }
 }
