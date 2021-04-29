@@ -48,7 +48,9 @@ class CetakController extends Controller
 		$data['sekolah_id'] = $user->sekolah_id;
 		$data['rencana_ukk'] = $rencana_ukk;
 		$data['count_penilaian_ukk'] = $count_penilaian_ukk;
-		$data['paket'] = Paket_ukk::with('jurusan')->with('unit_ukk')->find($rencana_ukk->paket_ukk_id);
+		$data['paket'] = Paket_ukk::with(['jurusan', 'unit_ukk' => function ($query){
+			$query->orderBy('kode_unit');
+		}])->find($rencana_ukk->paket_ukk_id);
 		$data['asesor'] = Guru::with('dudi')->find($rencana_ukk->eksternal);
 		$data['sekolah'] = Sekolah::with('guru')->find($user->sekolah_id);
 		$pdf = PDF::loadView('cetak.sertifikat1', $data);
