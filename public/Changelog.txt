@@ -2,6 +2,7 @@
 <legend><h3>Versi 5.1.3</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Pembaharuan rentan nilai UKK sesuai juknis terbaru</li>
+<li><b style="color:green">[Perbaikan]</b> Typo Class 'App\Rombel4_tahun'</li>
 </ol>
 <legend><h3>Versi 5.1.2</h3></legend>
 <ol>
