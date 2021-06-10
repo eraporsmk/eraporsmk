@@ -116,10 +116,11 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 </table>
 <br />
 <?php
-if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
+/*if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
 	$text_status = 'Status Kelulusan';
 	$not_yet = 'Belum dilakukan kelulusan';
-} elseif($get_siswa->rombongan_belajar->semester->semester == 2){
+} else*/
+if($get_siswa->rombongan_belajar->semester->semester == 2){
 	if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
 		$text_status = 'Status Kelulusan';
 		$not_yet = 'Belum dilakukan kelulusan';
@@ -132,16 +133,12 @@ if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_
 	$not_yet = '';
 }
 ?>
-@if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
+@if($get_siswa->rombongan_belajar->semester->semester == 2)
+@if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
 <div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
 @else
-	@if($get_siswa->rombongan_belajar->semester->semester == 2)
-		@if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
-		@else
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
-		@endif
-	@endif
+<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
+@endif
 @endif
 @if($get_siswa->rombongan_belajar->semester->semester == 2)
 <table width="100%" border="1">
