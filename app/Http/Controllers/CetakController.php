@@ -21,6 +21,7 @@ use App\Rombongan_belajar;
 use App\Rencana_penilaian;
 use App\Rapor_pts;
 use App\Siswa;
+use App\Rombel4_Tahun;
 class CetakController extends Controller
 {
 	public function __construct()
@@ -266,10 +267,12 @@ class CetakController extends Controller
 			}])->with('kehadiran')->with('all_prakerin')->with('catatan_wali')->find($id);
 			$tanggal_rapor = CustomHelper::get_setting('tanggal_rapor');
 			$tanggal_rapor = date('Y-m-d', strtotime($tanggal_rapor));
+			$rombel_4_tahun = Rombel4_Tahun::select('rombongan_belajar_id')->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'tanggal_rapor'	=> $tanggal_rapor,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
+				'rombel_4_tahun' => $rombel_4_tahun,
 			);
 			//return view('cetak.rapor_nilai', $params);
 			//return view('cetak.rapor_catatan', $params);

@@ -116,16 +116,30 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 </table>
 <br />
 <?php
-$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
+if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
+	$text_status = 'Status Kelulusan';
+	$not_yet = 'Belum dilakukan kelulusan';
+} elseif($get_siswa->rombongan_belajar->semester->semester == 2){
+	if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
+		$text_status = 'Status Kelulusan';
+		$not_yet = 'Belum dilakukan kelulusan';
+	} else {
+		$text_status = 'Kenaikan Kelas';
+		$not_yet = 'Belum dilakukan kenaikan kelas';
+	}
+} else {
+	$text_status = '';
+	$not_yet = '';
+}
 ?>
 @if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
-<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
+<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
 @else
 	@if($get_siswa->rombongan_belajar->semester->semester == 2)
 		@if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
+		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
 		@else
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Kenaikan Kelas</div>
+		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
 		@endif
 	@endif
 @endif
@@ -140,11 +154,7 @@ $rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global
 			{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->nama_kelas}}
 		@endif
 	@else
-		@if($get_siswa->rombongan_belajar->tingkat == 12)
-			Belum dilakukan kelulusan
-		@else
-			Belum dilakukan kenaikan kelas
-		@endif
+		{{$not_yet}}
 	@endif
 	</td>
   </tr>

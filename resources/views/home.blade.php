@@ -160,7 +160,6 @@ Selamat Datang {{ $user->name }}
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282113057512&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Iman [082113057512]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282174508706&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Ikhsan [082174508706]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282134924288&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Toni [082134924288]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=628174144627&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Hendri [08174144627]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6285624669298&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Deetha [085624669298]</a>
 						</td>
 					</tr>
