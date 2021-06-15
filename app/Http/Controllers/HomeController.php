@@ -224,6 +224,8 @@ class HomeController extends Controller
 	}
 	public function generate_nilai($pembelajaran_id, $kompetensi_id){
 		$user = auth()->user();
+		//Nilai_akhir::where('pembelajaran_id', $pembelajaran_id)->delete();
+		//Nilai_rapor::where('pembelajaran_id', $pembelajaran_id)->delete();
 		$rencana_penilaian = ($kompetensi_id == 1) ? 'rencana_pengetahuan' : 'rencana_keterampilan';
 		$pembelajaran = Pembelajaran::with([$rencana_penilaian, $rencana_penilaian.'.kd_nilai', $rencana_penilaian.'.kd_nilai.nilai'])->find($pembelajaran_id);
 		$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
