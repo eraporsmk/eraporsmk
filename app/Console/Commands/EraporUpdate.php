@@ -70,7 +70,7 @@ class EraporUpdate extends Command
             if($config_ && $config){
                 File::move($config_,$config);
             } elseif($config_ && !$config){
-                File::move($config_,$files.'/config.php');
+                File::move($config_,$path.'/config.php');
             }
             //Semester::where('semester_id', '!=', '20192')->update(['periode_aktif' => 0]);
             //Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
