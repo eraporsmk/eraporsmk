@@ -47,14 +47,21 @@ class LaporanController extends Controller
 		if($user->hasRole('waka')){
 			return view('laporan.waka.catatan_akademik');
 		} else {
-			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
-				$query->with('pembelajaran');
-				$query->limit(3);
-			}])->whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::whereHas('rombongan_belajar', function($query) use ($user){
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
-			})->order()->get();
+			})->with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query) use ($user){
+				$query->whereHas('pembelajaran', function($query) use ($user){
+					$query->whereHas('rombongan_belajar', function($query) use ($user){
+						$query->where('guru_id', $user->guru_id);
+						$query->where('jenis_rombel', 1);
+						$query->where('semester_id', session('semester_id'));
+					});
+				});
+				$query->with(['pembelajaran.rombongan_belajar.wali']);
+				$query->limit(3);
+			}])->order()->get();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 			);
