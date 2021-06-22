@@ -286,8 +286,8 @@ Selamat Datang {{ $user->name }}
 								<tr>
 									<td class="text-center">{{$loop->iteration}}</td> 
 									<td>{{$pembelajaran->nama_mata_pelajaran}} ({{$pembelajaran->mata_pelajaran_id}})</td>
-									<td>{{($pembelajaran->pengajar) ? 
-									CustomHelper::nama_guru($pembelajaran->pengajar->gelar_depan, $pembelajaran->pengajar->nama, $pembelajaran->pengajar->gelar_belakang) : ($pembelajaran->guru) ? CustomHelper::nama_guru($pembelajaran->guru->gelar_depan, $pembelajaran->guru->nama, $pembelajaran->guru->gelar_belakang) : '-'}}</td>
+									<td>{{(($pembelajaran->pengajar) ? 
+									CustomHelper::nama_guru($pembelajaran->pengajar->gelar_depan, $pembelajaran->pengajar->nama, $pembelajaran->pengajar->gelar_belakang) : (($pembelajaran->guru) ? CustomHelper::nama_guru($pembelajaran->guru->gelar_depan, $pembelajaran->guru->nama, $pembelajaran->guru->gelar_belakang) : '-'))}}</td>
 									<td class="text-center">{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_pengetahuan_count}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_keterampilan_count}}</td>
