@@ -360,11 +360,11 @@ class HomeController extends Controller
 			}
 		}, true)
 		->addColumn('guru_mapel', function ($item) {
-			$return  = ($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : ($item->guru) ? CustomHelper::nama_guru($item->guru->gelar_depan, $item->guru->nama, $item->guru->gelar_belakang) : '-';
+			$return  = (($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : (($item->guru) ? CustomHelper::nama_guru($item->guru->gelar_depan, $item->guru->nama, $item->guru->gelar_belakang) : '-'));
 			return $return;
 		})
 		->addColumn('guru_pengajar', function ($item) {
-			$return  = ($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : '-';
+			$return  = (($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : '-');
 			return $return;
 		})
 		->addColumn('skm', function ($item) {
