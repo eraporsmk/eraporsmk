@@ -1331,7 +1331,8 @@ class ProsesData extends Command
 		foreach($dapodik->pengguna as $pengguna){
 			$user = User::updateOrCreate(
 				['name' => $pengguna->name, 'email' => $pengguna->email],
-				['password' => Hash::make($pengguna->password), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
+				//['password' => Hash::make($pengguna->password), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
+				['password' => $pengguna->password, 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
 			);
 			$adminRole = Role::where('name', 'admin')->first();
 			$user = User::where('email', $pengguna->email)->first();
