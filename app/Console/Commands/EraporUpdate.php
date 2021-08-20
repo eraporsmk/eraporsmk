@@ -76,45 +76,31 @@ class EraporUpdate extends Command
             //Semester::where('semester_id', '20192')->update(['periode_aktif' => 1]);
             Tahun_ajaran::updateOrCreate(
                 [
-                    'tahun_ajaran_id' => 2020,
+                    'tahun_ajaran_id' => 2021,
                 ],
                 [
-                    'nama' => '2020/2021',
+                    'nama' => '2021/2022',
                     'periode_aktif' => 1,
-                    'tanggal_mulai' => '2020-07-20',
-                    'tanggal_selesai' => '2021-06-01',
+                    'tanggal_mulai' => '2021-07-20',
+                    'tanggal_selesai' => '2022-06-01',
                     'last_sync' => date('Y-m-d H:i:s'),
                 ]
             );
             Semester::updateOrCreate(
                 [
-                    'semester_id' => '20201',
+                    'semester_id' => '20211',
                 ],
                 [
-                    'tahun_ajaran_id' => 2020,
-                    'nama' => '2020/2021 Ganjil',
+                    'tahun_ajaran_id' => 2021,
+                    'nama' => '2021/2022 Ganjil',
                     'semester' => 1,
-                    'periode_aktif' => 0,
-                    'tanggal_mulai' => '2020-07-01',
-                    'tanggal_selesai' => '2021-12-31',
-                    'last_sync' => date('Y-m-d H:i:s'),
-                ]
-            );
-            Semester::updateOrCreate(
-                [
-                    'semester_id' => '20202',
-                ],
-                [
-                    'tahun_ajaran_id' => 2020,
-                    'nama' => '2020/2021 Genap',
-                    'semester' => 2,
                     'periode_aktif' => 1,
-                    'tanggal_mulai' => '2020-07-01',
-                    'tanggal_selesai' => '2021-12-31',
+                    'tanggal_mulai' => '2021-07-01',
+                    'tanggal_selesai' => '2022-12-31',
                     'last_sync' => date('Y-m-d H:i:s'),
                 ]
             );
-            Semester::where('semester_id', '!=', '20202')->update(['periode_aktif' => 0]);
+            Semester::where('semester_id', '!=', '20211')->update(['periode_aktif' => 0]);
             Setting::where('key', 'app_version')->update(['value' => $version]);
             Setting::where('key', 'db_version')->update(['value' => $db_version]);
             $this->info('Berhasil memperbaharui aplikasi e-Rapor SMK ke versi '.$version);
