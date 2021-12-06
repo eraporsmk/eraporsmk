@@ -21,8 +21,7 @@ class CreateSikapTable extends Migration
 			$table->timestamps();
 			$table->softDeletes();
 			$table->timestamp('last_sync');
-			$table->foreign('sikap_induk')->references('sikap_id')->on('ref.sikap')
-                ->onUpdate('NO ACTION')->onDelete('NO ACTION');
+			$table->foreign('sikap_induk')->references('sikap_id')->on('ref.sikap')->onUpdate('NO ACTION')->onDelete('NO ACTION');
         });
     }
 

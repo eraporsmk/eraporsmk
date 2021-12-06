@@ -14,11 +14,12 @@ class CreatePekerjaanTable extends Migration
     public function up()
     {
         Schema::create('ref.pekerjaan', function (Blueprint $table) {
-			$table->increments('pekerjaan_id');
+			$table->integer('pekerjaan_id');
 			$table->string('nama', 25);
 			$table->timestamps();
 			$table->softDeletes();
 			$table->timestamp('last_sync');
+            $table->primary('pekerjaan_id');
         });
     }
 

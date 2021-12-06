@@ -100,6 +100,46 @@ class EraporUpdate extends Command
                     'last_sync' => date('Y-m-d H:i:s'),
                 ]
             );
+            Tahun_ajaran::updateOrCreate(
+                [
+                    'tahun_ajaran_id' => 2020,
+                ],
+                [
+                    'nama' => '2020/2021',
+                    'periode_aktif' => 0,
+                    'tanggal_mulai' => '2020-07-20',
+                    'tanggal_selesai' => '2021-06-01',
+                    'last_sync' => date('Y-m-d H:i:s'),
+                ]
+            );
+            Semester::updateOrCreate(
+                [
+                    'semester_id' => '20201',
+                ],
+                [
+                    'tahun_ajaran_id' => 2020,
+                    'nama' => '2020/2021 Ganjil',
+                    'semester' => 1,
+                    'periode_aktif' => 0,
+                    'tanggal_mulai' => '2020-07-01',
+                    'tanggal_selesai' => '2021-12-31',
+                    'last_sync' => date('Y-m-d H:i:s'),
+                ]
+            );
+            Semester::updateOrCreate(
+                [
+                    'semester_id' => '20202',
+                ],
+                [
+                    'tahun_ajaran_id' => 2020,
+                    'nama' => '2020/2021 Genap',
+                    'semester' => 2,
+                    'periode_aktif' => 0,
+                    'tanggal_mulai' => '2020-07-01',
+                    'tanggal_selesai' => '2021-12-31',
+                    'last_sync' => date('Y-m-d H:i:s'),
+                ]
+            );
             Semester::where('semester_id', '!=', '20211')->update(['periode_aktif' => 0]);
             Setting::where('key', 'app_version')->update(['value' => $version]);
             Setting::where('key', 'db_version')->update(['value' => $db_version]);
