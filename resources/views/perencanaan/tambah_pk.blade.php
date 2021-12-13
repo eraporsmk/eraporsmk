@@ -1,7 +1,7 @@
 @extends('adminlte::page')
-@section('title_postfix', 'Tambah Perencanaan Pengetahuan |')
+@section('title_postfix', 'Tambah Perencanaan Penilaian Pusat Keunggulan |')
 @section('content_header')
-    <h1>Tambah Perencanaan Pengetahuan</h1>
+    <h1>Tambah Perencanaan Penilaian Pusat Keunggulan</h1>
 @stop
 
 @section('content')
@@ -24,7 +24,7 @@
 						<input type="hidden" name="guru_id" id="guru_id" value="{{$user->guru_id}}" />
 						<input type="hidden" name="pembelajaran_id" id="pembelajaran_id" value="" />
 						<input type="hidden" name="query" id="query" value="rencana_penilaian" />
-						<input type="hidden" name="kompetensi_id" id="kompetensi_id" value="1" />
+						<input type="hidden" name="kompetensi_id" id="kompetensi_id" value="3" />
 						<input type="hidden" name="semester_id" id="semester_id" value="{{$semester->semester_id}}" />
 						<input type="text" class="form-control" value="{{$semester->nama}} (SMT {{$semester->semester}})" readonly />
 					</div>

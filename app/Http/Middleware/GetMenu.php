@@ -266,6 +266,13 @@ class GetMenu
 				'permission'  => 'guru',
 				'submenu' => [
 					[
+						'text' => 'Penilaian PK',
+						'url'  => 'perencanaan/pk',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
+					],
+					[
 						'text' => 'Rasio Nilai Akhir',
 						'url'  => 'perencanaan/rasio',
 						'icon' => 'hand-o-right',

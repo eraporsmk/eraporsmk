@@ -46,6 +46,11 @@ class PerencanaanController extends Controller
 		->get();
 		return view('perencanaan.rasio')->with(['all_pembelajaran' => $pembelajaran]);
     }
+	public function pk(){
+		$user = auth()->user();
+		$data['all_jurusan'] = Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get();
+		return view('perencanaan.pk', $data);
+    }
 	public function pengetahuan(){
 		$user = auth()->user();
 		$data['all_jurusan'] = Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get();
@@ -60,6 +65,7 @@ class PerencanaanController extends Controller
 		$data_rombel = Rombongan_belajar::where('jurusan_sp_id', request('filter_jurusan'))->where('tingkat', 10)->orderBy('nama')->get();
 		$callback = function($query) {
 			$user = auth()->user();
+			$query->with(['rombongan_belajar']);
 			$query->where('sekolah_id', session('sekolah_id'));
 			$query->where('guru_id', $user->guru_id);
 			$query->where('semester_id', session('semester_id'));
@@ -67,12 +73,9 @@ class PerencanaanController extends Controller
 			$query->where('sekolah_id', session('sekolah_id'));
 			$query->where('semester_id', session('semester_id'));
 		};
-		$query = Rencana_penilaian::with(['pembelajaran' => $callback, 'pembelajaran.rombongan_belajar', 'teknik_penilaian'])->where(function($query) use ($kompetensi_id, $callback){
+		$query = Rencana_penilaian::with(['pembelajaran' => $callback, 'teknik_penilaian'])->where(function($query) use ($kompetensi_id, $callback){
 			$query->where('kompetensi_id', $kompetensi_id);
-			if($kompetensi_id == 1){
-				$query->orWhere('kompetensi_id', 3);
-				$query->whereHas('pembelajaran', $callback);
-			}
+			$query->whereHas('pembelajaran', $callback);
 		})
 		->withCount('kd_nilai');
 		$dt = DataTables::of($query)
@@ -424,6 +427,9 @@ class PerencanaanController extends Controller
 			$flash['error'] = 'Gagal menyimpan rasio nilai akhir. Isian rasio harus berupa angka';
 		}
 		return redirect()->route('rasio')->with($flash);
+    }
+	public function tambah_pk(){
+		return view('perencanaan.tambah_pk');
     }
 	public function tambah_pengetahuan(){
 		return view('perencanaan.tambah_pengetahuan');
