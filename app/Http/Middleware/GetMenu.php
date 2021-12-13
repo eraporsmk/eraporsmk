@@ -310,6 +310,14 @@ class GetMenu
 				'permission'  => ['guru', 'tu'],
 				'submenu' => [
 					[
+						'text' => 'Penilaian PK',
+						'url'  => 'penilaian/pusat-keunggulan',
+						'icon' => 'hand-o-right',
+						'permission'  => 'guru',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
+					],
+					[
 						'text' => 'Penilaian Pengetahuan',
 						'url'  => 'penilaian/pengetahuan',
 						'icon' => 'hand-o-right',

@@ -337,6 +337,7 @@ class AjaxController extends Controller
 		$get_kompetensi = array(
 			array('id' => 1, 'nama' => 'Pengetahuan'),
 			array('id' => 2, 'nama' => 'Keterampilan'),
+			array('id' => 3, 'nama' => 'Pusat Keunggulan'),
 		);
 		foreach($get_kompetensi as $kompetensi){
 			$record= array();
@@ -445,8 +446,18 @@ class AjaxController extends Controller
 		$rombongan_belajar_id = $request['rombel_id'];
 		$pembelajaran = Pembelajaran::with('rombongan_belajar')->find($pembelajaran_id);
 		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
-		$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
-		$with_2 = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
+		if($kompetensi_id == 1){
+			$with_1 = 'nilai_kd_pengetahuan';
+			$with_2 = 'v_nilai_akhir_p';
+		} elseif($kompetensi_id == 2){
+			$with_1 = 'nilai_kd_keterampilan';
+			$with_2 = 'v_nilai_akhir_k';
+		} else {
+			$with_1 = 'nilai_kd_pk';
+			$with_2 = 'v_nilai_akhir_pk';
+		}
+		//$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
+		//$with_2 = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
 		if($get_mapel_agama){
 			$callback = function($query) use ($get_mapel_agama) {
 				$query->where('agama_id', $get_mapel_agama);
@@ -498,6 +509,14 @@ class AjaxController extends Controller
 			}*/
 		};
 		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
+		if(!$all_kd->count()){
+			$callback = function($q) use ($kompetensi_id, $pembelajaran_id){
+				$q->with('pembelajaran');
+				$q->where('kompetensi_id', 3);
+				$q->where('pembelajaran_id', $pembelajaran_id);
+			};
+			$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
+		}
 		//$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->orderBy('id_kompetensi')->get();
 		$params = array(
 			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),

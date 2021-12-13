@@ -79,6 +79,9 @@ class Anggota_rombel extends Model
 	public function v_nilai_akhir_k(){
 		return $this->hasOne('App\NilaiAkhirKeterampilan', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
+	public function v_nilai_akhir_pk(){
+		return $this->hasOne('App\NilaiAkhirPk', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
 	public function nilai_sikap(){
 		return $this->hasMany('App\Nilai_sikap', 'anggota_rombel_id', 'anggota_rombel_id');
 	}

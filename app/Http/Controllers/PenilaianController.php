@@ -59,7 +59,7 @@ class PenilaianController extends Controller
 		} else {
 			$params = array(
 				'user' => $user,
-				'title'	=> ucfirst($kompetensi_id),
+				'title'	=> ucwords(str_replace('-', ' ', $kompetensi_id)),
 				'kompetensi_id'	=> ($kompetensi_id == 'keterampilan') ? 2 : 1,
 				'query'	=> $kompetensi_id,
 			);

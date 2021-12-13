@@ -23,6 +23,6 @@ class CreateNilaiPengetahuanByKdView extends Migration
      */
     public function down()
     {
-		  DB::statement("DROP VIEW get_nilai_pengetahuan_siswa_by_kd CASCADE");
+		DB::statement("DROP VIEW get_nilai_pengetahuan_siswa_by_kd CASCADE");
     }
 }

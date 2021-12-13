@@ -35,7 +35,7 @@
 			<th style="vertical-align:middle;width: 2px;" align="center">No</th>
 			<th style="vertical-align:middle;width: 200px;">Mata Pelajaran</th>
 			<?php if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) {?>
-			<th align="center" class="text-center">Nilai Akhir</th>
+			<th style="vertical-align:middle;width: 100px;" align="center" class="text-center">Nilai Akhir</th>
 			<th align="center" class="text-center">Capaian Kompetensi</th>
 			<?php } else { ?>
 			<th align="center" class="text-center">Pengetahuan</th>

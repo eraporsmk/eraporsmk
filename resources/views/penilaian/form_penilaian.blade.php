@@ -115,7 +115,12 @@ if(query == 'pengetahuan' || query == 'keterampilan'){
 	url_rombel = '{{url('ajax/get-mapel')}}';
 	url_mapel = '{{url('ajax/get-kompetensi')}}';
 	$('#mapel_show').show();
-	$('#aspek_penilaian_show').show();
+	if(query !== 'pusat-keunggulan'){
+		$('#aspek_penilaian_show').show();
+	} else {
+		url_mapel = '{{url('ajax/get-rencana')}}';
+		$('#rencana_show').show();
+	}
 }
 console.log(url_mapel);
 var checkJSON = function(m) {

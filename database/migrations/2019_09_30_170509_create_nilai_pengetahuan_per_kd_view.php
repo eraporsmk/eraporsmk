@@ -13,7 +13,7 @@ class CreateNilaiPengetahuanPerKdView extends Migration
      */
     public function up()
     {
-        Artisan::call("view:CreateOrReplaceNilaiKeterampilanPerKdView");
+        Artisan::call("view:CreateOrReplaceNilaiPengetahuanPerKdView");
     }
 
     /**

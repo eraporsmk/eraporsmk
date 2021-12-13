@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNilaiAkhirPengetahuanView extends Migration
+class CreateNilaiPkPerKdView extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateNilaiAkhirPengetahuanView extends Migration
      */
     public function up()
     {
-        Artisan::call("view:CreateOrReplaceNilaiAkhirPengetahuanView");
+        Artisan::call("view:CreateOrReplaceNilaiPkPerKdView");
     }
 
     /**
@@ -23,6 +23,6 @@ class CreateNilaiAkhirPengetahuanView extends Migration
      */
     public function down()
     {
-		  DB::statement("DROP VIEW view_nilai_akhir_pengetahuan CASCADE");
+        DB::statement("DROP VIEW view_nilai_pk_perkd CASCADE");
     }
 }
