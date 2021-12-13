@@ -306,6 +306,7 @@ $('#sinkron').click(function(){
 	$('.progress').show();
 	$('.status').show();
 	$('.progress-bar').css('width','10%');
+	//var DataSync = new Data_Sync("erapor_server", "jurusan", "jurusan", 0);
 	var DataSync = new Data_Sync("erapor_server", "sekolah", "sekolah", 0);
 	Proses_Sinkron(DataSync);
 });

@@ -220,6 +220,17 @@ class AjaxController extends Controller
 			$record['pembelajaran_id'] 	= '';
 			$output['mapel'][] = $record;
 		}
+		$rombel = Rombongan_belajar::with('kurikulum')->find($rombongan_belajar_id);
+		if (strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
+			$kurikulum = 2017;
+		} elseif (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false) {
+			$kurikulum = 2006;
+		} elseif (strpos($rombel->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
+		} else {
+			$kurikulum = 2013;
+		}
+		$output['kurikulum'] = $kurikulum;
 		echo json_encode($output);
 	}
 	public function get_teknik(Request $request){
@@ -253,6 +264,8 @@ class AjaxController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($get_kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($get_kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
@@ -262,6 +275,7 @@ class AjaxController extends Controller
 		if($kompetensi_id == 1){
 			$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		} else {
+			$bentuk_penilaian = Teknik_penilaian::all();
 			$pembelajaran = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)
 			->where('mata_pelajaran_id', $id_mapel)
 			->first();
@@ -272,6 +286,12 @@ class AjaxController extends Controller
 				}
 			}
 		}
+		$placeholder = 'UH/UTS/UAS dll...';
+		if($kompetensi_id == 2){
+			$placeholder = 'Kinerja/Proyek/Portofolio';
+		} elseif($kompetensi_id == 3){
+			$placeholder = 'UH/UTS/UAS/Kinerja/Proyek/Portofolio';
+		}
 		$params = array(
 			'rombongan_belajar'	=> $rombongan_belajar,
 			'all_kd' => $all_kd,
@@ -280,7 +300,7 @@ class AjaxController extends Controller
 			'id_rombel'	=> $id_rombel,
 			'id_mapel'	=> $id_mapel,
 			'kelas'	=> $kelas,
-			'placeholder' => ($kompetensi_id == 1) ? 'UH/UTS/UAS dll...' : 'Kinerja/Proyek/Portofolio',
+			'placeholder' => $placeholder,
 			'bentuk_penilaian' => $bentuk_penilaian,
 		);
 		return view('perencanaan.get_kd_'.$kompetensi_id)->with($params);
@@ -295,7 +315,10 @@ class AjaxController extends Controller
 		$user = auth()->user();
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$kompetensi_id = $request['kompetensi_id'];
-		$get_rencana = Rencana_penilaian::where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->get();
+		$get_rencana = Rencana_penilaian::where(function($query){
+			$query->where('pembelajaran_id', request()->pembelajaran_id);
+			$query->where('kompetensi_id', request()->kompetensi_id);
+		})->get();
 		if($get_rencana->count()){
 			foreach($get_rencana as $rencana){
 				$record= array();
@@ -469,6 +492,10 @@ class AjaxController extends Controller
 			$q->with('pembelajaran');
 			$q->where('kompetensi_id', $kompetensi_id);
 			$q->where('pembelajaran_id', $pembelajaran_id);
+			/*if($kompetensi_id == 1){
+				$q->orWhere('kompetensi_id', 3);
+				$q->where('pembelajaran_id', $pembelajaran_id);
+			}*/
 		};
 		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
 		//$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->orderBy('id_kompetensi')->get();

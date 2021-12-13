@@ -188,9 +188,8 @@ Selamat Datang {{ $user->name }}
 			<tbody>
 		@if($all_pembelajaran->count())
 			@foreach($all_pembelajaran as $pembelajaran)
-				{{--dd($pembelajaran)--}}
 				<?php
-				if($pembelajaran->nilai_akhir_pengetahuan_count){
+				if($pembelajaran->nilai_akhir_pengetahuan_count || $pembelajaran->nilai_akhir_pk_count){
 					$class_p = 'danger';
 					$text_p = 'Perbaharui';
 				} else {
@@ -211,7 +210,17 @@ Selamat Datang {{ $user->name }}
 					<td class="text-center">{{$pembelajaran->rombongan_belajar->nama}}</td>
 					<td>{{ CustomHelper::nama_guru($pembelajaran->rombongan_belajar->wali->gelar_depan, $pembelajaran->rombongan_belajar->wali->nama, $pembelajaran->rombongan_belajar->wali->gelar_belakang) }}</td>
 					<td class="text-center">{{$pembelajaran->rombongan_belajar->anggota_rombel_count}}</td>
-					<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
+					<td><div class="text-center">
+						<?php
+						if($pembelajaran->rencana_pengetahuan_dinilai_count){
+							echo '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>';
+						} elseif($pembelajaran->rencana_pk_dinilai_count){
+							echo '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/3').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>';
+						} else {
+							echo '-';
+						}
+						?>
+					</div></td>
 					<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
 				</tr>
 			@endforeach
@@ -269,7 +278,7 @@ Selamat Datang {{ $user->name }}
 								@if($rombongan_belajar->pembelajaran->count())
 								@foreach($rombongan_belajar->pembelajaran as $pembelajaran)
 								<?php
-								if($pembelajaran->nilai_akhir_pengetahuan_count){
+								if($pembelajaran->nilai_akhir_pengetahuan_count || $pembelajaran->nilai_akhir_pk_count){
 									$class_p = 'danger';
 									$text_p = 'Perbaharui';
 								} else {
@@ -292,7 +301,18 @@ Selamat Datang {{ $user->name }}
 									<td class="text-center">{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_pengetahuan_count}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_keterampilan_count}}</td>
-									<td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td>
+									<!--td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td-->
+									<td><div class="text-center">
+										<?php
+										if($pembelajaran->rencana_pengetahuan_dinilai_count){
+											echo '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>';
+										} elseif($pembelajaran->rencana_pk_dinilai_count){
+											echo '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/3').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>';
+										} else {
+											echo '-';
+										}
+										?>
+									</div></td>
 									<td><div class="text-center"><?php echo ($pembelajaran->rencana_keterampilan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/2').'" class="generate_nilai btn btn-sm btn-'.$class_k.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_k.'</a>' : '-'; ?></div></td>
 								</tr>
 								@endforeach

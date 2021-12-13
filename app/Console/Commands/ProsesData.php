@@ -10,6 +10,7 @@ use App\Role_user;
 use CustomHelper;
 use App\Mst_wilayah;
 use App\Guru;
+use App\Gelar;
 use App\Gelar_ptk;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -262,11 +263,17 @@ class ProsesData extends Command
 			if($find_gelar){
 				foreach($find_gelar as $gelar){
 					if($gelar->gelar_akademik_id){
-						$find_gelar_ptk = Gelar_ptk::where([['ptk_id', $data->ptk_id], ['gelar_akademik_id', $gelar->gelar_akademik_id]])->first();
-						if($find_gelar_ptk){
-							$find_gelar_ptk->delete();
-						}
-						Gelar_ptk::create(array('gelar_akademik_id' => $gelar->gelar_akademik_id, 'sekolah_id' => $sekolah_id, 'ptk_id' => $data->ptk_id, 'guru_id' => $create_guru->guru_id, 'last_sync' => date('Y-m-d H:i:s')));
+						$get_gelar = Gelar::where('gelar_akademik_id', $gelar->gelar_akademik_id)->first();
+						if($get_gelar){
+							$find_gelar_ptk = Gelar_ptk::where([
+								['ptk_id', $data->ptk_id], 
+								['gelar_akademik_id', $gelar->gelar_akademik_id]
+							])->first();
+							if($find_gelar_ptk){
+								$find_gelar_ptk->delete();
+							}
+							Gelar_ptk::create(array('gelar_akademik_id' => $gelar->gelar_akademik_id, 'sekolah_id' => $sekolah_id, 'ptk_id' => $data->ptk_id, 'guru_id' => $create_guru->guru_id, 'last_sync' => date('Y-m-d H:i:s')));
+							}
 						}
 				}
 			}
@@ -451,9 +458,15 @@ class ProsesData extends Command
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
 			}
 			if(!isset($data->nipd)){
-				$data->nipd = $data->registrasi_peserta_didik->nipd;
-				$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
-				$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
+				if($data->registrasi_peserta_didik){
+					$data->nipd = $data->registrasi_peserta_didik->nipd;
+					$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
+					$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
+				} else {
+					$data->nipd = 0;
+					$data->sekolah_asal = NULL;
+					$data->tanggal_masuk_sekolah = NULL;
+				}
 			}
 			$record['inserted'] = $i;
 			//Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
@@ -485,10 +498,14 @@ class ProsesData extends Command
 					$data->email = ($data->email != $sekolah->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 				}
 				$data->email = strtolower($data->email);
+				$nipd = 0;
+				if(isset($data->nipd)){
+					$nipd = ($data->nipd) ? $data->nipd : 0;
+				}
 				$insert_siswa = array(
 					'sekolah_id'		=> $sekolah_id,
 					'nama' 				=> $data->nama,
-					'no_induk' 			=> ($data->nipd) ? $data->nipd : 0,
+					'no_induk' 			=> $nipd,
 					'nisn' 				=> $data->nisn,
 					'jenis_kelamin' 	=> ($data->jenis_kelamin) ? $data->jenis_kelamin : 0,
 					'tempat_lahir' 		=> ($data->tempat_lahir) ? $data->tempat_lahir : 0,
@@ -817,7 +834,7 @@ class ProsesData extends Command
 						'mou_id'		=> $create_mou->mou_id,
 						'id_jns_akt_pd'	=> $akt_pd->id_jns_akt_pd,
 						'judul_akt_pd'	=> $akt_pd->judul_akt_pd,
-						'sk_tugas'		=> $akt_pd->sk_tugas,
+						'sk_tugas'		=> ($akt_pd->sk_tugas) ? $akt_pd->sk_tugas : '-',
 						'tgl_sk_tugas'	=> $akt_pd->tgl_sk_tugas,
 						'ket_akt'		=> $akt_pd->ket_akt,
 						'a_komunal'		=> $akt_pd->a_komunal,

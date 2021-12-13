@@ -67,7 +67,13 @@ class PerencanaanController extends Controller
 			$query->where('sekolah_id', session('sekolah_id'));
 			$query->where('semester_id', session('semester_id'));
 		};
-		$query = Rencana_penilaian::whereHas('pembelajaran', $callback)->with(['pembelajaran' => $callback, 'pembelajaran.rombongan_belajar', 'teknik_penilaian'])->where('kompetensi_id', $kompetensi_id)
+		$query = Rencana_penilaian::with(['pembelajaran' => $callback, 'pembelajaran.rombongan_belajar', 'teknik_penilaian'])->where(function($query) use ($kompetensi_id, $callback){
+			$query->where('kompetensi_id', $kompetensi_id);
+			if($kompetensi_id == 1){
+				$query->orWhere('kompetensi_id', 3);
+				$query->whereHas('pembelajaran', $callback);
+			}
+		})
 		->withCount('kd_nilai');
 		$dt = DataTables::of($query)
 			->filter(function ($query) {

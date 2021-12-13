@@ -34,10 +34,15 @@
 		<tr>
 			<th style="vertical-align:middle;width: 2px;" align="center">No</th>
 			<th style="vertical-align:middle;width: 200px;">Mata Pelajaran</th>
+			<?php if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) {?>
+			<th align="center" class="text-center">Nilai Akhir</th>
+			<th align="center" class="text-center">Capaian Kompetensi</th>
+			<?php } else { ?>
 			<th align="center" class="text-center">Pengetahuan</th>
 			<th align="center" class="text-center">Keterampilan</th>
 			<th align="center" class="text-center">Nilai Akhir</th>
 			<th align="center" class="text-center">Predikat</th>
+			<?php } ?>
 		</tr>
 	</thead>
 	<tbody>
@@ -78,10 +83,17 @@
 		'nilai_akhir_keterampilan'	=> $nilai_keterampilan_value,
 		'nilai_akhir'	=> $nilai_akhir,
 		'predikat'	=> CustomHelper::konversi_huruf($kkm, $nilai_akhir, $produktif),
+		'nilai_akhir_pk' => ($pembelajaran->nilai_akhir_pk) ? $pembelajaran->nilai_akhir_pk->nilai : 0,
 	);
 	$i=1;
 	?>
 	@endforeach
+	<?php 
+	if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) { 
+		$colspan = 4;
+	} else { 
+		$colspan = 6;
+	} ?>
 	@foreach($all_pembelajaran as $kelompok => $data_pembelajaran)
 	@if($kelompok == 'C1. Dasar Bidang Keahlian' || $kelompok == 'C3. Kompetensi Keahlian')
 	<tr>
@@ -89,17 +101,22 @@
 	</tr>
 	@endif
 	<tr>
-		<td colspan="6" class="strong"><b style="font-size: 13px;">{{$kelompok}}</b></td>
+		<td colspan="{{$colspan}}" class="strong"><b style="font-size: 13px;">{{$kelompok}}</b></td>
 	</tr>
 	@foreach($data_pembelajaran as $pembelajaran)
 	<?php $pembelajaran = (object) $pembelajaran; ?>
 		<tr>
 			<td class="text-center">{{$i++}}</td>
 			<td>{{$pembelajaran->nama_mata_pelajaran}}</td>
+			<?php if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) {?>
+			<td class="text-center">{{$pembelajaran->nilai_akhir_pk}}</td>
+			<td>???</td>
+			<?php } else { ?>
 			<td class="text-center">{{$pembelajaran->nilai_akhir_pengetahuan}}</td>
 			<td class="text-center">{{$pembelajaran->nilai_akhir_keterampilan}}</td>
 			<td class="text-center">{{$pembelajaran->nilai_akhir}}</td>
 			<td class="text-center">{{$pembelajaran->predikat}}</td>
+			<?php } ?>
 		</tr>
 	@endforeach
 	@endforeach

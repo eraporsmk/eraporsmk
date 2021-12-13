@@ -32,17 +32,26 @@ class Pembelajaran extends Model
 	public function rencana_keterampilan(){
 		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 2);
 	}
+	public function rencana_pk(){
+		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 3);
+	}
 	public function rencana_pengetahuan_dinilai(){
 		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 1)->whereHas('nilai');
 	}
 	public function rencana_keterampilan_dinilai(){
 		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 2)->whereHas('nilai');
 	}
+	public function rencana_pk_dinilai(){
+		return $this->hasMany('App\Rencana_penilaian', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 3)->whereHas('nilai');
+	}
 	public function nilai_akhir_pengetahuan(){
 		return $this->hasOne('App\Nilai_akhir', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 1);
 	}
 	public function nilai_akhir_keterampilan(){
 		return $this->hasOne('App\Nilai_akhir', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 2);
+	}
+	public function nilai_akhir_pk(){
+		return $this->hasOne('App\Nilai_akhir', 'pembelajaran_id', 'pembelajaran_id')->where('kompetensi_id', '=', 3);
 	}
 	public function anggota_rombel(){
 		return $this->hasManyThrough(
@@ -111,6 +120,17 @@ class Pembelajaran extends Model
             'rencana_penilaian_id' // Local key on users table...
         )->where('kompetensi_id', 2);
     }
+	public function kd_nilai_pk()
+    {
+        return $this->hasManyThrough(
+            'App\Kd_nilai',
+            'App\Rencana_penilaian',
+            'pembelajaran_id', // Foreign key on users table...
+            'rencana_penilaian_id', // Foreign key on posts table...
+            'pembelajaran_id', // Local key on countries table...
+            'rencana_penilaian_id' // Local key on users table...
+        )->where('kompetensi_id', 3);
+    }
 	public function kelompok(){
 		return $this->hasOne('App\Kelompok', 'kelompok_id', 'kelompok_id');
 	}
@@ -137,6 +157,16 @@ class Pembelajaran extends Model
             'pembelajaran_id', // Local key on suppliers table...
             'pembelajaran_id' // Local key on users table...
         )->where('kompetensi_id', 2);
+	}
+	public function nilai_akhir_is_pk(){
+		return $this->hasOneThrough(
+            'App\Nilai_akhir',
+            'App\Pembelajaran',
+            'pembelajaran_id', // Foreign key on users table...
+            'pembelajaran_id', // Foreign key on history table...
+            'pembelajaran_id', // Local key on suppliers table...
+            'pembelajaran_id' // Local key on users table...
+        )->where('kompetensi_id', 3);
 	}
 	public function nilai_rapor(){
 		return $this->hasOne('App\Nilai_rapor', 'pembelajaran_id', 'pembelajaran_id');

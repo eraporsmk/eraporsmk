@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNilaiPengetahuanByKdView extends Migration
+class ChangeFieldRefKdTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,9 @@ class CreateNilaiPengetahuanByKdView extends Migration
      */
     public function up()
     {
-        Artisan::call("view:CreateOrReplaceNilaiPengetahuanByKdView");
+        Schema::table('ref.kompetensi_dasar', function(Blueprint $table) {
+            $table->text('id_kompetensi')->change();
+        });
     }
 
     /**
@@ -23,6 +25,6 @@ class CreateNilaiPengetahuanByKdView extends Migration
      */
     public function down()
     {
-		  DB::statement("DROP VIEW get_nilai_pengetahuan_siswa_by_kd CASCADE");
+        
     }
 }

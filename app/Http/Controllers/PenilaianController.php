@@ -179,7 +179,7 @@ class PenilaianController extends Controller
 		$uraian_sikap = $request['uraian_sikap'];
 		$guru_id = $request['guru_id'];
 		$output['jumlah_form'] = (is_array($siswa_id)) ? count($siswa_id) : 0;
-		$redirect = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
+		$redirect = ($kompetensi_id == 1 || $kompetensi_id == 3) ? 'pengetahuan' : 'keterampilan';
 		$insert = 0;
 		$update = 0;
 		if($query == 'sikap'){
@@ -254,7 +254,7 @@ class PenilaianController extends Controller
 				}
 				$hasil = $hitung/$jumlah_kd;
 				$rerata_nilai = $hasil*$bobot;//($hasil*$bobot)/$total_bobot;
-				$rerata_jadi = number_format($rerata_nilai/$total_bobot,2);
+				$rerata_jadi = ($total_bobot) ? number_format($rerata_nilai/$total_bobot,2) : 0;
 				$rerata_stor[] = number_format($hitung/$jumlah_kd,0);
 				$record['value'] 	= number_format($hitung/$jumlah_kd,0);
 				//=F6*(C4/(C4+G4+J4+M4))
@@ -271,6 +271,7 @@ class PenilaianController extends Controller
 							$update++;
 							$get_nilai->nilai = $nilai;
 							$get_nilai->rerata = $rerata_stor[$k];
+							$get_nilai->kompetensi_id = $kompetensi_id;
 							$get_nilai->last_sync = date('Y-m-d H:i:s');
 							$get_nilai->save();
 						} else {
@@ -289,7 +290,7 @@ class PenilaianController extends Controller
 					//}
 				}
 			}
-			$redirect = ($kompetensi_id == 1) ? '/pengetahuan' : '/keterampilan';
+			$redirect = ($kompetensi_id == 1 || $kompetensi_id == 3 ) ? '/pengetahuan' : '/keterampilan';
 			$text = 'Tidak ada nilai disimpan. Periksa kembali isian nilai KD';
 		}
 		$output['rumus'] = '';

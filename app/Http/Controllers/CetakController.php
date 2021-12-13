@@ -241,6 +241,7 @@ class CetakController extends Controller
 					$query->with('kelompok');
 					$query->with(['nilai_akhir_pengetahuan' => $callback]);
 					$query->with(['nilai_akhir_keterampilan' => $callback]);
+					$query->with(['nilai_akhir_pk' => $callback]);
 					$query->whereNotNull('kelompok_id');
 					$query->orderBy('kelompok_id', 'asc');
 					$query->orderBy('no_urut', 'asc');

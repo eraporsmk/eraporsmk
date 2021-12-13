@@ -86,6 +86,8 @@ class RombelController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($pembelajaran->kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($pembelajaran->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}

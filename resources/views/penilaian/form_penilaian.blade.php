@@ -185,6 +185,9 @@ $('#rombel').change(function(){
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
+				if(data.kurikulum === 2021){
+					$('#kompetensi_id').val(3);
+				}
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
 				if(!$.isEmptyObject(data.mapel)){

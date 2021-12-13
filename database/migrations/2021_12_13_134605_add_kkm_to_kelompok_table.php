@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeFieldToDudiTable extends Migration
+class AddKkmToKelompokTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class ChangeFieldToDudiTable extends Migration
      */
     public function up()
     {
-        Schema::table('dudi', function (Blueprint $table) {
-            $table->decimal('lintang', 18,12)->change();
-			$table->decimal('bujur', 18,12)->change();
+        Schema::table('ref.kelompok', function (Blueprint $table) {
+            $table->smallInteger('kkm')->nullable();
         });
     }
 
@@ -26,9 +25,8 @@ class ChangeFieldToDudiTable extends Migration
      */
     public function down()
     {
-        Schema::table('dudi', function (Blueprint $table) {
-            $table->decimal('lintang', 18,12)->change();
-			$table->decimal('bujur', 18,12)->change();
+        Schema::table('ref.kelompok', function (Blueprint $table) {
+            $table->dropColumn('kkm');
         });
     }
 }

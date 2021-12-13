@@ -77,10 +77,13 @@ class HomeController extends Controller
 			}])
 			->withCount('rencana_pengetahuan')
 			->withCount('rencana_keterampilan')
+			->withCount('rencana_pk')
 			->withCount('nilai_akhir_pengetahuan')
 			->withCount('nilai_akhir_keterampilan')
+			->withCount('nilai_akhir_pk')
 			->withCount('rencana_pengetahuan_dinilai')
 			->withCount('rencana_keterampilan_dinilai')
+			->withCount('rencana_pk_dinilai')
 			->where('sekolah_id', $user->sekolah_id)
 			->where('semester_id', session('semester_id'))
 			->where('guru_id', $user->guru_id)
@@ -103,10 +106,13 @@ class HomeController extends Controller
 					$query->with(['pengajar' => $callback]);
 					$query->withCount('rencana_pengetahuan');
 					$query->withCount('rencana_keterampilan');
+					$query->withCount('rencana_pk');
 					$query->withCount('nilai_akhir_pengetahuan');
 					$query->withCount('nilai_akhir_keterampilan');
+					$query->withCount('nilai_akhir_pk');
 					$query->withCount('rencana_pengetahuan_dinilai');
 					$query->withCount('rencana_keterampilan_dinilai');
+					$query->withCount('rencana_pk_dinilai');
 					$query->whereNotNull('kelompok_id');
 					$query->whereNotNull('no_urut');
 				}])->where('sekolah_id', $user->sekolah_id)
@@ -202,7 +208,13 @@ class HomeController extends Controller
 	}
 	public function generate_nilai($pembelajaran_id, $kompetensi_id){
 		$user = auth()->user();
-		$rencana_penilaian = ($kompetensi_id == 1) ? 'rencana_pengetahuan' : 'rencana_keterampilan';
+		if($kompetensi_id == 1){
+			$rencana_penilaian = 'rencana_pengetahuan';
+		} elseif($kompetensi_id == 2){
+			$rencana_penilaian = 'rencana_keterampilan';
+		} else {
+			$rencana_penilaian = 'rencana_pk';
+		}
 		$pembelajaran = Pembelajaran::with([$rencana_penilaian, $rencana_penilaian.'.kd_nilai', $rencana_penilaian.'.kd_nilai.nilai'])->find($pembelajaran_id);
 		$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
 		$result = array();

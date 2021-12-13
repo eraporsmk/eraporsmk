@@ -36,10 +36,6 @@ class CreateAnggotaKewirausahaanTable extends Migration
      */
     public function down()
     {
-        Schema::table('kewirausahaan', function (Blueprint $table) {
-            $table->dropForeign(['anggota_rombel_id']);
-			$table->dropForeign(['kewirausahaan_id']);
-        });
         Schema::dropIfExists('anggota_kewirausahaan');
     }
 }

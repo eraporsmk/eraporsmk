@@ -1,3 +1,4 @@
+alur/
 vendor/
 !public/vendor/
 !public/vendor/blueimp/jquery-file-upload/js/vendor

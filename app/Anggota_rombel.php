@@ -49,11 +49,17 @@ class Anggota_rombel extends Model
 	public function nilai_akhir_keterampilan(){
 		return $this->hasOne('App\Nilai_akhir', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
 	}
+	public function nilai_akhir_pk(){
+		return $this->hasOne('App\Nilai_akhir', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3);
+	}
 	public function nilai_kd_pengetahuan(){
 		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 1);
 	}
 	public function nilai_kd_keterampilan(){
 		return $this->hasMany('App\NilaiKeterampilanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
+	}
+	public function nilai_kd_pk(){
+		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3);
 	}
 	public function nilai_remedial(){
 		return $this->hasOne('App\Remedial', 'anggota_rombel_id', 'anggota_rombel_id');
