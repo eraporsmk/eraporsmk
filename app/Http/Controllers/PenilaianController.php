@@ -23,6 +23,7 @@ use App\Nilai_ukk;
 use Session;
 use App\Guru;
 use App\Bimbing_pd;
+use App\Deskripsi_mata_pelajaran;
 class PenilaianController extends Controller
 {
 	public function __construct()
@@ -233,6 +234,29 @@ class PenilaianController extends Controller
 					);
 				}
 			}
+		} elseif($query == 'capaian-kompetensi'){
+			//dd(request()->all());
+			$insert = 0;
+			foreach(request()->siswa_id as $anggota_rombel_id){
+				if(request()->nilai_kd[$anggota_rombel_id]){
+					$insert++;
+					foreach(request()->kompetensi_dasar_id as $kompetensi_dasar_id){
+						Deskripsi_mata_pelajaran::updateOrCreate(
+							[
+								'sekolah_id' => session('sekolah_id'),
+								'anggota_rombel_id' => $anggota_rombel_id,
+								'pembelajaran_id' => request()->pembelajaran_id,
+								'kompetensi_dasar_id' => $kompetensi_dasar_id,
+							],
+							[
+								'deskripsi_pengetahuan' => request()->deskripsi_pengetahuan[$anggota_rombel_id][$kompetensi_dasar_id],
+								'last_sync' => now(),
+							]
+						);
+					}
+				}
+			}
+			$redirect = '/capaian-kompetensi';
 		} else {
 			foreach($siswa_id as $k=>$siswa){
 				foreach($kds as $key=>$kd) {

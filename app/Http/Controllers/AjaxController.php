@@ -1011,4 +1011,49 @@ class AjaxController extends Controller
 		}*/
 		return response()->json($output);
 	}
+	public function get_deskripsi_pk(Request $request){
+		$kompetensi_id = $request['kompetensi_id'];
+		$pembelajaran_id = $request['pembelajaran_id'];
+		$rombongan_belajar_id = $request['rombel_id'];
+		$pembelajaran = Pembelajaran::with('rombongan_belajar')->find($pembelajaran_id);
+		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
+		if($get_mapel_agama){
+			$callback = function($query) use ($get_mapel_agama) {
+				$query->where('agama_id', $get_mapel_agama);
+			};
+			$all_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with([
+				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+			])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
+		} else {
+			$all_siswa = Anggota_rombel::with('siswa')->with([
+				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+			])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
+		}
+		$params = array(
+			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+			'pembelajaran_id' => $pembelajaran->pembelajaran_id,
+			'rombongan_belajar' => $pembelajaran->rombongan_belajar,
+			'kompetensi_id'	=> $kompetensi_id,
+			'pembelajaran' => $pembelajaran,
+			'all_siswa' => $all_siswa,
+		);
+		
+		return view('penilaian.capaian_kompetensi')->with($params);
+	}
 }

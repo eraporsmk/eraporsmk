@@ -171,4 +171,7 @@ class Pembelajaran extends Model
 	public function nilai_rapor(){
 		return $this->hasOne('App\Nilai_rapor', 'pembelajaran_id', 'pembelajaran_id');
 	}
+	public function deskripsi_mata_pelajaran(){
+		return $this->hasMany('App\Deskripsi_mata_pelajaran', 'pembelajaran_id', 'pembelajaran_id');
+	}
 }

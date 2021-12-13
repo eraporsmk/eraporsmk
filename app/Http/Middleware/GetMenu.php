@@ -354,6 +354,13 @@ class GetMenu
 						'icon' => 'hand-o-right',
 						'permission'  => 'pembina_ekskul',
 					],
+					[
+						'text' => 'Capaian Kompetensi',
+						'url'  => 'penilaian/capaian-kompetensi',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
+					],
 				],
 			]);
 			if($ta && $ta->semester == 1){

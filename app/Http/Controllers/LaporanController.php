@@ -601,26 +601,36 @@ class LaporanController extends Controller
 	public function review_nilai($query, $id){
 		$user = auth()->user();
 		if($query){
-			$get_siswa = Anggota_rombel::with(['siswa', 'rombongan_belajar' => function($query) use ($id){
-				$query->with(['pembelajaran' => function($query) use ($id) {
-					$callback = function($query) use ($id){
-						$query->where('anggota_rombel_id', $id);
-					};
-					//$query->with('kelompok');
-					//$query->whereHas('nilai_akhir_pengetahuan', $callback);
-					$query->with(['kelompok', 'nilai_akhir_pengetahuan' => $callback, 'nilai_akhir_keterampilan' => $callback, 'nilai_akhir_pk' => $callback]);
-					//$query->whereHas('nilai_akhir_keterampilan', $callback);
-					//$query->with(['nilai_akhir_keterampilan' => $callback]);
-					$query->whereNotNull('kelompok_id');
-					$query->orderBy('kelompok_id', 'asc');
-					$query->orderBy('no_urut', 'asc');
-				}]);
-				$query->with('semester');
-				$query->with('jurusan');
-				$query->with('kurikulum');
-			}])->with(['sekolah' => function($q){
-				$q->with('guru');
-			}])->find($id);
+			$get_siswa = Anggota_rombel::with([
+				'siswa', 
+				'rombongan_belajar' => function($query) use ($id){
+					$query->with(['pembelajaran' => function($query) use ($id) {
+						$callback = function($query) use ($id){
+							$query->where('anggota_rombel_id', $id);
+						};
+						//$query->with('kelompok');
+						//$query->whereHas('nilai_akhir_pengetahuan', $callback);
+						$query->with([
+							'kelompok', 
+							'nilai_akhir_pengetahuan' => $callback, 
+							'nilai_akhir_keterampilan' => $callback, 
+							'nilai_akhir_pk' => $callback,
+							'deskripsi_mata_pelajaran' => $callback,
+						]);
+						//$query->whereHas('nilai_akhir_keterampilan', $callback);
+						//$query->with(['nilai_akhir_keterampilan' => $callback]);
+						$query->whereNotNull('kelompok_id');
+						$query->orderBy('kelompok_id', 'asc');
+						$query->orderBy('no_urut', 'asc');
+					}]);
+					$query->with('semester');
+					$query->with('jurusan');
+					$query->with('kurikulum');
+				},
+				'sekolah' => function($q){
+					$q->with('guru');
+				},
+			])->find($id);
 		} else {
 			$get_siswa = Anggota_rombel::with(['siswa', 'rombongan_belajar'])->where('rombongan_belajar_id', $id)->order()->get();
 		}

@@ -271,6 +271,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-nilai-un', array('as' => 'ajax.get_nilai_un', 'uses' => 'AjaxController@get_nilai_un'));
     Route::post('/ajax/get-wirausaha', array('as' => 'ajax.get_wirausaha', 'uses' => 'AjaxController@get_wirausaha'));
     Route::post('/ajax/get-anggota-wirausaha', array('as' => 'ajax.get_anggota_wirausaha', 'uses' => 'AjaxController@get_anggota_wirausaha'));
+    Route::post('/ajax/get-deskripsi-pk', array('as' => 'ajax.get_deskripsi_pk', 'uses' => 'AjaxController@get_deskripsi_pk'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {

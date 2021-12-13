@@ -59,7 +59,7 @@ class Anggota_rombel extends Model
 		return $this->hasMany('App\NilaiKeterampilanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
 	}
 	public function nilai_kd_pk(){
-		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3);
+		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar');
 	}
 	public function nilai_remedial(){
 		return $this->hasOne('App\Remedial', 'anggota_rombel_id', 'anggota_rombel_id');
@@ -72,6 +72,12 @@ class Anggota_rombel extends Model
 	}
 	public function nilai_rapor(){
 		return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderBy('total_nilai', 'ASC');
+	}
+	public function nilai_rapor_pk(){
+		return $this->hasOne('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function deskripsi_mata_pelajaran(){
+		return $this->hasMany('App\Deskripsi_mata_pelajaran', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
 	public function v_nilai_akhir_p(){
 		return $this->hasOne('App\NilaiAkhirPengetahuan', 'anggota_rombel_id', 'anggota_rombel_id');

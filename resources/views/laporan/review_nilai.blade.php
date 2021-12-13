@@ -65,6 +65,7 @@
 	}
 	//$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran->pembelajaran_id, $pembelajaran->rombongan_belajar_id);
 	$all_pembelajaran[$pembelajaran->kelompok->nama_kelompok][] = array(
+		'deskripsi_mata_pelajaran' => $pembelajaran->deskripsi_mata_pelajaran,
 		'nama_mata_pelajaran'	=> $pembelajaran->nama_mata_pelajaran,
 		'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
 		'nilai_akhir_pengetahuan'	=> ($pembelajaran->nilai_akhir_pengetahuan) ? $pembelajaran->nilai_akhir_pengetahuan->nilai : 0,
@@ -89,12 +90,14 @@
 	@foreach($data_pembelajaran as $pembelajaran)
 	<?php $pembelajaran = (object) $pembelajaran; ?>
 		<tr>
-			<td class="text-center">{{$i++}}</td>
-			<td>{{$pembelajaran->nama_mata_pelajaran}}</td>
-			<td class="text-center">{{$pembelajaran->kkm}}</td>
+			<td class="text-center" rowspan="{{$pembelajaran->deskripsi_mata_pelajaran->count() + 1}}">{{$i++}}</td>
+			<td rowspan="{{$pembelajaran->deskripsi_mata_pelajaran->count() + 1}}">{{$pembelajaran->nama_mata_pelajaran}}</td>
+			<td class="text-center" rowspan="{{$pembelajaran->deskripsi_mata_pelajaran->count() + 1}}">{{$pembelajaran->kkm}}</td>
 			<?php if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) { ?>
-			<td class="text-center">{{$pembelajaran->nilai_akhir_pk}}</td>
-			<td>???</td>
+			<td class="text-center" rowspan="{{$pembelajaran->deskripsi_mata_pelajaran->count() + 1}}">{{$pembelajaran->nilai_akhir_pk}}</td>
+			@if (!$pembelajaran->deskripsi_mata_pelajaran->count())
+			<td class="text-center">-</td>
+			@endif
 			<?php } else { ?>
 			<td class="text-center">{{$pembelajaran->nilai_akhir_pengetahuan}}</td>
 			<td class="text-center">{{$pembelajaran->huruf_pengetahuan}}</td>
@@ -102,6 +105,17 @@
 			<td class="text-center">{{$pembelajaran->huruf_keterampilan}}</td>
 			<?php } ?>
 		</tr>
+		<?php if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false) { ?>
+			@foreach ($pembelajaran->deskripsi_mata_pelajaran as $deskripsi_mata_pelajaran)
+			<?php
+			//$deskripsi_mata_pelajaran = $get_siswa->deskripsi_mata_pelajaran()->where('pembelajaran_id', $pembelajaran->pembelajaran_id)->first();
+			?>
+			<tr>
+				<td>{{($deskripsi_mata_pelajaran) ? $deskripsi_mata_pelajaran->deskripsi_pengetahuan : '-'}}</td>
+			</tr>
+			@endforeach
+		<?php } ?>
+		{{--dd($get_siswa)--}}
 	@endforeach
 	@endforeach
 	</tbody>
