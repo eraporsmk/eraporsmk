@@ -316,7 +316,7 @@ class HomeController extends Controller
 			}
 		}
 		$status['icon'] = 'success';
-		$status['text'] = "$b siswa berhasil disimpan. $a siswa berhasil diperbaharui :".$kd_nilai_count.':'.$bobot;
+		$status['text'] = "$b siswa berhasil disimpan. $a siswa berhasil diperbaharui";
 		$status['insert'] = $b;
 		$status['update'] = $a;
 		$status['title'] = 'Generate Nilai Selesai!';
