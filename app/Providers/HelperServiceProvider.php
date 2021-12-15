@@ -459,4 +459,18 @@ class HelperServiceProvider extends ServiceProvider
 		$result = str_replace($escapers, $replacements, $value);
 		return $result;
 	}
+	public static function opsi_budaya($n){
+		if(!$n){
+			$predikat 	= '-';
+		} elseif($n >= 4){
+			$predikat 	= '<span class="badge bg-green">&nbsp;&nbsp;</span>';
+		} elseif($n >= 3){
+			$predikat 	= '<span class="badge bg-red">&nbsp;&nbsp;</span>';
+		} elseif($n >= 2){
+			$predikat 	= '<span class="badge bg-blue">&nbsp;&nbsp;</span>';
+		} elseif($n >= 1){
+			$predikat 	= '<span class="badge bg-yellow">&nbsp;&nbsp;</span>';
+		}
+		return $predikat;
+	}
 }

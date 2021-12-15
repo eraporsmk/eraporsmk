@@ -24,6 +24,7 @@ use Session;
 use App\Guru;
 use App\Bimbing_pd;
 use App\Deskripsi_mata_pelajaran;
+use App\Nilai_budaya_kerja;
 class PenilaianController extends Controller
 {
 	public function __construct()
@@ -115,7 +116,6 @@ class PenilaianController extends Controller
 			return $return;
 		})
 		->addColumn('get_butir_sikap', function ($item) {
-			//dd($item->butir_sikap);
 			$return  = $item->ref_sikap->butir_sikap;
 			return $return;
 		})
@@ -235,7 +235,6 @@ class PenilaianController extends Controller
 				}
 			}
 		} elseif($query == 'capaian-kompetensi'){
-			//dd(request()->all());
 			$insert = 0;
 			foreach(request()->siswa_id as $anggota_rombel_id){
 				if(request()->nilai_kd[$anggota_rombel_id]){
@@ -257,6 +256,30 @@ class PenilaianController extends Controller
 				}
 			}
 			$redirect = '/capaian-kompetensi';
+		} elseif($query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
+			$insert = 0;
+			foreach($request->nilai as $anggota_rombel_id => $value){
+				foreach($value as $aspek_budaya_kerja_id => $elemen){
+					foreach($elemen as $elemen_id => $opsi_id){
+						if($opsi_id){
+							Nilai_budaya_kerja::updateOrCreate(
+								[
+									'anggota_rombel_id' => $anggota_rombel_id,
+									'aspek_budaya_kerja_id' => $aspek_budaya_kerja_id,
+									'elemen_id' => $elemen_id,
+								],
+								[
+									'sekolah_id' => session('sekolah_id'),
+									'opsi_id' => $opsi_id,
+									'last_sync' => now(),
+								]
+							);
+							$insert++;
+						}
+					}
+				}
+			}
+			$redirect = '/projek-profil-pelajar-pancasila-dan-budaya-kerja';
 		} else {
 			foreach($siswa_id as $k=>$siswa){
 				foreach($kds as $key=>$kd) {

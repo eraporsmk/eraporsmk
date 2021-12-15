@@ -29,6 +29,10 @@ use App\Nilai_us;
 use App\Nilai_un;
 use App\Kewirausahaan;
 use App\Anggota_kewirausahaan;
+use App\Budaya_kerja;
+use App\Rencana_budaya_kerja;
+use App\Aspek_budaya_kerja;
+use App\Opsi_budaya_kerja;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -304,6 +308,18 @@ class AjaxController extends Controller
 			'bentuk_penilaian' => $bentuk_penilaian,
 		);
 		return view('perencanaan.get_kd_'.$kompetensi_id)->with($params);
+	}
+	public function get_form_p5bk(Request $request){
+		$params = [
+			'data_siswa' => Anggota_rombel::with(['siswa', 'nilai_budaya_kerja' => function($query){
+				$query->whereHas('aspek_budaya_kerja', function($query){
+					$query->where('rencana_budaya_kerja_id', request()->rencana_budaya_kerja_id);
+				});
+			}])->where('rombongan_belajar_id', $request->rombel_id)->order()->get(),
+			'rencana_p5bk' => Aspek_budaya_kerja::with(['budaya_kerja.elemen_budaya_kerja'])->where('rencana_budaya_kerja_id', $request->rencana_budaya_kerja_id)->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::all(),
+		];
+		return view('penilaian.penilaian_p5bk')->with($params);
 	}
 	public function get_bobot($pembelajaran_id, $metode_id){
 		$find_bobot = Bobot_keterampilan::where('pembelajaran_id', $pembelajaran_id)->where('metode_id', $metode_id)->first();
@@ -1055,5 +1071,27 @@ class AjaxController extends Controller
 		);
 		
 		return view('penilaian.capaian_kompetensi')->with($params);
+	}
+	public function get_rencana_budaya_kerja(Request $request){
+		$params = [
+			'budaya_kerja' => Budaya_kerja::all(),
+		];
+		return view('perencanaan.form_budaya_kerja')->with($params);
+	}
+	public function get_rencana_p5bk(Request $request){
+		$data = Rencana_budaya_kerja::where('rombongan_belajar_id', $request->rombel_id)->get();
+		if($data->count()){
+			foreach($data as $d){
+				$record= array();
+				$record['value'] 	= $d->rencana_budaya_kerja_id;
+				$record['text'] 	= $d->nama;
+				$output['results'][] = $record;
+			}
+		} else {
+			$record['value'] 	= '';
+			$record['text'] 	= 'Tidak ditemukan Rencana P5bk di rombongan belajar terpilih';
+			$output['results'][] = $record;
+		}
+		echo json_encode($output);
 	}
 }

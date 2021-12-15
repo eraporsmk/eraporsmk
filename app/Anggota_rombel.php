@@ -184,4 +184,7 @@ class Anggota_rombel extends Model
 	public function nilai_un(){
 		return $this->hasOne('App\Nilai_un', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
+	public function nilai_budaya_kerja(){
+		return $this->hasMany(Nilai_budaya_kerja::class, 'anggota_rombel_id', 'anggota_rombel_id');
+	}
 }

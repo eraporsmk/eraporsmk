@@ -19,6 +19,8 @@ use App\Nilai_ukk;
 use App\Anggota_rombel;
 use App\Jurusan_sp;
 use App\Rombongan_belajar;
+use App\Rencana_budaya_kerja;
+use App\Aspek_budaya_kerja;
 class PerencanaanController extends Controller
 {
     public function __construct()
@@ -46,6 +48,11 @@ class PerencanaanController extends Controller
 		->get();
 		return view('perencanaan.rasio')->with(['all_pembelajaran' => $pembelajaran]);
     }
+	public function p5bk(){
+		$user = auth()->user();
+		$data['all_jurusan'] = Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get();
+		return view('perencanaan.p5bk', $data);
+    }
 	public function pk(){
 		$user = auth()->user();
 		$data['all_jurusan'] = Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get();
@@ -61,6 +68,118 @@ class PerencanaanController extends Controller
 		$data['all_jurusan'] = Jurusan_sp::where('sekolah_id', session('sekolah_id'))->get();
 		return view('perencanaan.keterampilan', $data);
     }
+	public function list_rencana_p5bk(Request $request){
+		$query = Rencana_budaya_kerja::query()->with(['rombongan_belajar'])->withCount('aspek_budaya_kerja');
+		$dt = DataTables::of($query)
+			->filter(function ($query) {
+				if (request()->has('filter_jurusan')) {
+					$query->whereHas('pembelajaran.rombongan_belajar', function($subquery){
+						$subquery->where('jurusan_sp_id', request('filter_jurusan'));
+					});
+				}
+				if (request()->has('filter_kelas')) {
+					//$query->with('rombongan_belajar');
+					$query->whereHas('pembelajaran.rombongan_belajar', function($subquery){
+						$subquery->where('jurusan_sp_id', request('filter_jurusan'));
+						$subquery->where('tingkat', request('filter_kelas'));
+					});
+				}
+				if (request()->has('filter_rombel')) {
+					$query->whereHas('pembelajaran.rombongan_belajar', function($subquery){
+						$subquery->where('rombongan_belajar_id', request('filter_rombel'));
+					});
+				}
+				if (request()->has('search')) {
+					$search = request('search')['value'];
+					if($search){
+						//$query->where('nama', 'ilike', '%'.$search.'%');
+					}
+				}
+			});
+		$dt->addColumn('rombongan_belajar', function ($item) {
+			$return  = ($item->rombongan_belajar) ? $item->rombongan_belajar->nama : '-';
+			return $return;
+		});
+		$dt->addColumn('actions', function ($item){
+			$return  = '<div class="text-center"><div class="btn-group">
+							<button type="button" class="btn btn-default btn-sm">Aksi</button>
+                            <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+								<span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu pull-right text-left" role="menu">
+								<li><a href="'.url('perencanaan/delete/4/'.$item->rencana_budaya_kerja_id).'" class="confirm"><i class="fa fa-power-off"></i> Hapus</a></li>
+                            </ul>
+                        </div></div>';
+			return $return;
+		});
+		/*
+		->addColumn('kelas', function ($item) {
+			$return  = ($item->pembelajaran) ? $item->pembelajaran->rombongan_belajar->nama : '-';
+			return $return;
+		})
+		->addColumn('metode', function ($item) {
+			$return  = ($item->teknik_penilaian) ? $item->teknik_penilaian->nama : '-';
+			return $return;
+		})
+		->addColumn('actions', function ($item){
+			$kompetensi_id = 1;
+			$nilai = 0;
+			$admin_akses = '';
+			if($nilai){
+				$admin_akses .= '<li><a href="'.url('perencanaan/delete/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'" class="confirm"><i class="fa fa-power-off"></i> Hapus</a></li>';
+			} else {
+				if($kompetensi_id == 1){
+					$text_edit = 'Edit Bobot';
+				} else {
+					$text_edit = 'Detil';
+				}
+				$admin_akses .= '<li><a href="'.url('perencanaan/edit/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'"><i class="fa fa-pencil"></i> '.$text_edit.'</a></li>';
+				
+				$admin_akses .= '<li><a href="'.url('perencanaan/delete/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'" class="confirm"><i class="fa fa-power-off"></i> Hapus</a></li>';
+			}
+			$admin_akses .= '<li><a href="'.url('perencanaan/copy-rencana/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'" class="toggle-modal"><i class="fa fa-copy"></i> Duplikat</a></li>';
+			
+		});
+		if ($request->has('filter_kelas')) {
+			$dt->addColumn('rombongan_belajar', function () {
+				//return Rombongan_belajar::get();
+				$tingkat = request('filter_kelas');
+				$data_rombel = Rombongan_belajar::where('jurusan_sp_id', request('filter_jurusan'))->where('tingkat', $tingkat)->orderBy('nama')->get();
+				if($data_rombel->count()){
+					foreach($data_rombel as $rombel){
+						$record= array();
+						$record['value'] 	= $rombel->rombongan_belajar_id;
+						$record['text'] 	= $rombel->nama;
+						$output['result'][] = $record;
+					}
+				} else {
+					$record['value'] 	= '';
+					$record['text'] 	= 'Tidak ditemukan rombongan belajar di kelas terpilih '.$tingkat;
+					$output['result'][] = $record;
+				}
+				return $output;
+			});
+		} else {
+			$dt->addColumn('rombongan_belajar', function () use ($data_rombel){
+				if($data_rombel->count()){
+					foreach($data_rombel as $rombel){
+						$record= array();
+						$record['value'] 	= $rombel->rombongan_belajar_id;
+						$record['text'] 	= $rombel->nama;
+						$output['result'][] = $record;
+					}
+				} else {
+					$record['value'] 	= '';
+					$record['text'] 	= 'Tidak ditemukan rombongan belajar di kelas terpilih a';
+					$output['result'][] = $record;
+				}
+				return $output;
+			});
+		}*/
+		$dt->rawColumns(['rombongan_belajar', 'actions']);
+		return $dt->make(true);
+	}
 	public function list_rencana(Request $request, $kompetensi_id){
 		$data_rombel = Rombongan_belajar::where('jurusan_sp_id', request('filter_jurusan'))->where('tingkat', 10)->orderBy('nama')->get();
 		$callback = function($query) {
@@ -302,22 +421,31 @@ class PerencanaanController extends Controller
 		}
 	}
 	public function delete($kompetensi_id, $rencana_id){
-		$delete = Rencana_penilaian::destroy($rencana_id);
+		if($kompetensi_id == 4){
+			$delete = Rencana_budaya_kerja::destroy($rencana_id);
+			$nama_perencanaan = 'Rencana P5BK berhasil dihapus';
+			$redirect = 'projek-profil-pelajar-pancasila-dan-budaya-kerja';
+		} else {
+			$delete = Rencana_penilaian::destroy($rencana_id);
+			$nama_perencanaan = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
+			$redirect = $nama_perencanaan;
+		}
 		//if(Rencana_penilaian::destroy($rencana_id)){
 			//$flash['success'] = 'Berhasil menghapus rencana penilaian';
 		//} else {
 			//$flash['error'] = 'Gagal menghapus rencana penilaian';
 		//}
-		$nama_perencanaan = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
 		//return redirect()->route('perencanaan_'.$nama_perencanaan)->with($flash);
 		if($delete){
 			$output = [
+				'redirect' => $redirect,
 				'title'	=> 'Berhasil',
 				'icon'	=> 'success',
 				'text'	=> 'Rencana '.$nama_perencanaan.' berhasil di hapus',
 			];
 		} else {
 			$output = [
+				'redirect' => $redirect,
 				'title'	=> 'Gagal',
 				'icon'	=> 'error',
 				'text'	=> 'Rencana '.$nama_perencanaan.' gagal di hapus',
@@ -431,12 +559,45 @@ class PerencanaanController extends Controller
 	public function tambah_pk(){
 		return view('perencanaan.tambah_pk');
     }
+	public function tambah_p5bk(){
+		return view('perencanaan.tambah_p5bk');
+    }
 	public function tambah_pengetahuan(){
 		return view('perencanaan.tambah_pengetahuan');
     }
 	public function tambah_keterampilan(){
 		return view('perencanaan.tambah_keterampilan');
     }
+	public function simpan_p5bk(Request $request){
+		$insert = NULL;
+		foreach(request()->nama_projek as $key => $nama_projek){
+			if($nama_projek){
+				$insert = Rencana_budaya_kerja::create([
+					'sekolah_id' => session('sekolah_id'),
+					'rombongan_belajar_id' => request()->rombel_id,
+					'nama' => $nama_projek,
+					'deskripsi' => request()->deskripsi[$key],
+					'last_sync' => now(),
+				]);
+				if($insert){
+					$all_aspek = $request->{'aspek_'.$key};
+					foreach($all_aspek as $aspek)
+					Aspek_budaya_kerja::create([
+						'sekolah_id' => session('sekolah_id'),
+						'rencana_budaya_kerja_id' => $insert->rencana_budaya_kerja_id,
+						'budaya_kerja_id' => $aspek,
+						'last_sync' => now(),
+					]);
+				}
+			}
+		}
+		if($insert){
+			$flash['success'] = 'Data perencanaan Penilaian P5BK berhasil disimpan';
+		} else {
+			$flash['error'] = 'Data perencanaan Penilaian P5BK gagal disimpan';
+		}
+		return redirect()->route('perencanaan.p5bk')->with($flash);
+	}
 	public function simpan_perencanaan(Request $request){
 		$user = auth()->user();
 		$rencana_penilaian_id 		= $request['rencana_penilaian_id'];

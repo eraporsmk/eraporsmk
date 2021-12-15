@@ -82,6 +82,14 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group" id="rencana_p5bk" style="display:none;">
+					<label for="rencana" class="col-sm-3 control-label">Projek Penilaian</label>
+					<div class="col-sm-9">
+						<select name="rencana_budaya_kerja_id" class="select2 form-control" id="rencana_budaya_kerja_id" style="width:100%;">
+							<option value="">== Pilih Projek Penilaian ==</option>
+						</select>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div style="clear:both;"></div>
@@ -124,6 +132,12 @@ if(query == 'pengetahuan' || query == 'keterampilan'){
 	if(query == 'capaian-kompetensi'){
 		$('#aspek_penilaian_show').hide();
 		url_mapel = '{{url('ajax/get-deskripsi-pk')}}';
+	}
+	if(query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
+		$('#mapel_show').hide();
+		$('#rencana_p5bk').show();
+		$('#aspek_penilaian_show').hide();
+		url_rombel = '{{url('ajax/get-rencana-p5bk')}}';
 	}
 }
 console.log(query);
@@ -200,17 +214,10 @@ $('#rombel').change(function(){
 				}
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
-				if(!$.isEmptyObject(data.mapel)){
-					$.each(data.mapel, function (i, item) {
-						$('#mapel').append($("<option></option>")
-						.attr("value",item.value)
-						.attr("data-pembelajaran_id",item.pembelajaran_id)
-						.text(item.text)); 
-					});
-				}
-				if(!$.isEmptyObject(data.siswa)){
-					$.each(data.siswa, function (i, item) {
-						$('#siswa').append($('<option>', { 
+				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');
+				if(!$.isEmptyObject(data.results)){
+					$.each(data.results, function (i, item) {
+						$('#rencana_budaya_kerja_id').append($('<option>', { 
 							value: item.value,
 							text : item.text,
 						}));
@@ -356,6 +363,21 @@ $('.reset_remedial').click(function(){
 					});
 				}
 			});
+		}
+	});
+});
+$('#rencana_budaya_kerja_id').change(function(){
+	var ini = $(this).val();
+	if(ini == ''){
+		return false;
+	}
+	$.ajax({
+		url: '{{url('/ajax/get-form-p5bk')}}',
+		type: 'post',
+		data: $("form#form").serialize(),
+		success: function(response){
+			$('#simpan').show();
+			$('#result').html(response);
 		}
 	});
 });

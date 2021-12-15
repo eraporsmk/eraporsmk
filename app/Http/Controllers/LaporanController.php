@@ -35,6 +35,9 @@ use App\Anggota_kewirausahaan;
 use App\Exports\LaporanExport;
 use App\Imports\LaporanImport;
 use App\Rombel4_tahun;
+use App\Rencana_budaya_kerja;
+use App\Opsi_budaya_kerja;
+use App\Budaya_kerja;
 use Validator;
 class LaporanController extends Controller
 {
@@ -935,5 +938,37 @@ class LaporanController extends Controller
 			];
 		}
 		return response()->json($output);
+	}
+	public function budaya_kerja(Request $request){
+		$user = auth()->user();
+		$get_siswa = Anggota_rombel::with('siswa')->with('nilai_budaya_kerja')->whereHas('rombongan_belajar', function($query) use ($user){
+			$query->where('guru_id', $user->guru_id);
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', session('semester_id'));
+		})->order()->get();
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+		);
+		return view('laporan.p5bk')->with($params);
+	}
+	public function review_p5bk($anggota_rombel_id){
+		$get_siswa = Anggota_rombel::with([
+			'siswa', 
+			'nilai_budaya_kerja',
+			'rombongan_belajar.sekolah',
+		])->find($anggota_rombel_id);
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function($query) use ($anggota_rombel_id){
+				$query->with([
+					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function($query) use ($anggota_rombel_id){
+						$query->where('anggota_rombel_id', $anggota_rombel_id);
+					},
+				]);
+			}])->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::orderBy('opsi_id')->get(),
+			'budaya_kerja' => Budaya_kerja::orderBy('budaya_kerja_id')->get(),
+		);
+		return view('laporan.review_p5bk')->with($params);
 	}
 }

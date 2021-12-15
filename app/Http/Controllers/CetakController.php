@@ -21,6 +21,9 @@ use App\Rombongan_belajar;
 use App\Rencana_penilaian;
 use App\Rapor_pts;
 use App\Siswa;
+use App\Rencana_budaya_kerja;
+use App\Opsi_budaya_kerja;
+use App\Budaya_kerja;
 class CetakController extends Controller
 {
 	public function __construct()
@@ -220,6 +223,41 @@ class CetakController extends Controller
 			'get_siswa'	=> $get_siswa,
 			'tanggal_rapor'	=> $tanggal_rapor,
 		);
+	}
+	public function rapor_p5bk($anggota_rombel_id){
+		$get_siswa = Anggota_rombel::with([
+			'siswa', 
+			'nilai_budaya_kerja',
+			'rombongan_belajar.sekolah',
+		])->find($anggota_rombel_id);
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function($query) use ($anggota_rombel_id){
+				$query->with([
+					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function($query) use ($anggota_rombel_id){
+						$query->where('anggota_rombel_id', $anggota_rombel_id);
+					},
+				]);
+			}])->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::orderBy('opsi_id')->get(),
+			'budaya_kerja' => Budaya_kerja::orderBy('budaya_kerja_id')->get(),
+		);
+		$pdf = PDF::loadView('cetak.blank', $params, [], [
+			'format' => 'A4',
+			'margin_left' => 15,
+			'margin_right' => 15,
+			'margin_top' => 15,
+			'margin_bottom' => 15,
+			'margin_header' => 5,
+			'margin_footer' => 5,
+		]);
+		$pdf->getMpdf()->defaultfooterfontsize=7;
+		$pdf->getMpdf()->defaultfooterline=0;
+		$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
+		$pdf->getMpdf()->SetFooter($general_title.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
+		$rapor_p5bk = view('cetak.rapor_p5bk', $params);
+		$pdf->getMpdf()->WriteHTML($rapor_p5bk);
+		return $pdf->stream($general_title.'-IDENTITAS.pdf');
 	}
 	public function rapor_nilai($query, $id){
 		if($query){
