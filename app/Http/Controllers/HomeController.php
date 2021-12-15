@@ -13,6 +13,7 @@ use App\Rombongan_belajar;
 use Alert;
 use App\NilaiAkhirKeterampilan;
 use App\NilaiAkhirPengetahuan;
+use App\NilaiAkhirPk;
 use App\Nilai_akhir;
 use App\Semester;
 use App\Anggota_rombel;
@@ -25,6 +26,7 @@ use App\Jurusan_sp;
 use App\Remedial;
 use Session;
 use App\Setting;
+use App\NilaiPkByKd;
 use Illuminate\Support\Facades\Storage;
 class HomeController extends Controller
 {
@@ -218,8 +220,12 @@ class HomeController extends Controller
 		$pembelajaran = Pembelajaran::with([$rencana_penilaian, $rencana_penilaian.'.kd_nilai', $rencana_penilaian.'.kd_nilai.nilai'])->find($pembelajaran_id);
 		$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
 		$result = array();
+		$bobot = 0;
 		foreach($pembelajaran->{$rencana_penilaian} as $rencana){
+			$kd_nilai_count = 0;
+			$bobot += $rencana->bobot;
 			foreach($rencana->kd_nilai as $kd_nilai){
+				$kd_nilai_count++;
 				foreach($kd_nilai->nilai as $nilai){
 					$record = array();
 					$record['pembelajaran_id'] = $pembelajaran->pembelajaran_id;
@@ -227,6 +233,7 @@ class HomeController extends Controller
 					$record['kompetensi_id'] = $rencana->kompetensi_id;
 					$record['rasio_p'] = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
 					$record['rasio_k'] = ($pembelajaran->rasio_k) ? $pembelajaran->rasio_k : 50;
+					$result[$nilai->anggota_rombel_id][$kd_nilai->kompetensi_dasar_id] = $record;
 					$result[$nilai->anggota_rombel_id][$kd_nilai->kompetensi_dasar_id] = $record;
 				}
 			}
@@ -246,10 +253,16 @@ class HomeController extends Controller
 			} else {
 				if($kompetensi_id == 1){
 					$query = NilaiAkhirPengetahuan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
-					} else {
+				} elseif($kompetensi_id == 2){
 					$query = NilaiAkhirKeterampilan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
+				} else {
+					$query = NilaiAkhirPk::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
 				}
-				$nilai_akhir = $query->nilai_akhir;
+				if($kompetensi_id == 3){
+					$nilai_akhir = $query->nilai_akhir;
+				} else {
+					$nilai_akhir = $query->nilai_akhir;
+				}
 			}
 			if($nilai_akhir != NULL){
 				$find_nilai_akhir = Nilai_akhir::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
@@ -303,7 +316,7 @@ class HomeController extends Controller
 			}
 		}
 		$status['icon'] = 'success';
-		$status['text'] = "$b siswa berhasil disimpan. $a siswa berhasil diperbaharui";
+		$status['text'] = "$b siswa berhasil disimpan. $a siswa berhasil diperbaharui :".$kd_nilai_count.':'.$bobot;
 		$status['insert'] = $b;
 		$status['update'] = $a;
 		$status['title'] = 'Generate Nilai Selesai!';

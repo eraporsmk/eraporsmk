@@ -71,10 +71,10 @@ $('#simpan').remove();
 				@endforeach
 				<?php $set_rerata = 0; ?>
 				@if($siswa->nilai_remedial)
-				<?php 
-				$nilai_remedial = unserialize($siswa->nilai_remedial->nilai); 
-				$link_delete = '<a href="'.url('penilaian/delete-remedial/'.$siswa->nilai_remedial->nilai_remedial_id).'" class="confirm_remed btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>';
-				?>
+					<?php 
+					$nilai_remedial = unserialize($siswa->nilai_remedial->nilai); 
+					$link_delete = '<a href="'.url('penilaian/delete-remedial/'.$siswa->nilai_remedial->nilai_remedial_id).'" class="confirm_remed btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>';
+					?>
 					@foreach($nilai_remedial as $kd_id => $nilai_perkd)
 					<?php
 					$kd_remedial[] = $kd_id;

@@ -59,7 +59,7 @@ class Anggota_rombel extends Model
 		return $this->hasMany('App\NilaiKeterampilanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
 	}
 	public function nilai_kd_pk(){
-		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar');
+		return $this->hasMany('App\NilaiPkPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar');
 	}
 	public function nilai_remedial(){
 		return $this->hasOne('App\Remedial', 'anggota_rombel_id', 'anggota_rombel_id');
