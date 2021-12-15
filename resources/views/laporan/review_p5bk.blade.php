@@ -73,9 +73,16 @@
 			<td>{{$loop->iteration}}. {{$rencana->nama}}</td>
 			@foreach ($budaya_kerja as $budaya)
 			<?php
-			$nilai_budaya_kerja = $get_siswa->nilai_budaya_kerja->avg('opsi_id');
+			$get_nilai_budaya_kerja = $get_siswa->nilai_budaya_kerja()->whereHas('budaya_kerja', function($query) use($budaya){
+				$query->where('budaya_kerja.budaya_kerja_id', $budaya->budaya_kerja_id);
+			})->whereHas('rencana_budaya_kerja', function($query) use($rencana){
+				$query->where('rencana_budaya_kerja.rencana_budaya_kerja_id', $rencana->rencana_budaya_kerja_id);
+			})->get();
+			$nilai_budaya_kerja = $get_nilai_budaya_kerja->avg('opsi_id');
 			?>
-			<td class="text-center">{!! CustomHelper::opsi_budaya($nilai_budaya_kerja) !!}</td>
+			<td class="text-center">
+				{!! CustomHelper::opsi_budaya($nilai_budaya_kerja) !!}
+			</td>
 			@endforeach
 		</tr>
 		@endforeach
