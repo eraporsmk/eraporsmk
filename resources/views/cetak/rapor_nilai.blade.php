@@ -1,5 +1,6 @@
 @extends('layouts.cetak')
 @section('content')
+@if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') == false)
 <table border="0" width="100%">
 	<tr>
     	<td style="width: 25%;padding-top:5px; padding-bottom:5px; padding-left:0px;">Nama Peserta Didik</td>
@@ -27,6 +28,34 @@
 		<td>{{substr($get_siswa->rombongan_belajar->semester->nama,10)}}</td>
 	</tr>
 </table>
+@else
+<table border="0" width="100%">
+	<tr>
+    	<td style="width: 20%;padding-top:5px; padding-bottom:5px; padding-left:0px;">Nama Peserta Didik</td>
+		<td style="width: 50%">: {{strtoupper($get_siswa->siswa->nama)}}</td>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;width: 15%">Kelas</td>
+		<td style="width: 15%">: {{$get_siswa->rombongan_belajar->nama}}</td>
+	</tr>
+	<tr>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Nomor Induk/NISN</td>
+		<td>: {{$get_siswa->siswa->no_induk.' / '.$get_siswa->siswa->nisn}}</td>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Fase</td>
+		<td>: {{($get_siswa->rombongan_belajar->tingkat == 10) ? 'E' : 'F'}}</td>
+	</tr>
+	<tr>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Sekolah</td>
+		<td>: {{$get_siswa->rombongan_belajar->sekolah->nama}}</td>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Semester</td>
+		<td>: {{substr($get_siswa->rombongan_belajar->semester->nama,10)}}</td>
+	</tr>
+	<tr>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Alamat</td>
+		<td>: {{$get_siswa->siswa->alamat}}</td>
+		<td style="padding-top:5px; padding-bottom:5px; padding-left:0px;">Tahun Pelajaran</td>
+		<td>: {{str_replace('/','-',substr($get_siswa->rombongan_belajar->semester->nama,0,9))}}</td>
+	</tr>
+</table>
+@endif
 <br />
 @if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') == false)
 <div class="strong">A.&nbsp;&nbsp;Nilai Akademik</div>
