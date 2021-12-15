@@ -4,28 +4,28 @@
 <table>
 	<tr>
 		<th style="width: 15%">Nama Sekolah</th>
-		<th style="width: 25%">{{$get_siswa->rombongan_belajar->sekolah->nama}}</th>
+		<th style="width: 25%">: {{$get_siswa->rombongan_belajar->sekolah->nama}}</th>
 		<th style="width: 5%"></th>
 		<th style="width: 15%">Kelas</th>
-		<th style="width: 20%">{{$get_siswa->rombongan_belajar->nama}}</th>
+		<th style="width: 20%">: {{$get_siswa->rombongan_belajar->nama}}</th>
 	</tr>
 	<tr>
 		<th>Program Keahlian</th>
-		<th>{{$get_siswa->rombongan_belajar->jurusan->nama_jurusan}}</th>
+		<th>: {{$get_siswa->rombongan_belajar->jurusan->nama_jurusan}}</th>
 		<th></th>
 		<th>Fase</th>
-		<th>-</th>
+		<th>: {{($get_siswa->rombongan_belajar->tingkat == 10) ? 'E' : 'F'}}</th>
 	</tr>
 	<tr>
 		<th>Nama Peserta Didik</th>
-		<th>{{strtoupper($get_siswa->siswa->nama)}}</th>
+		<th>: {{strtoupper($get_siswa->siswa->nama)}}</th>
 		<th></th>
 		<th>Tahun Pelajaran</th>
-		<th>{{$semester->tahun_ajaran_id}}/{{$semester->tahun_ajaran_id + 1}}</th>
+		<th>: {{$semester->tahun_ajaran_id}}/{{$semester->tahun_ajaran_id + 1}}</th>
 	</tr>
 	<tr>
 		<th>NISN</th>
-		<th>{{$get_siswa->siswa->nisn}}</th>
+		<th>: {{$get_siswa->siswa->nisn}}</th>
 		<th></th>
 		<th></th>
 		<th></th>
