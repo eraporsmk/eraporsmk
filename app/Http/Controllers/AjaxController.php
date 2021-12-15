@@ -276,10 +276,11 @@ class AjaxController extends Controller
 		$all_kd = Kompetensi_dasar::where('kompetensi_id', $kompetensi_id)->where('mata_pelajaran_id', $id_mapel)->where('kelas_'.$kelas, 1)->where('aktif', 1)->where('kurikulum', $kurikulum)->orderByRaw('length(id_kompetensi) asc')->orderBy('id_kompetensi')->get();
 		$bobot = '';
 		$bentuk_penilaian = '';
+		$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		if($kompetensi_id == 1){
-			$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
+			//$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		} else {
-			$bentuk_penilaian = Teknik_penilaian::all();
+			//$bentuk_penilaian = Teknik_penilaian::all();
 			$pembelajaran = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)
 			->where('mata_pelajaran_id', $id_mapel)
 			->first();

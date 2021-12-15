@@ -10,7 +10,7 @@ use App\Kelompok;
 use App\Budaya_kerja;
 use App\Elemen_budaya_kerja;
 use App\Opsi_budaya_kerja;
-
+use App\Teknik_penilaian;
 class RefCP extends Command
 {
     /**
@@ -246,6 +246,28 @@ class RefCP extends Command
                     'nama' => $d['nama'],
                     'deskripsi' => $d['deskripsi'],
                     'warna' => $d['warna'],
+                    'last_sync' => now(),
+                ]
+            );
+        }
+        $data = [
+            [
+                'kompetensi_id' => 3,
+                'nama' => 'Sumatif (SMK PK)',
+                'bobot' => 1,
+            ],
+            [
+                'kompetensi_id' => 3,
+                'nama' => 'Formatif (SMK PK)',
+                'bobot' => 0,
+            ]
+        ];
+        foreach($data as $d){
+            Teknik_penilaian::updateOrCreate(
+                [
+                    'kompetensi_id' => $d['kompetensi_id'],
+                    'nama' => $d['nama'],
+                    'bobot' => $d['bobot'],
                     'last_sync' => now(),
                 ]
             );
