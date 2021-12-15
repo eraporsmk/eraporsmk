@@ -171,7 +171,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::group(['middleware' => ['role:guru|pembina_ekskul']], function () {
         //Perencanaan Start//
         Route::prefix('perencanaan')->group(function () {
-            Route::get('/pk', 'PerencanaanController@pk')->name('perencanaan.pk');
+            Route::get('/pk', 'PerencanaanController@pk')->name('perencanaan_pk');
             Route::get('/tambah-pk', 'PerencanaanController@tambah_pk');
             Route::get('/projek-profil-pelajar-pancasila-dan-budaya-kerja', 'PerencanaanController@p5bk')->name('perencanaan.p5bk');
             Route::get('/tambah-p5bk', 'PerencanaanController@tambah_p5bk');

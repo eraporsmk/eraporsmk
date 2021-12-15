@@ -778,7 +778,11 @@ class PerencanaanController extends Controller
 						}
 					}
 				}
-				$nama_perencanaan = 'Pengetahuan';
+				if($kompetensi_id == 1){
+					$nama_perencanaan = 'Pengetahuan';
+				} else {
+					$nama_perencanaan = 'pk';
+				}
 			}
 		} else {
 			$flash['error'] = 'Tidak ada data perencanaan disimpan';
