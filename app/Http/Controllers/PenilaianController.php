@@ -344,7 +344,13 @@ class PenilaianController extends Controller
 					//}
 				}
 			}
-			$redirect = ($kompetensi_id == 1 || $kompetensi_id == 3 ) ? '/pengetahuan' : '/keterampilan';
+			if($kompetensi_id == 1){
+				$redirect = '/pengetahuan';
+			} elseif($kompetensi_id == 2){
+				$redirect = '/keterampilan';
+			} else {
+				$redirect = '/pusat-keunggulan';
+			}
 			$text = 'Tidak ada nilai disimpan. Periksa kembali isian nilai KD';
 		}
 		$output['rumus'] = '';
