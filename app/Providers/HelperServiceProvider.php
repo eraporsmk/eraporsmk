@@ -145,6 +145,9 @@ class HelperServiceProvider extends ServiceProvider
 		}
 	}
 	public static function get_kkm($kelompok_id, $kkm){
+		if($kkm){
+			return $kkm;
+		}
 		$check_2018 = self::check_2018();
 		if($check_2018){
 			$produktif = array(4,5,9,10,13);

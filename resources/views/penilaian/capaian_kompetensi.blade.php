@@ -18,10 +18,10 @@ if($rombongan_belajar->kunci_nilai){
 <table class="table table-bordered table-hover" id="remedial">
 	<thead>
 		<tr>
-			<th class="text-center">Nama Peserta Didik</th>
-			<th class="text-center">Nilai Akhir</th>
-			<th class="text-center">Nilai CP</th>
-			<th class="text-center">Capaian Kompetensi</th>
+			<th class="text-center" width="20%">Nama Peserta Didik</th>
+			<th class="text-center" width="10%">Nilai Akhir</th>
+			<th class="text-center" width="10%">Nilai CP</th>
+			<th class="text-center" width="60%">Capaian Kompetensi</th>
 		</tr>
 	</thead>
 	<tbody>
