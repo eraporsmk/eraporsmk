@@ -215,6 +215,14 @@ $('#rombel').change(function(){
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
 				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');
+				if(!$.isEmptyObject(data.mapel)){
+					$.each(data.mapel, function (i, item) {
+						$('#mapel').append($('<option>', { 
+							value: item.value,
+							text : item.text,
+						}));
+					});
+				}
 				if(!$.isEmptyObject(data.results)){
 					$.each(data.results, function (i, item) {
 						$('#rencana_budaya_kerja_id').append($('<option>', { 
