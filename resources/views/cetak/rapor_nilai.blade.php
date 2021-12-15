@@ -28,7 +28,9 @@
 	</tr>
 </table>
 <br />
+@if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') == false)
 <div class="strong">A.&nbsp;&nbsp;Nilai Akademik</div>
+@endif
 <table class="table" border="1">
 	<thead>
 		<tr>
