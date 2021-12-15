@@ -245,6 +245,7 @@ class RefCP extends Command
                     'kode' => $d['kode'],
                     'nama' => $d['nama'],
                     'deskripsi' => $d['deskripsi'],
+                    'warna' => $d['warna'],
                     'last_sync' => now(),
                 ]
             );
