@@ -133,10 +133,94 @@
 	</tbody>
 </table>
 <br />
+@if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') !== false)
+<table border="1" class="table">
+	<thead>
+		<tr>
+			<th style="width: 5%;" align="center">No</th>
+			<th style="width: 35%;" align="center">Kegiatan Ekstrakurikuler</th>
+			<th style="width: 60%;" align="center">Keterangan</th>
+		</tr>
+	</thead>
+	<tbody>
+	@if($get_siswa->all_nilai_ekskul->count())
+	@foreach($get_siswa->all_nilai_ekskul as $nilai_ekskul)
+		<tr>
+			<td align="center">{{$loop->iteration}}</td>
+			<td>{{strtoupper($nilai_ekskul->rombongan_belajar->nama)}}</td>
+			<td>{{$nilai_ekskul->deskripsi_ekskul}}</td>
+		</tr>
+	@endforeach
+	@else
+		<tr>
+			<td class="text-center" colspan="3">&nbsp;</td>
+		</tr>
+	@endif
+	</tbody>
+</table>
+<br />
+<table border="1" class="table" style="width: 300px;">
+	<tr>
+		<th colspan="2">Ketidakhadiran</th>
+	</tr>
+	<tr>
+		<td width="100">Sakit</td>
+		<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->sakit) ? $get_siswa->kehadiran->sakit.' hari' : '- hari' : '.... hari'}}</td>
+	</tr>
+	<tr>
+		<td>Izin</td>
+		<td width="100"> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->izin) ? $get_siswa->kehadiran->izin.' hari' : '- hari' : '.... hari'}}</td>
+	</tr>
+	<tr>
+		<td>Tanpa Keterangan</td>
+		<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->alpa) ? $get_siswa->kehadiran->alpa.' hari' : '- hari' : '.... hari'}}</td>
+	</tr>
+</table>
+<table width="100%">
+	<tr>
+	  <td style="width:40%">
+		  <p>Orang Tua/Wali</p><br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+		  <p>...................................................................</p>
+	  </td>
+	  <td style="width:20%"></td>
+	  <td style="width:40%"><p>{{$get_siswa->sekolah->kabupaten}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <p>
+  <u>{{ CustomHelper::nama_guru($get_siswa->rombongan_belajar->wali->gelar_depan, $get_siswa->rombongan_belajar->wali->nama, $get_siswa->rombongan_belajar->wali->gelar_belakang) }}</u><br />
+  NIP. {{$get_siswa->rombongan_belajar->wali->nip}}
+  </td>
+	</tr>
+  </table>
+  <table width="100%" style="margin-top:10px;">
+	<tr>
+	  <td style="width:100%;text-align:center;">
+		  <p>Mengetahui,<br>Kepala Sekolah</p>
+	  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <p><u>{{ CustomHelper::nama_guru($get_siswa->sekolah->guru->gelar_depan, $get_siswa->sekolah->guru->nama, $get_siswa->sekolah->guru->gelar_belakang) }}</u><br />
+  NIP. {{$get_siswa->sekolah->guru->nip}}
+  </p>
+	  </td>
+	</tr>
+  </table>
+@else
 <div class="strong">B.&nbsp;&nbsp;Catatan Akademik</div>
 <table width="100%" border="1">
   <tr>
     <td style="padding:10px;">{{($get_siswa->catatan_wali) ? $get_siswa->catatan_wali->uraian_deskripsi : ''}}</td>
   </tr>
 </table>
+@endif
 @endsection
