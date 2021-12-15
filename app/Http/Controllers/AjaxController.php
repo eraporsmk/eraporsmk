@@ -525,17 +525,9 @@ class AjaxController extends Controller
 			}*/
 		};
 		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
-		if(!$all_kd->count()){
-			$callback = function($q) use ($kompetensi_id, $pembelajaran_id){
-				$q->with('pembelajaran');
-				$q->where('kompetensi_id', 3);
-				$q->where('pembelajaran_id', $pembelajaran_id);
-			};
-			$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
-		}
 		//$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->orderBy('id_kompetensi')->get();
 		$params = array(
-			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+			'kkm'	=> ($pembelajaran->kkm) ? $pembelajaran->kkm : CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
 			'pembelajaran_id' => $pembelajaran->pembelajaran_id,
 			'rombongan_belajar' => $pembelajaran->rombongan_belajar,
 			'kompetensi_id'	=> $kompetensi_id,
