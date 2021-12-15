@@ -1,11 +1,12 @@
 @extends('layouts.cetak')
 @section('content')
-<table class="table">
+<h3 class="strong">RAPOR PROJEK PROFIL PELAJAR PANCASILA DAN BUDAYA KERJA</h3>
+<table>
 	<tr>
-		<th style="width: 10%">Nama Sekolah</th>
-		<th style="width: 20%">{{$get_siswa->rombongan_belajar->sekolah->nama}}</th>
-		<th style="width: 20%"></th>
-		<th style="width: 10%">Kelas</th>
+		<th style="width: 15%">Nama Sekolah</th>
+		<th style="width: 25%">{{$get_siswa->rombongan_belajar->sekolah->nama}}</th>
+		<th style="width: 5%"></th>
+		<th style="width: 15%">Kelas</th>
 		<th style="width: 20%">{{$get_siswa->rombongan_belajar->nama}}</th>
 	</tr>
 	<tr>
@@ -33,7 +34,7 @@
 <table class="table" style="margin-top: 10px;">
 	@foreach ($rencana_budaya_kerja as $item)
 	<tr>
-		<td><strong>Projek {{$loop->iteration}} | {{$item->nama}}</strong></td>
+		<td class="strong"><strong>Projek {{$loop->iteration}} | {{$item->nama}}</strong></td>
 	</tr>
 	<tr>
 		<td>{{$item->deskripsi}}</td>
@@ -43,9 +44,11 @@
 <table class="table" style="margin-top: 10px;">
 	<tr>
 		@foreach ($opsi_budaya_kerja as $opsi)
-		<td style="width: 10px"><span class="badge bg-{{$opsi->warna}}">&nbsp;&nbsp;</span></td>
+		<td style="width: 10px">
+			<div class="badge bg-{{$opsi->warna}}">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+		</td>
 		<td>
-			<strong>{{$opsi->kode}}. {{$opsi->nama}}</strong><br>
+			<strong class="strong">{{$opsi->kode}}. {{$opsi->nama}}</strong><br>
 			{{$opsi->deskripsi}}
 		</td>
 		@endforeach
@@ -93,7 +96,7 @@
 			<tr>
 				<td><strong>{{$elemen->elemen}}.</strong> {{$elemen->deskripsi}}</td>
 				@foreach ($opsi_budaya_kerja as $opsi)
-				<td class="text-center">{!! ($elemen->nilai_budaya_kerja && $elemen->nilai_budaya_kerja->opsi_id == $opsi->opsi_id) ? '&check;' : '' !!}</td>
+				<td class="text-center">{!! ($elemen->nilai_budaya_kerja && $elemen->nilai_budaya_kerja->opsi_id == $opsi->opsi_id) ? '√' : '' !!}</td>
 				@endforeach
 			</tr>
 			@endforeach

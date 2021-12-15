@@ -463,13 +463,13 @@ class HelperServiceProvider extends ServiceProvider
 		if(!$n){
 			$predikat 	= '-';
 		} elseif($n >= 4){
-			$predikat 	= '<span class="badge bg-green">&nbsp;&nbsp;</span>';
+			$predikat 	= '<span class="badge bg-green">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		} elseif($n >= 3){
-			$predikat 	= '<span class="badge bg-red">&nbsp;&nbsp;</span>';
+			$predikat 	= '<span class="badge bg-red">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		} elseif($n >= 2){
-			$predikat 	= '<span class="badge bg-blue">&nbsp;&nbsp;</span>';
+			$predikat 	= '<span class="badge bg-blue">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		} elseif($n >= 1){
-			$predikat 	= '<span class="badge bg-yellow">&nbsp;&nbsp;</span>';
+			$predikat 	= '<span class="badge bg-yellow">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		}
 		return $predikat;
 	}
