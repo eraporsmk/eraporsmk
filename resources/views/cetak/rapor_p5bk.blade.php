@@ -90,13 +90,13 @@
 	<tbody>
 		@foreach ($rencana->aspek_budaya_kerja as $item)
 			<tr>
-				<td colspan="7"><strong>{{$item->budaya_kerja->aspek}}</strong></td>
+				<td colspan="7"><strong class="strong">{{$item->budaya_kerja->aspek}}</strong></td>
 			</tr>
 			@foreach ($item->budaya_kerja->elemen_budaya_kerja as $elemen)
 			<tr>
-				<td><strong>{{$elemen->elemen}}.</strong> {{$elemen->deskripsi}}</td>
+				<td><strong class="strong">{{$elemen->elemen}}.</strong> {{$elemen->deskripsi}}</td>
 				@foreach ($opsi_budaya_kerja as $opsi)
-				<td class="text-center">{!! ($elemen->nilai_budaya_kerja && $elemen->nilai_budaya_kerja->opsi_id == $opsi->opsi_id) ? '√' : '' !!}</td>
+				<td class="text-center strong">{!! ($elemen->nilai_budaya_kerja && $elemen->nilai_budaya_kerja->opsi_id == $opsi->opsi_id) ? '√' : '' !!}</td>
 				@endforeach
 			</tr>
 			@endforeach
