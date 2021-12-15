@@ -25,7 +25,7 @@
 						<input type="hidden" name="guru_id" id="guru_id" value="{{$user->guru_id}}" />
 						<input type="hidden" name="pembelajaran_id" id="pembelajaran_id" value="" />
 						<input type="hidden" name="query" id="query" value="{{$query}}" />
-						<input type="hidden" name="kompetensi_id" id="kompetensi_id" value="{{$kompetensi_id}}" />
+						<input type="text" name="kompetensi_id" id="kompetensi_id" value="{{$kompetensi_id}}" />
 						<input type="hidden" name="semester_id" id="semester_id" value="{{$semester->semester_id}}" />
 						<input type="text" class="form-control" value="{{$semester->nama}} (SMT {{$semester->semester}})" readonly />
 					</div>
@@ -209,9 +209,9 @@ $('#rombel').change(function(){
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
-				if(data.kurikulum === 2021){
+				/*if(data.kurikulum === 2021){
 					$('#kompetensi_id').val(3);
-				}
+				}*/
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
 				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');

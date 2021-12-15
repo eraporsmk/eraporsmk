@@ -59,10 +59,17 @@ class PenilaianController extends Controller
 			);
 			return view('penilaian.penilaian_prakerin')->with($params);
 		} else {
+			if($kompetensi_id == 'pengetahuan'){
+				$set_kompetensi_id = 1;
+			} elseif($kompetensi_id == 2){
+				$set_kompetensi_id = 2;
+			} else {
+				$set_kompetensi_id = 3;
+			}
 			$params = array(
 				'user' => $user,
 				'title'	=> ucwords(str_replace('-', ' ', $kompetensi_id)),
-				'kompetensi_id'	=> ($kompetensi_id == 'keterampilan') ? 2 : 1,
+				'kompetensi_id'	=> $set_kompetensi_id,
 				'query'	=> $kompetensi_id,
 			);
 			return view('penilaian.form_penilaian')->with($params);
