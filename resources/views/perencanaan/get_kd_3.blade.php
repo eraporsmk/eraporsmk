@@ -24,7 +24,7 @@ ksort($data_kd);
 	<thead>
 		<tr>
 			<th class="text-center" style="min-width:110px">Aktifitas Penilaian</th>
-			<th class="text-center" style="min-width:110px;">Teknik</th>
+			<th class="text-center" style="min-width:110px;">Jenis Penilaian</th>
 			<th class="text-center" width="10">Bobot</th>
 			<?php
 			foreach($data_kd as $kd){
@@ -94,8 +94,17 @@ $("a.clone").click(function() {
 var bobot = $('#bobot');
 var bobot_value = $('#bobot_value').val();
 $('#bobot').val(bobot_value);
-console.log(bobot_value);
-	<?php if($bobot){?>
+$('select#pilih_bobot').change(function(e) {
+	e.preventDefault();
+	var ini = $(this).val();
+	var get_bobot = $(this).find("option:selected").data('bobot');
+	if(ini == ''){
+		$(this).closest('td').next('td').find('input').val('');
+	} else {
+		$(this).closest('td').next('td').find('input').val(get_bobot);
+	}
+});
+<?php if($bobot){?>
 	$("input#bobot").prop('disabled', true);
 	<?php } else { ?>
 	$("input#bobot").prop('disabled', false);
