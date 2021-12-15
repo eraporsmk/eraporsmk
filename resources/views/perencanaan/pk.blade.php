@@ -93,7 +93,7 @@ function turn_on_icheck(){
 			if (willDelete) {
 				$.get(url).done(function(data) {
 					swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
-							window.location.replace('{{route('perencanaan_pengetahuan')}}');
+							window.location.replace('{{route('perencanaan_pk')}}');
 					});
 				});
 			}
