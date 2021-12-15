@@ -217,10 +217,10 @@ $('#rombel').change(function(){
 				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');
 				if(!$.isEmptyObject(data.mapel)){
 					$.each(data.mapel, function (i, item) {
-						$('#mapel').append($('<option>', { 
-							value: item.value,
-							text : item.text,
-						}));
+						$('#mapel').append($("<option></option>")
+						.attr("value",item.value)
+						.attr("data-pembelajaran_id",item.pembelajaran_id)
+						.text(item.text)); 
 					});
 				}
 				if(!$.isEmptyObject(data.results)){
@@ -240,6 +240,7 @@ $('#rombel').change(function(){
 });
 $('#mapel').change(function(){
 	var ini = $(this).val();
+	console.log(ini);
 	var selected = $(this).find('option:selected');
 	var pembelajaran_id = selected.data('pembelajaran_id');
 	$('#pembelajaran_id').val('');
