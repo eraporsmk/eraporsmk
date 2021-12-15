@@ -25,7 +25,7 @@
 						<input type="hidden" name="guru_id" id="guru_id" value="{{$user->guru_id}}" />
 						<input type="hidden" name="pembelajaran_id" id="pembelajaran_id" value="" />
 						<input type="hidden" name="query" id="query" value="{{$query}}" />
-						<input type="text" name="kompetensi_id" id="kompetensi_id" value="{{$kompetensi_id}}" />
+						<input type="hidden" name="kompetensi_id" id="kompetensi_id" value="{{$kompetensi_id}}" />
 						<input type="hidden" name="semester_id" id="semester_id" value="{{$semester->semester_id}}" />
 						<input type="text" class="form-control" value="{{$semester->nama}} (SMT {{$semester->semester}})" readonly />
 					</div>
