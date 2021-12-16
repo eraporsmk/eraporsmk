@@ -16,12 +16,12 @@ class AgamaSeeder extends Seeder
 		$data = json_decode($json);
         foreach($data as $obj){
 			DB::table('ref.agama')->insert([
-				'id' 			=> $obj->id,
-				'nama' 			=> $obj->nama,
+				'agama_id' 	=> $obj->id,
+				'nama' 		=> $obj->nama,
 				'created_at'	=> $obj->created_at,
 				'updated_at' 	=> $obj->updated_at,
 				'deleted_at'	=> $obj->deleted_at,
-				'last_sync'		=> date('Y-m-d H:i:s'),
+				'last_sync'	=> date('Y-m-d H:i:s'),
 			]);
     	}
     }
