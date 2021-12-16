@@ -231,6 +231,14 @@ $('#rombel').change(function(){
 						}));
 					});
 				}
+				if(!$.isEmptyObject(data.siswa)){
+					$.each(data.siswa, function (i, item) {
+						$('#siswa').append($('<option>', { 
+							value: item.value,
+							text : item.text,
+						}));
+					});
+				}
 			} else {
 				$('.simpan').show();
 				$('#result').html(response);
