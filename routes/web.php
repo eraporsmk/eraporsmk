@@ -279,6 +279,8 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-rencana-budaya-kerja', array('as' => 'ajax.get_rencana_budaya_kerja', 'uses' => 'AjaxController@get_rencana_budaya_kerja'));
     Route::post('/ajax/get-rencana-p5bk', array('as' => 'ajax.get_rencana_p5bk', 'uses' => 'AjaxController@get_rencana_p5bk'));
     Route::post('/ajax/get-form-p5bk', array('as' => 'ajax.get_form_p5bk', 'uses' => 'AjaxController@get_form_p5bk'));
+    Route::get('/ajax/catatan-p5bk/{anggota_rombel_id}', array('as' => 'ajax.catatan_p5bk', 'uses' => 'AjaxController@catatan_p5bk'));
+    Route::post('/ajax/simpan-catatan-p5bk', array('as' => 'ajax.simpan_catatan_p5bk', 'uses' => 'AjaxController@simpan_catatan_p5bk'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {
@@ -334,7 +336,7 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/laporan/unduh-leger-kd/{id}', 'LaporanController@unduh_legger_kd');
         Route::get('/laporan/unduh-leger-nilai-akhir/{id}', 'LaporanController@unduh_legger_nilai_akhir');
         Route::get('/laporan/unduh-leger-nilai-rapor/{id}', 'LaporanController@unduh_legger_nilai_rapor');
-        Route::get('/laporan/projek-profil-pelajar-pancasila-dan-budaya-kerja', 'LaporanController@budaya_kerja');
+        Route::get('/laporan/projek-profil-pelajar-pancasila-dan-budaya-kerja', 'LaporanController@budaya_kerja')->name('laporan.budaya_kerja');
         Route::get('/laporan/review-p5bk/{id}', 'LaporanController@review_p5bk');
     });
     //Laporan End//

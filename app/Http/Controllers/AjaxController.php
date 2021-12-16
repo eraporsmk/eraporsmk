@@ -33,6 +33,7 @@ use App\Budaya_kerja;
 use App\Rencana_budaya_kerja;
 use App\Aspek_budaya_kerja;
 use App\Opsi_budaya_kerja;
+use App\Catatan_budaya_kerja;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -1086,5 +1087,35 @@ class AjaxController extends Controller
 			$output['results'][] = $record;
 		}
 		echo json_encode($output);
+	}
+	public function catatan_p5bk($anggota_rombel_id){
+		$params = [
+			'anggota_rombel_id' => $anggota_rombel_id,
+			'title' => 'Tambah/Perbaharui Catatan Kegiatan P5BK',
+			'catatan' => Catatan_budaya_kerja::where('anggota_rombel_id', $anggota_rombel_id)->first(),
+		];
+		return view('laporan.catatan_p5bk')->with($params);
+	}
+	public function simpan_catatan_p5bk(Request $request){
+		$insert = Catatan_budaya_kerja::updateOrCreate(
+			[
+				'anggota_rombel_id' => request()->anggota_rombel_id,
+			],
+			[
+				'sekolah_id' => session('sekolah_id'),
+				'catatan' => request()->catatan,
+				'last_sync' => now(),
+			]
+		);
+		if($insert){
+			$output['text'] = 'Berhasil menyimpan catatan kegiatan P5BK';
+			$output['icon'] = 'success';
+			$output['title'] = 'Berhasil';
+		} else {
+			$output['text'] = 'Tidak ada catatan kegiatan P5BK diproses';
+			$output['icon'] = 'error';
+			$output['title'] = 'Gagal';
+		}
+		return response()->json($output);
 	}
 }

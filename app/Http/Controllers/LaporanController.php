@@ -956,6 +956,7 @@ class LaporanController extends Controller
 			'siswa', 
 			'nilai_budaya_kerja',
 			'rombongan_belajar.sekolah',
+			'catatan_budaya_kerja',
 		])->find($anggota_rombel_id);
 		$params = array(
 			'get_siswa'	=> $get_siswa,

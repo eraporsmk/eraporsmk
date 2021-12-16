@@ -46,14 +46,6 @@
 											@endforeach
 										</select>
 									</td>
-									<!--td>
-										@foreach ($opsi_budaya_kerja as $opsi)
-										<div class="custom-control custom-radio">
-											<input class="custom-control-input" type="radio" id="customRadio{{$opsi->opsi_id}}" name="aspek_budaya_kerja_id[{{$siswa->anggota_rombel_id}}][{{$item->aspek_budaya_kerja_id}}]" value="{{$opsi->opsi_id}}" {{($nilai_budaya_kerja && $nilai_budaya_kerja->opsi_id == $opsi->opsi_id) ? 'checked' : ''}}>
-											<label for="customRadio{{$opsi->opsi_id}}" class="custom-control-label">{{$opsi->nama.' ('.$opsi->kode.')'}}</label>
-										</div>
-										@endforeach
-									</td-->
 								</tr>
 								@endforeach
 							</tbody>

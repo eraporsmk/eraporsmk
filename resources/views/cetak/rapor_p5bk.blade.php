@@ -109,4 +109,12 @@
 	</tbody>
 </table>
 @endforeach
+<table class="table table-bordered table-striped" style="margin-top: 10px;">
+	<tr>
+		<th>Catatan Kegiatan</th>
+	</tr>
+	<tr>
+		<td>{{($get_siswa->catatan_budaya_kerja) ? $get_siswa->catatan_budaya_kerja->catatan : '-'}}</td>
+	</tr>
+</table>
 @endsection
