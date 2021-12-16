@@ -25,7 +25,7 @@
 		{{ csrf_field() }}
 		<div class="col-xs-12 no-padding">
 			<div class="form-group col-md-8">
-				<div class="form-group">as
+				<div class="form-group">
 					<label for="semester_id">Periode Aktif</label>
 					<select class="select2 form-control" name="semester_id" style="width: 100%;">
 					@foreach ($all_data as $tahun)
