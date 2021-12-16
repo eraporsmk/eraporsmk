@@ -98,11 +98,59 @@ class RegisterController extends Controller
 						$kecamatan = $get_kode_wilayah->parrent_recursive->nama;
 						if($get_kode_wilayah->parrent_recursive->parrent_recursive){
 							$kabupaten = $get_kode_wilayah->parrent_recursive->parrent_recursive->nama;
+							if($get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive){
+								$provinsi = $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama;
+								Mst_wilayah::updateOrCreate(
+									[
+										'kode_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah,
+									],
+									[
+										'nama' => $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
+										'id_level_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
+										'mst_kode_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+										'negara_id' => $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
+										'last_sync' => now(),
+									]
+								);
+							}
+							Mst_wilayah::updateOrCreate(
+								[
+									'kode_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->kode_wilayah,
+								],
+								[
+									'nama' => $get_kode_wilayah->parrent_recursive->parrent_recursive->nama,
+									'id_level_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
+									'mst_kode_wilayah' => $get_kode_wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
+									'negara_id' => $get_kode_wilayah->parrent_recursive->parrent_recursive->negara_id,
+									'last_sync' => now(),
+								]
+							);
 						}
-						if($get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive){
-							$provinsi = $get_kode_wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama;
-						}
+						Mst_wilayah::updateOrCreate(
+							[
+								'kode_wilayah' => $get_kode_wilayah->parrent_recursive->kode_wilayah,
+							],
+							[
+								'nama' => $get_kode_wilayah->parrent_recursive->nama,
+								'id_level_wilayah' => $get_kode_wilayah->parrent_recursive->id_level_wilayah,
+								'mst_kode_wilayah' => $get_kode_wilayah->parrent_recursive->mst_kode_wilayah,
+								'negara_id' => $get_kode_wilayah->parrent_recursive->negara_id,
+								'last_sync' => now(),
+							]
+						);
 					}
+					Mst_wilayah::updateOrCreate(
+						[
+							'kode_wilayah' => $get_kode_wilayah->kode_wilayah,
+						],
+						[
+							'nama' => $get_kode_wilayah->nama,
+							'id_level_wilayah' => $get_kode_wilayah->id_level_wilayah,
+							'mst_kode_wilayah' => $get_kode_wilayah->mst_kode_wilayah,
+							'negara_id' => $get_kode_wilayah->negara_id,
+							'last_sync' => now(),
+						]
+					);
 				}
 				$insert_sekolah = array(
 					'npsn' 					=> $set_data->npsn,

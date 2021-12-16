@@ -145,6 +145,9 @@ class HelperServiceProvider extends ServiceProvider
 		}
 	}
 	public static function get_kkm($kelompok_id, $kkm){
+		if($kkm){
+			return $kkm;
+		}
 		$check_2018 = self::check_2018();
 		if($check_2018){
 			$produktif = array(4,5,9,10,13);
@@ -454,5 +457,19 @@ class HelperServiceProvider extends ServiceProvider
 		$replacements = array("\\\\", "\\/", "\\\"", "\\n", "\\r", "\\t", "\\f", "\\b");
 		$result = str_replace($escapers, $replacements, $value);
 		return $result;
+	}
+	public static function opsi_budaya($n){
+		if(!$n){
+			$predikat 	= '-';
+		} elseif($n >= 4){
+			$predikat 	= '<span class="badge bg-green">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+		} elseif($n >= 3){
+			$predikat 	= '<span class="badge bg-red">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+		} elseif($n >= 2){
+			$predikat 	= '<span class="badge bg-blue">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+		} elseif($n >= 1){
+			$predikat 	= '<span class="badge bg-yellow">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+		}
+		return $predikat;
 	}
 }

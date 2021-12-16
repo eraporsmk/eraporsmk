@@ -147,7 +147,7 @@ $(function(){
 	});
 	$('.select2').select2({
 		templateResult: formatState,
-		//dropdownParent: $('#modal_content')
+		dropdownParent: $('#modal_content')
 	});
 	$(".nomor_urut").inputFilter(function(value) {
 		return /^\d*$/.test(value);    // Allow digits only, using a RegExp

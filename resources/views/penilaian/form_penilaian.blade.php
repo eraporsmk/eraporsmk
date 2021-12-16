@@ -82,6 +82,14 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group" id="rencana_p5bk" style="display:none;">
+					<label for="rencana" class="col-sm-3 control-label">Projek Penilaian</label>
+					<div class="col-sm-9">
+						<select name="rencana_budaya_kerja_id" class="select2 form-control" id="rencana_budaya_kerja_id" style="width:100%;">
+							<option value="">== Pilih Projek Penilaian ==</option>
+						</select>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div style="clear:both;"></div>
@@ -115,8 +123,24 @@ if(query == 'pengetahuan' || query == 'keterampilan'){
 	url_rombel = '{{url('ajax/get-mapel')}}';
 	url_mapel = '{{url('ajax/get-kompetensi')}}';
 	$('#mapel_show').show();
-	$('#aspek_penilaian_show').show();
+	if(query !== 'pusat-keunggulan'){
+		$('#aspek_penilaian_show').show();
+	} else {
+		url_mapel = '{{url('ajax/get-rencana')}}';
+		$('#rencana_show').show();
+	}
+	if(query == 'capaian-kompetensi'){
+		$('#aspek_penilaian_show').hide();
+		url_mapel = '{{url('ajax/get-deskripsi-pk')}}';
+	}
+	if(query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
+		$('#mapel_show').hide();
+		$('#rencana_p5bk').show();
+		$('#aspek_penilaian_show').hide();
+		url_rombel = '{{url('ajax/get-rencana-p5bk')}}';
+	}
 }
+console.log(query);
 console.log(url_mapel);
 var checkJSON = function(m) {
 	if (typeof m == 'object') { 
@@ -185,8 +209,12 @@ $('#rombel').change(function(){
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
+				/*if(data.kurikulum === 2021){
+					$('#kompetensi_id').val(3);
+				}*/
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
+				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');
 				if(!$.isEmptyObject(data.mapel)){
 					$.each(data.mapel, function (i, item) {
 						$('#mapel').append($("<option></option>")
@@ -195,9 +223,9 @@ $('#rombel').change(function(){
 						.text(item.text)); 
 					});
 				}
-				if(!$.isEmptyObject(data.siswa)){
-					$.each(data.siswa, function (i, item) {
-						$('#siswa').append($('<option>', { 
+				if(!$.isEmptyObject(data.results)){
+					$.each(data.results, function (i, item) {
+						$('#rencana_budaya_kerja_id').append($('<option>', { 
 							value: item.value,
 							text : item.text,
 						}));
@@ -212,6 +240,7 @@ $('#rombel').change(function(){
 });
 $('#mapel').change(function(){
 	var ini = $(this).val();
+	console.log(ini);
 	var selected = $(this).find('option:selected');
 	var pembelajaran_id = selected.data('pembelajaran_id');
 	$('#pembelajaran_id').val('');
@@ -343,6 +372,21 @@ $('.reset_remedial').click(function(){
 					});
 				}
 			});
+		}
+	});
+});
+$('#rencana_budaya_kerja_id').change(function(){
+	var ini = $(this).val();
+	if(ini == ''){
+		return false;
+	}
+	$.ajax({
+		url: '{{url('/ajax/get-form-p5bk')}}',
+		type: 'post',
+		data: $("form#form").serialize(),
+		success: function(response){
+			$('#simpan').show();
+			$('#result').html(response);
 		}
 	});
 });

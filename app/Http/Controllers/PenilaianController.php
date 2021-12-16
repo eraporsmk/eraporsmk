@@ -23,6 +23,8 @@ use App\Nilai_ukk;
 use Session;
 use App\Guru;
 use App\Bimbing_pd;
+use App\Deskripsi_mata_pelajaran;
+use App\Nilai_budaya_kerja;
 class PenilaianController extends Controller
 {
 	public function __construct()
@@ -57,10 +59,17 @@ class PenilaianController extends Controller
 			);
 			return view('penilaian.penilaian_prakerin')->with($params);
 		} else {
+			if($kompetensi_id == 'pengetahuan'){
+				$set_kompetensi_id = 1;
+			} elseif($kompetensi_id == 2){
+				$set_kompetensi_id = 2;
+			} else {
+				$set_kompetensi_id = 3;
+			}
 			$params = array(
 				'user' => $user,
-				'title'	=> ucfirst($kompetensi_id),
-				'kompetensi_id'	=> ($kompetensi_id == 'keterampilan') ? 2 : 1,
+				'title'	=> ucwords(str_replace('-', ' ', $kompetensi_id)),
+				'kompetensi_id'	=> $set_kompetensi_id,
 				'query'	=> $kompetensi_id,
 			);
 			return view('penilaian.form_penilaian')->with($params);
@@ -116,7 +125,6 @@ class PenilaianController extends Controller
 			return $return;
 		})
 		->addColumn('get_butir_sikap', function ($item) {
-			//dd($item->butir_sikap);
 			$return  = $item->ref_sikap->butir_sikap;
 			return $return;
 		})
@@ -181,7 +189,7 @@ class PenilaianController extends Controller
 		$uraian_sikap = $request['uraian_sikap'];
 		$guru_id = $request['guru_id'];
 		$output['jumlah_form'] = (is_array($siswa_id)) ? count($siswa_id) : 0;
-		$redirect = ($kompetensi_id == 1) ? 'pengetahuan' : 'keterampilan';
+		$redirect = ($kompetensi_id == 1 || $kompetensi_id == 3) ? 'pengetahuan' : 'keterampilan';
 		$insert = 0;
 		$update = 0;
 		if($query == 'sikap'){
@@ -235,6 +243,52 @@ class PenilaianController extends Controller
 					);
 				}
 			}
+		} elseif($query == 'capaian-kompetensi'){
+			$insert = 0;
+			foreach(request()->siswa_id as $anggota_rombel_id){
+				if(request()->nilai_kd[$anggota_rombel_id]){
+					$insert++;
+					foreach(request()->kompetensi_dasar_id as $kompetensi_dasar_id){
+						Deskripsi_mata_pelajaran::updateOrCreate(
+							[
+								'sekolah_id' => session('sekolah_id'),
+								'anggota_rombel_id' => $anggota_rombel_id,
+								'pembelajaran_id' => request()->pembelajaran_id,
+								'kompetensi_dasar_id' => $kompetensi_dasar_id,
+							],
+							[
+								'deskripsi_pengetahuan' => request()->deskripsi_pengetahuan[$anggota_rombel_id][$kompetensi_dasar_id],
+								'last_sync' => now(),
+							]
+						);
+					}
+				}
+			}
+			$redirect = '/capaian-kompetensi';
+		} elseif($query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
+			$insert = 0;
+			foreach($request->nilai as $anggota_rombel_id => $value){
+				foreach($value as $aspek_budaya_kerja_id => $elemen){
+					foreach($elemen as $elemen_id => $opsi_id){
+						if($opsi_id){
+							Nilai_budaya_kerja::updateOrCreate(
+								[
+									'anggota_rombel_id' => $anggota_rombel_id,
+									'aspek_budaya_kerja_id' => $aspek_budaya_kerja_id,
+									'elemen_id' => $elemen_id,
+								],
+								[
+									'sekolah_id' => session('sekolah_id'),
+									'opsi_id' => $opsi_id,
+									'last_sync' => now(),
+								]
+							);
+							$insert++;
+						}
+					}
+				}
+			}
+			$redirect = '/projek-profil-pelajar-pancasila-dan-budaya-kerja';
 		} else {
 			foreach($siswa_id as $k=>$siswa){
 				foreach($kds as $key=>$kd) {
@@ -256,7 +310,7 @@ class PenilaianController extends Controller
 				}
 				$hasil = $hitung/$jumlah_kd;
 				$rerata_nilai = $hasil*$bobot;//($hasil*$bobot)/$total_bobot;
-				$rerata_jadi = number_format($rerata_nilai/$total_bobot,2);
+				$rerata_jadi = ($total_bobot) ? number_format($rerata_nilai/$total_bobot,2) : 0;
 				$rerata_stor[] = number_format($hitung/$jumlah_kd,0);
 				$record['value'] 	= number_format($hitung/$jumlah_kd,0);
 				//=F6*(C4/(C4+G4+J4+M4))
@@ -273,6 +327,7 @@ class PenilaianController extends Controller
 							$update++;
 							$get_nilai->nilai = $nilai;
 							$get_nilai->rerata = $rerata_stor[$k];
+							$get_nilai->kompetensi_id = $kompetensi_id;
 							$get_nilai->last_sync = date('Y-m-d H:i:s');
 							$get_nilai->save();
 						} else {
@@ -291,7 +346,13 @@ class PenilaianController extends Controller
 					//}
 				}
 			}
-			$redirect = ($kompetensi_id == 1) ? '/pengetahuan' : '/keterampilan';
+			if($kompetensi_id == 1){
+				$redirect = '/pengetahuan';
+			} elseif($kompetensi_id == 2){
+				$redirect = '/keterampilan';
+			} else {
+				$redirect = '/pusat-keunggulan';
+			}
 			$text = 'Tidak ada nilai disimpan. Periksa kembali isian nilai KD';
 		}
 		$output['rumus'] = '';

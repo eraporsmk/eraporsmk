@@ -25,12 +25,12 @@
 		{{ csrf_field() }}
 		<div class="col-xs-12 no-padding">
 			<div class="form-group col-md-8">
-				<div class="form-group">
+				<div class="form-group">as
 					<label for="semester_id">Periode Aktif</label>
 					<select class="select2 form-control" name="semester_id" style="width: 100%;">
 					@foreach ($all_data as $tahun)
 						@foreach ($tahun->semester as $data)
-						<option value="{{ $data->semester_id }}" {{ (old('semester_id')) ? old('semester_id') == $data->semester_id : $data->periode_aktif == 1 ? "selected":"" }}>{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
+						<option value="{{ $data->semester_id }}" {{ ((old('semester_id')) ? old('semester_id') == $data->semester_id : ($data->periode_aktif == 1 ? "selected":"")) }}>{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
 						@endforeach
 					@endforeach
 					</select>
@@ -45,16 +45,16 @@
 				<div class="form-group">
 					<label for="description">Zona Waktu</label>
 					<select class="form-control select2" name="zona" style="width: 100%;">
-						<option value="1"{{ (old('zona')) ? old('zona') == 1 : config('global.zona') == 1 ? "selected":"" }}>Waktu Indonesia Barat (WIB)</option>
-						<option value="2"{{ (old('zona')) ? old('zona') == 2 : config('global.zona') == 2 ? "selected":"" }}>Waktu Indonesia Tengah (WITA)</option>
-						<option value="3"{{ (old('zona')) ? old('zona') == 3 : config('global.zona') == 3 ? "selected":"" }}>Waktu Indonesia Timur (WIT)</option>
+						<option value="1"{{ ((old('zona')) ? old('zona') == 1 : (config('global.zona') == 1 ? "selected":"")) }}>Waktu Indonesia Barat (WIB)</option>
+						<option value="2"{{ ((old('zona')) ? old('zona') == 2 : (config('global.zona') == 2 ? "selected":"")) }}>Waktu Indonesia Tengah (WITA)</option>
+						<option value="3"{{ ((old('zona')) ? old('zona') == 3 : (config('global.zona') == 3 ? "selected":"")) }}>Waktu Indonesia Timur (WIT)</option>
 					</select>
 				</div>
 				<div class="form-group">
 					<label for="guru_id">Kepala Sekolah</label>
 					<select class="form-control select2" name="guru_id" style="width: 100%;">
 					@foreach ($all_guru as $guru)
-						<option title="{{$guru->nuptk}}" value="{{ $guru->guru_id }}" {{ (old('guru_id')) ? old('guru_id') == $data->guru_id : $guru->guru_id == $sekolah->guru->guru_id ? "selected":"" }}>{{ CustomHelper::nama_guru($guru->gelar_depan, $guru->nama, $guru->gelar_belakang) }}</option>
+						<option title="{{$guru->nuptk}}" value="{{ $guru->guru_id }}" {{ ((old('guru_id')) ? old('guru_id') == $data->guru_id : ($guru->guru_id == $sekolah->guru->guru_id ? "selected":"")) }}>{{ CustomHelper::nama_guru($guru->gelar_depan, $guru->nama, $guru->gelar_belakang) }}</option>
 					@endforeach
 					</select>
 				</div>

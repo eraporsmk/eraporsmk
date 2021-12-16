@@ -49,11 +49,17 @@ class Anggota_rombel extends Model
 	public function nilai_akhir_keterampilan(){
 		return $this->hasOne('App\Nilai_akhir', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
 	}
+	public function nilai_akhir_pk(){
+		return $this->hasOne('App\Nilai_akhir', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3);
+	}
 	public function nilai_kd_pengetahuan(){
 		return $this->hasMany('App\NilaiPengetahuanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 1);
 	}
 	public function nilai_kd_keterampilan(){
 		return $this->hasMany('App\NilaiKeterampilanPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 2);
+	}
+	public function nilai_kd_pk(){
+		return $this->hasMany('App\NilaiPkPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar');
 	}
 	public function nilai_remedial(){
 		return $this->hasOne('App\Remedial', 'anggota_rombel_id', 'anggota_rombel_id');
@@ -68,11 +74,20 @@ class Anggota_rombel extends Model
 		//return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderBy('total_nilai', 'ASC');
 		return $this->hasMany('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id')->orderByRaw('((nilai_p * rasio_p) + (nilai_k * rasio_k))');
 	}
+	public function nilai_rapor_pk(){
+		return $this->hasOne('App\Nilai_rapor', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function deskripsi_mata_pelajaran(){
+		return $this->hasMany('App\Deskripsi_mata_pelajaran', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
 	public function v_nilai_akhir_p(){
 		return $this->hasOne('App\NilaiAkhirPengetahuan', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
 	public function v_nilai_akhir_k(){
 		return $this->hasOne('App\NilaiAkhirKeterampilan', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function v_nilai_akhir_pk(){
+		return $this->hasOne('App\NilaiAkhirPk', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
 	public function nilai_sikap(){
 		return $this->hasMany('App\Nilai_sikap', 'anggota_rombel_id', 'anggota_rombel_id');
@@ -169,5 +184,11 @@ class Anggota_rombel extends Model
 	}
 	public function nilai_un(){
 		return $this->hasOne('App\Nilai_un', 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function nilai_budaya_kerja(){
+		return $this->hasMany(Nilai_budaya_kerja::class, 'anggota_rombel_id', 'anggota_rombel_id');
+	}
+	public function catatan_budaya_kerja(){
+		return $this->hasOne(Catatan_budaya_kerja::class, 'anggota_rombel_id', 'anggota_rombel_id');
 	}
 }

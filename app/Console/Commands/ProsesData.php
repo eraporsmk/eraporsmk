@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-ini_set('max_execution_time', 0);
+
 use Illuminate\Console\Command;
 use App\Sekolah;
 use App\User;
@@ -10,6 +10,7 @@ use App\Role_user;
 use CustomHelper;
 use App\Mst_wilayah;
 use App\Guru;
+use App\Gelar;
 use App\Gelar_ptk;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +33,6 @@ use App\Anggota_akt_pd;
 use App\Bimbing_pd;
 use App\Kompetensi_dasar;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 class ProsesData extends Command
 {
     /**
@@ -262,12 +262,18 @@ class ProsesData extends Command
 			$find_gelar = $data->rwy_pend_formal;
 			if($find_gelar){
 				foreach($find_gelar as $gelar){
-					if($gelar->gelar_akademik_id && $gelar->gelar_akademik_id != '9999'){
-						$find_gelar_ptk = Gelar_ptk::where([['ptk_id', $data->ptk_id], ['gelar_akademik_id', $gelar->gelar_akademik_id]])->first();
-						if($find_gelar_ptk){
-							$find_gelar_ptk->delete();
-						}
-						Gelar_ptk::create(array('gelar_akademik_id' => $gelar->gelar_akademik_id, 'sekolah_id' => $sekolah_id, 'ptk_id' => $data->ptk_id, 'guru_id' => $create_guru->guru_id, 'last_sync' => date('Y-m-d H:i:s')));
+					if($gelar->gelar_akademik_id){
+						$get_gelar = Gelar::where('gelar_akademik_id', $gelar->gelar_akademik_id)->first();
+						if($get_gelar){
+							$find_gelar_ptk = Gelar_ptk::where([
+								['ptk_id', $data->ptk_id], 
+								['gelar_akademik_id', $gelar->gelar_akademik_id]
+							])->first();
+							if($find_gelar_ptk){
+								$find_gelar_ptk->delete();
+							}
+							Gelar_ptk::create(array('gelar_akademik_id' => $gelar->gelar_akademik_id, 'sekolah_id' => $sekolah_id, 'ptk_id' => $data->ptk_id, 'guru_id' => $create_guru->guru_id, 'last_sync' => date('Y-m-d H:i:s')));
+							}
 						}
 				}
 			}
@@ -358,68 +364,6 @@ class ProsesData extends Command
 				$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
 				$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
 			}
-			if(isset($data->wilayah)){
-				$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive = array(
-					'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
-					'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
-					'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-					'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
-					'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->asal_wilayah,
-					'kode_bps'			=> NULL,
-					'kode_dagri'		=> NULL,
-					'kode_keu'			=> NULL,
-					'last_sync'			=> date('Y-m-d H:i:s') 
-				);
-				Mst_wilayah::updateOrCreate(
-					['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah],
-					$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive
-				);
-				$insert_wilayah_parrent_recursive_parrent_recursive = array(
-					'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->nama,
-					'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
-					'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-					'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->negara_id,
-					'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->asal_wilayah,
-					'kode_bps'			=> NULL,
-					'kode_dagri'		=> NULL,
-					'kode_keu'			=> NULL,
-					'last_sync'			=> date('Y-m-d H:i:s')
-				);
-				Mst_wilayah::updateOrCreate(
-					['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->kode_wilayah],
-					$insert_wilayah_parrent_recursive_parrent_recursive
-				);
-				$insert_wilayah_parrent_recursive = array(
-					'nama'				=> $data->wilayah->parrent_recursive->nama,
-					'id_level_wilayah'	=> $data->wilayah->parrent_recursive->id_level_wilayah,
-					'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->mst_kode_wilayah,
-					'negara_id'			=> $data->wilayah->parrent_recursive->negara_id,
-					'asal_wilayah'		=> $data->wilayah->parrent_recursive->asal_wilayah,
-					'kode_bps'			=> NULL,
-					'kode_dagri'		=> NULL,
-					'kode_keu'			=> NULL,
-					'last_sync'			=> date('Y-m-d H:i:s')
-				);
-				Mst_wilayah::updateOrCreate(
-					['kode_wilayah' => $data->wilayah->parrent_recursive->kode_wilayah],
-					$insert_wilayah_parrent_recursive
-				);
-				$insert_wilayah = array(
-					'nama'				=> $data->wilayah->nama,
-					'id_level_wilayah'	=> $data->wilayah->id_level_wilayah,
-					'mst_kode_wilayah'	=> $data->wilayah->mst_kode_wilayah,
-					'negara_id'			=> $data->wilayah->negara_id,
-					'asal_wilayah'		=> $data->wilayah->asal_wilayah,
-					'kode_bps'			=> NULL,
-					'kode_dagri'		=> NULL,
-					'kode_keu'			=> NULL,
-					'last_sync'			=> $data->wilayah->last_sync
-				);
-				Mst_wilayah::updateOrCreate(
-					['kode_wilayah' => $data->wilayah->kode_wilayah],
-					$insert_wilayah
-				);
-			}
 			$insert_siswa = array(
 				'sekolah_id'		=> $sekolah_id,
 				'nama' 				=> $data->nama,
@@ -465,17 +409,18 @@ class ProsesData extends Command
 			if($find_rombel){
 				$insert_anggota_rombel = array(
 					'sekolah_id'				=> $sekolah_id,
+					'rombongan_belajar_id' 		=> $find_rombel->rombongan_belajar_id, 
 					'peserta_didik_id' 			=> $create_siswa->peserta_didik_id,
 					'last_sync'					=> date('Y-m-d H:i:s'),
 				);
 				if(isset($data->anggota_rombel_id)){
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'rombongan_belajar_id' => $find_rombel->rombongan_belajar_id, 'semester_id' => $semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel_id, 'semester_id' => $semester_id],
 						$insert_anggota_rombel
 					);
 				} else {
 					$create_anggota_rombel = Anggota_rombel::updateOrCreate(
-						['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'rombongan_belajar_id' => $find_rombel->rombongan_belajar_id, 'semester_id' => $semester_id],
+						['anggota_rombel_id_dapodik' => $data->anggota_rombel->anggota_rombel_id, 'semester_id' => $semester_id],
 						$insert_anggota_rombel
 					);
 				}
@@ -483,9 +428,9 @@ class ProsesData extends Command
 			$i++;
 		}
 		if($anggota_rombel_id){
-			//Anggota_rombel::whereHas('rombongan_belajar', function($query){
-				//$query->where('jenis_rombel', 1);
-			//})->where('sekolah_id', $sekolah_id)->where('semester_id', $semester_id)->whereNotIn('anggota_rombel_id_dapodik', $anggota_rombel_id)->delete();
+			Anggota_rombel::whereHas('rombongan_belajar', function($query){
+				$query->where('jenis_rombel', 1);
+			})->where('sekolah_id', $sekolah_id)->where('semester_id', $semester_id)->whereNotIn('anggota_rombel_id_dapodik', $anggota_rombel_id)->delete();
 		}
 	}
 	private function siswa_keluar($response){
@@ -505,25 +450,31 @@ class ProsesData extends Command
 			if(isset($data->anggota_rombel_id)){
 				$semester_id = session('semester_id');
 				$anggota_rombel_id = $data->anggota_rombel_id;
-				$rombongan_belajar_id = $data->rombongan_belajar_id;
 			} else {
 				$semester_id = $data->anggota_rombel->rombongan_belajar->semester_id;
 				$anggota_rombel_id = $data->anggota_rombel->anggota_rombel_id;
-				$rombongan_belajar_id = $data->anggota_rombel->rombongan_belajar_id;
 			}
 			if(!$sekolah_id){
 				$sekolah_id = $data->anggota_rombel->rombongan_belajar->sekolah_id;
 			}
-			$data->nipd = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->nipd : NULL;
-			$data->sekolah_asal = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->sekolah_asal : NULL;
-			$data->tanggal_masuk_sekolah = ($data->registrasi_peserta_didik) ? $data->registrasi_peserta_didik->tanggal_masuk_sekolah : NULL;
+			if(!isset($data->nipd)){
+				if($data->registrasi_peserta_didik){
+					$data->nipd = $data->registrasi_peserta_didik->nipd;
+					$data->sekolah_asal = $data->registrasi_peserta_didik->sekolah_asal;
+					$data->tanggal_masuk_sekolah = $data->registrasi_peserta_didik->tanggal_masuk_sekolah;
+				} else {
+					$data->nipd = 0;
+					$data->sekolah_asal = NULL;
+					$data->tanggal_masuk_sekolah = NULL;
+				}
+			}
 			$record['inserted'] = $i;
 			//Storage::disk('public')->put('proses_siswa_keluar.json', json_encode($record));
 			$find_siswa = Siswa::where('peserta_didik_id_dapodik', $data->peserta_didik_id)->onlyTrashed()->first();
 			if($find_siswa){
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $find_siswa->peserta_didik_id)->where('semester_id', $semester_id)->onlyTrashed()->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $rombongan_belajar_id)->where('semester_id', $semester_id)->first();
+					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> $sekolah_id,
@@ -547,72 +498,14 @@ class ProsesData extends Command
 					$data->email = ($data->email != $sekolah->email) ? $data->email : strtolower($random).'@erapor-smk.net';
 				}
 				$data->email = strtolower($data->email);
-				if(isset($data->wilayah)){
-					$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive = array(
-						'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
-						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
-						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-						'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
-						'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->asal_wilayah,
-						'kode_bps'			=> NULL,
-						'kode_dagri'		=> NULL,
-						'kode_keu'			=> NULL,
-						'last_sync'			=> date('Y-m-d H:i:s') 
-					);
-					Mst_wilayah::updateOrCreate(
-						['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah],
-						$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive
-					);
-					$insert_wilayah_parrent_recursive_parrent_recursive = array(
-						'nama'				=> $data->wilayah->parrent_recursive->parrent_recursive->nama,
-						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
-						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-						'negara_id'			=> $data->wilayah->parrent_recursive->parrent_recursive->negara_id,
-						'asal_wilayah'		=> $data->wilayah->parrent_recursive->parrent_recursive->asal_wilayah,
-						'kode_bps'			=> NULL,
-						'kode_dagri'		=> NULL,
-						'kode_keu'			=> NULL,
-						'last_sync'			=> date('Y-m-d H:i:s')
-					);
-					Mst_wilayah::updateOrCreate(
-						['kode_wilayah' => $data->wilayah->parrent_recursive->parrent_recursive->kode_wilayah],
-						$insert_wilayah_parrent_recursive_parrent_recursive
-					);
-					$insert_wilayah_parrent_recursive = array(
-						'nama'				=> $data->wilayah->parrent_recursive->nama,
-						'id_level_wilayah'	=> $data->wilayah->parrent_recursive->id_level_wilayah,
-						'mst_kode_wilayah'	=> $data->wilayah->parrent_recursive->mst_kode_wilayah,
-						'negara_id'			=> $data->wilayah->parrent_recursive->negara_id,
-						'asal_wilayah'		=> $data->wilayah->parrent_recursive->asal_wilayah,
-						'kode_bps'			=> NULL,
-						'kode_dagri'		=> NULL,
-						'kode_keu'			=> NULL,
-						'last_sync'			=> date('Y-m-d H:i:s')
-					);
-					Mst_wilayah::updateOrCreate(
-						['kode_wilayah' => $data->wilayah->parrent_recursive->kode_wilayah],
-						$insert_wilayah_parrent_recursive
-					);
-					$insert_wilayah = array(
-						'nama'				=> $data->wilayah->nama,
-						'id_level_wilayah'	=> $data->wilayah->id_level_wilayah,
-						'mst_kode_wilayah'	=> $data->wilayah->mst_kode_wilayah,
-						'negara_id'			=> $data->wilayah->negara_id,
-						'asal_wilayah'		=> $data->wilayah->asal_wilayah,
-						'kode_bps'			=> NULL,
-						'kode_dagri'		=> NULL,
-						'kode_keu'			=> NULL,
-						'last_sync'			=> $data->wilayah->last_sync
-					);
-					Mst_wilayah::updateOrCreate(
-						['kode_wilayah' => $data->wilayah->kode_wilayah],
-						$insert_wilayah
-					);
+				$nipd = 0;
+				if(isset($data->nipd)){
+					$nipd = ($data->nipd) ? $data->nipd : 0;
 				}
 				$insert_siswa = array(
 					'sekolah_id'		=> $sekolah_id,
 					'nama' 				=> $data->nama,
-					'no_induk' 			=> ($data->nipd) ? $data->nipd : 0,
+					'no_induk' 			=> $nipd,
 					'nisn' 				=> $data->nisn,
 					'jenis_kelamin' 	=> ($data->jenis_kelamin) ? $data->jenis_kelamin : 0,
 					'tempat_lahir' 		=> ($data->tempat_lahir) ? $data->tempat_lahir : 0,
@@ -649,7 +542,11 @@ class ProsesData extends Command
 				);
 				$find_anggota_rombel = Anggota_rombel::where('peserta_didik_id' , $create_siswa->peserta_didik_id)->where('semester_id', $semester_id)->first();
 				if(!$find_anggota_rombel){
-					$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $rombongan_belajar_id)->where('semester_id', $semester_id)->first();
+					if(isset($data->rombongan_belajar_id)){
+						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
+					} else {
+						$find_rombel = Rombongan_belajar::where('rombel_id_dapodik', $data->anggota_rombel->rombongan_belajar_id)->where('semester_id', $semester_id)->first();
+					}
 					if($find_rombel){
 						$insert_anggota_rombel = array(
 							'sekolah_id'				=> $sekolah_id,
@@ -681,7 +578,7 @@ class ProsesData extends Command
 		Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 		$pembelajaran_id = [];
 		foreach($dapodik as $data){
-			//Storage::disk('public')->put('proses_pembelajaran.json', json_encode($data));
+			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($data));
 			$pembelajaran_id[] = $data->pembelajaran_id;
 			if(!$sekolah_id){
 				$sekolah_id = $data->ptk_terdaftar->sekolah_id;
@@ -690,23 +587,21 @@ class ProsesData extends Command
 			Storage::disk('public')->put('proses_pembelajaran.json', json_encode($record));
 			$rombongan_belajar = Rombongan_belajar::where('rombel_id_dapodik', $data->rombongan_belajar_id)->first();
 			$get_guru = Guru::where('guru_id_dapodik', $data->ptk_terdaftar->ptk_id)->first();
-			if($rombongan_belajar && $get_guru){
-				$insert_pembelajaran = array(
-					'sekolah_id'				=> $sekolah_id,
-					'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
-					'guru_id'					=> $get_guru->guru_id,
-					'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
-					'nama_mata_pelajaran'		=> $data->nama_mata_pelajaran,
-					'kkm'						=> 0,
-					'is_dapodik'				=> 1,
-					'last_sync'					=> date('Y-m-d H:i:s'),
-				);
-				Pembelajaran::updateOrCreate(
-					['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => $data->semester_id],
-					$insert_pembelajaran
-				);
-				$i++;
-			}
+			$insert_pembelajaran = array(
+				'sekolah_id'				=> $sekolah_id,
+				'rombongan_belajar_id'		=> $rombongan_belajar->rombongan_belajar_id,
+				'guru_id'					=> $get_guru->guru_id,
+				'mata_pelajaran_id'			=> $data->mata_pelajaran_id,
+				'nama_mata_pelajaran'		=> $data->nama_mata_pelajaran,
+				'kkm'						=> 0,
+				'is_dapodik'				=> 1,
+				'last_sync'					=> date('Y-m-d H:i:s'),
+			);
+			Pembelajaran::updateOrCreate(
+				['pembelajaran_id_dapodik' => $data->pembelajaran_id, 'semester_id' => $data->semester_id],
+				$insert_pembelajaran
+			);
+			$i++;
 		}
 		if($pembelajaran_id){
 			Pembelajaran::where('sekolah_id', $sekolah_id)->where('semester_id', $data->semester_id)->whereNotIn('pembelajaran_id_dapodik', $pembelajaran_id)->delete();
@@ -1244,66 +1139,6 @@ class ProsesData extends Command
 	}
 	private function registrasi($response){
 		$dapodik = CustomHelper::array_to_object($response);
-		$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive = array(
-			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->nama,
-			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->id_level_wilayah,
-			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->negara_id,
-			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->asal_wilayah,
-			'kode_bps'			=> NULL,
-			'kode_dagri'		=> NULL,
-			'kode_keu'			=> NULL,
-			'last_sync'			=> date('Y-m-d H:i:s') 
-		);
-		Mst_wilayah::updateOrCreate(
-			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->parrent_recursive->kode_wilayah],
-			$insert_wilayah_parrent_recursive_parrent_recursive_parrent_recursive
-		);
-		$insert_wilayah_parrent_recursive_parrent_recursive = array(
-			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->nama,
-			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->id_level_wilayah,
-			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->mst_kode_wilayah,
-			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->negara_id,
-			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->asal_wilayah,
-			'kode_bps'			=> NULL,
-			'kode_dagri'		=> NULL,
-			'kode_keu'			=> NULL,
-			'last_sync'			=> date('Y-m-d H:i:s')
-		);
-		Mst_wilayah::updateOrCreate(
-			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->parrent_recursive->kode_wilayah],
-			$insert_wilayah_parrent_recursive_parrent_recursive
-		);
-		$insert_wilayah_parrent_recursive = array(
-			'nama'				=> $dapodik->sekolah->wilayah->parrent_recursive->nama,
-			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->id_level_wilayah,
-			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->parrent_recursive->mst_kode_wilayah,
-			'negara_id'			=> $dapodik->sekolah->wilayah->parrent_recursive->negara_id,
-			'asal_wilayah'		=> $dapodik->sekolah->wilayah->parrent_recursive->asal_wilayah,
-			'kode_bps'			=> NULL,
-			'kode_dagri'		=> NULL,
-			'kode_keu'			=> NULL,
-			'last_sync'			=> date('Y-m-d H:i:s')
-		);
-		Mst_wilayah::updateOrCreate(
-			['kode_wilayah' => $dapodik->sekolah->wilayah->parrent_recursive->kode_wilayah],
-			$insert_wilayah_parrent_recursive
-		);
-		$insert_wilayah = array(
-			'nama'				=> $dapodik->sekolah->wilayah->nama,
-			'id_level_wilayah'	=> $dapodik->sekolah->wilayah->id_level_wilayah,
-			'mst_kode_wilayah'	=> $dapodik->sekolah->wilayah->mst_kode_wilayah,
-			'negara_id'			=> $dapodik->sekolah->wilayah->negara_id,
-			'asal_wilayah'		=> $dapodik->sekolah->wilayah->asal_wilayah,
-			'kode_bps'			=> NULL,
-			'kode_dagri'		=> NULL,
-			'kode_keu'			=> NULL,
-			'last_sync'			=> $dapodik->sekolah->wilayah->last_sync
-		);
-		Mst_wilayah::updateOrCreate(
-			['kode_wilayah' => $dapodik->sekolah->wilayah->kode_wilayah],
-			$insert_wilayah
-		);
 		$insert_sekolah = array(
 			'npsn' 					=> $dapodik->sekolah->npsn,
 			'nss' 					=> $dapodik->sekolah->nss,
@@ -1331,8 +1166,7 @@ class ProsesData extends Command
 		foreach($dapodik->pengguna as $pengguna){
 			$user = User::updateOrCreate(
 				['name' => $pengguna->name, 'email' => $pengguna->email],
-				//['password' => Hash::make($pengguna->password), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
-				['password' => $pengguna->password, 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
+				['password' => Hash::make($pengguna->password), 'last_sync' => date('Y-m-d H:i:s'), 'sekolah_id' => $pengguna->sekolah_id, 'password_dapo'	=> $pengguna->password_dapo]
 			);
 			$adminRole = Role::where('name', 'admin')->first();
 			$user = User::where('email', $pengguna->email)->first();

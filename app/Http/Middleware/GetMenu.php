@@ -266,6 +266,21 @@ class GetMenu
 				'permission'  => 'guru',
 				'submenu' => [
 					[
+						'text' => 'Penilaian PK',
+						'url'  => 'perencanaan/pk',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
+					],
+					[
+						'text' => 'Penilaian P5BK',
+						'url'  => 'perencanaan/projek-profil-pelajar-pancasila-dan-budaya-kerja',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success',
+						'permission'  => 'wali',
+					],
+					[
 						'text' => 'Rasio Nilai Akhir',
 						'url'  => 'perencanaan/rasio',
 						'icon' => 'hand-o-right',
@@ -303,6 +318,22 @@ class GetMenu
 				'permission'  => ['guru', 'tu'],
 				'submenu' => [
 					[
+						'text' => 'Penilaian PK',
+						'url'  => 'penilaian/pusat-keunggulan',
+						'icon' => 'hand-o-right',
+						'permission'  => 'guru',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
+					],
+					[
+						'text' => 'Penilaian P5BK',
+						'url'  => 'penilaian/projek-profil-pelajar-pancasila-dan-budaya-kerja',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success',
+						'permission'  => 'wali',
+					],
+					[
 						'text' => 'Penilaian Pengetahuan',
 						'url'  => 'penilaian/pengetahuan',
 						'icon' => 'hand-o-right',
@@ -338,6 +369,13 @@ class GetMenu
 						'url'  => 'penilaian/ekskul',
 						'icon' => 'hand-o-right',
 						'permission'  => 'pembina_ekskul',
+					],
+					[
+						'text' => 'Capaian Kompetensi',
+						'url'  => 'penilaian/capaian-kompetensi',
+						'icon' => 'hand-o-right',
+						'label'       => 'Baru',
+            			'label_color' => 'success'
 					],
 				],
 			]);
@@ -391,6 +429,14 @@ class GetMenu
 							'url'  => 'laporan/rapor-semester',
 							'active' => ['laporan/rapor-semester', 'laporan/review-nilai/*', 'laporan/review-desc/*'],
 							'icon' => 'print',
+						],
+						[
+							'text' => 'Cetak Rapor P5BK',
+							'url'  => 'laporan/projek-profil-pelajar-pancasila-dan-budaya-kerja',
+							'icon' => 'hand-o-right',
+							'label'       => 'Baru',
+							'label_color' => 'success',
+							'permission'  => 'wali',
 						],
 						[
 							'text' => 'Unduh Leger',
@@ -474,6 +520,14 @@ class GetMenu
 							'url'  => 'laporan/rapor-semester',
 							'active' => ['laporan/rapor-semester', 'laporan/review-nilai/*', 'laporan/review-desc/*'],
 							'icon' => 'print',
+						],
+						[
+							'text' => 'Cetak Rapor P5BK',
+							'url'  => 'laporan/projek-profil-pelajar-pancasila-dan-budaya-kerja',
+							'icon' => 'hand-o-right',
+							'label'       => 'Baru',
+							'label_color' => 'success',
+							'permission'  => 'wali',
 						],
 						[
 							'text' => 'Unduh Leger',

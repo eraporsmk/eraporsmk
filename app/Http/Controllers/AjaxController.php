@@ -29,6 +29,11 @@ use App\Nilai_us;
 use App\Nilai_un;
 use App\Kewirausahaan;
 use App\Anggota_kewirausahaan;
+use App\Budaya_kerja;
+use App\Rencana_budaya_kerja;
+use App\Aspek_budaya_kerja;
+use App\Opsi_budaya_kerja;
+use App\Catatan_budaya_kerja;
 class AjaxController extends Controller
 {
 	public function __construct()
@@ -220,6 +225,17 @@ class AjaxController extends Controller
 			$record['pembelajaran_id'] 	= '';
 			$output['mapel'][] = $record;
 		}
+		$rombel = Rombongan_belajar::with('kurikulum')->find($rombongan_belajar_id);
+		if (strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
+			$kurikulum = 2017;
+		} elseif (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false) {
+			$kurikulum = 2006;
+		} elseif (strpos($rombel->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
+		} else {
+			$kurikulum = 2013;
+		}
+		$output['kurikulum'] = $kurikulum;
 		echo json_encode($output);
 	}
 	public function get_teknik(Request $request){
@@ -253,15 +269,19 @@ class AjaxController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($get_kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($get_kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
 		$all_kd = Kompetensi_dasar::where('kompetensi_id', $kompetensi_id)->where('mata_pelajaran_id', $id_mapel)->where('kelas_'.$kelas, 1)->where('aktif', 1)->where('kurikulum', $kurikulum)->orderByRaw('length(id_kompetensi) asc')->orderBy('id_kompetensi')->get();
 		$bobot = '';
 		$bentuk_penilaian = '';
+		$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		if($kompetensi_id == 1){
-			$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
+			//$bentuk_penilaian = Teknik_penilaian::where('kompetensi_id', $kompetensi_id)->get();
 		} else {
+			//$bentuk_penilaian = Teknik_penilaian::all();
 			$pembelajaran = Pembelajaran::where('rombongan_belajar_id', $rombongan_belajar->rombongan_belajar_id)
 			->where('mata_pelajaran_id', $id_mapel)
 			->first();
@@ -272,6 +292,12 @@ class AjaxController extends Controller
 				}
 			}
 		}
+		$placeholder = 'UH/UTS/UAS dll...';
+		if($kompetensi_id == 2){
+			$placeholder = 'Kinerja/Proyek/Portofolio';
+		} elseif($kompetensi_id == 3){
+			$placeholder = 'UH/UTS/UAS/Kinerja/Proyek/Portofolio';
+		}
 		$params = array(
 			'rombongan_belajar'	=> $rombongan_belajar,
 			'all_kd' => $all_kd,
@@ -280,10 +306,22 @@ class AjaxController extends Controller
 			'id_rombel'	=> $id_rombel,
 			'id_mapel'	=> $id_mapel,
 			'kelas'	=> $kelas,
-			'placeholder' => ($kompetensi_id == 1) ? 'UH/UTS/UAS dll...' : 'Kinerja/Proyek/Portofolio',
+			'placeholder' => $placeholder,
 			'bentuk_penilaian' => $bentuk_penilaian,
 		);
 		return view('perencanaan.get_kd_'.$kompetensi_id)->with($params);
+	}
+	public function get_form_p5bk(Request $request){
+		$params = [
+			'data_siswa' => Anggota_rombel::with(['siswa', 'nilai_budaya_kerja' => function($query){
+				$query->whereHas('aspek_budaya_kerja', function($query){
+					$query->where('rencana_budaya_kerja_id', request()->rencana_budaya_kerja_id);
+				});
+			}])->where('rombongan_belajar_id', $request->rombel_id)->order()->get(),
+			'rencana_p5bk' => Aspek_budaya_kerja::with(['budaya_kerja.elemen_budaya_kerja'])->where('rencana_budaya_kerja_id', $request->rencana_budaya_kerja_id)->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::all(),
+		];
+		return view('penilaian.penilaian_p5bk')->with($params);
 	}
 	public function get_bobot($pembelajaran_id, $metode_id){
 		$find_bobot = Bobot_keterampilan::where('pembelajaran_id', $pembelajaran_id)->where('metode_id', $metode_id)->first();
@@ -295,7 +333,10 @@ class AjaxController extends Controller
 		$user = auth()->user();
 		$pembelajaran_id = $request['pembelajaran_id'];
 		$kompetensi_id = $request['kompetensi_id'];
-		$get_rencana = Rencana_penilaian::where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_id', $kompetensi_id)->get();
+		$get_rencana = Rencana_penilaian::where(function($query){
+			$query->where('pembelajaran_id', request()->pembelajaran_id);
+			$query->where('kompetensi_id', request()->kompetensi_id);
+		})->get();
 		if($get_rencana->count()){
 			foreach($get_rencana as $rencana){
 				$record= array();
@@ -314,6 +355,7 @@ class AjaxController extends Controller
 		$get_kompetensi = array(
 			array('id' => 1, 'nama' => 'Pengetahuan'),
 			array('id' => 2, 'nama' => 'Keterampilan'),
+			array('id' => 3, 'nama' => 'Pusat Keunggulan'),
 		);
 		foreach($get_kompetensi as $kompetensi){
 			$record= array();
@@ -422,8 +464,18 @@ class AjaxController extends Controller
 		$rombongan_belajar_id = $request['rombel_id'];
 		$pembelajaran = Pembelajaran::with('rombongan_belajar')->find($pembelajaran_id);
 		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
-		$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
-		$with_2 = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
+		if($kompetensi_id == 1){
+			$with_1 = 'nilai_kd_pengetahuan';
+			$with_2 = 'v_nilai_akhir_p';
+		} elseif($kompetensi_id == 2){
+			$with_1 = 'nilai_kd_keterampilan';
+			$with_2 = 'v_nilai_akhir_k';
+		} else {
+			$with_1 = 'nilai_kd_pk';
+			$with_2 = 'v_nilai_akhir_pk';
+		}
+		//$with_1 = ($kompetensi_id == 1) ? 'nilai_kd_pengetahuan' : 'nilai_kd_keterampilan';
+		//$with_2 = ($kompetensi_id == 1) ? 'v_nilai_akhir_p' : 'v_nilai_akhir_k';
 		if($get_mapel_agama){
 			$callback = function($query) use ($get_mapel_agama) {
 				$query->where('agama_id', $get_mapel_agama);
@@ -469,6 +521,10 @@ class AjaxController extends Controller
 			$q->with('pembelajaran');
 			$q->where('kompetensi_id', $kompetensi_id);
 			$q->where('pembelajaran_id', $pembelajaran_id);
+			/*if($kompetensi_id == 1){
+				$q->orWhere('kompetensi_id', 3);
+				$q->where('pembelajaran_id', $pembelajaran_id);
+			}*/
 		};
 		$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->select(['kompetensi_dasar_id', 'id_kompetensi'])->groupBy(['kompetensi_dasar_id', 'id_kompetensi'])->orderBy('id_kompetensi')->get();
 		//$all_kd = Kd_nilai::whereHas('rencana_penilaian', $callback)->with(['rencana_penilaian' => $callback, 'kompetensi_dasar'])->orderBy('id_kompetensi')->get();
@@ -963,6 +1019,103 @@ class AjaxController extends Controller
 			$record['text'] 	= 'Tidak ditemukan anggota kewirausahaan di kelas terpilih';
 			$output['results'][] = $record;
 		}*/
+		return response()->json($output);
+	}
+	public function get_deskripsi_pk(Request $request){
+		$kompetensi_id = $request['kompetensi_id'];
+		$pembelajaran_id = $request['pembelajaran_id'];
+		$rombongan_belajar_id = $request['rombel_id'];
+		$pembelajaran = Pembelajaran::with('rombongan_belajar')->find($pembelajaran_id);
+		$get_mapel_agama = CustomHelper::filter_agama_siswa($pembelajaran_id, $rombongan_belajar_id);
+		if($get_mapel_agama){
+			$callback = function($query) use ($get_mapel_agama) {
+				$query->where('agama_id', $get_mapel_agama);
+			};
+			$all_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with([
+				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+			])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
+		} else {
+			$all_siswa = Anggota_rombel::with('siswa')->with([
+				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+			])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
+		}
+		$params = array(
+			'kkm'	=> CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm),
+			'pembelajaran_id' => $pembelajaran->pembelajaran_id,
+			'rombongan_belajar' => $pembelajaran->rombongan_belajar,
+			'kompetensi_id'	=> $kompetensi_id,
+			'pembelajaran' => $pembelajaran,
+			'all_siswa' => $all_siswa,
+		);
+		
+		return view('penilaian.capaian_kompetensi')->with($params);
+	}
+	public function get_rencana_budaya_kerja(Request $request){
+		$params = [
+			'budaya_kerja' => Budaya_kerja::all(),
+		];
+		return view('perencanaan.form_budaya_kerja')->with($params);
+	}
+	public function get_rencana_p5bk(Request $request){
+		$data = Rencana_budaya_kerja::where('rombongan_belajar_id', $request->rombel_id)->get();
+		if($data->count()){
+			foreach($data as $d){
+				$record= array();
+				$record['value'] 	= $d->rencana_budaya_kerja_id;
+				$record['text'] 	= $d->nama;
+				$output['results'][] = $record;
+			}
+		} else {
+			$record['value'] 	= '';
+			$record['text'] 	= 'Tidak ditemukan Rencana P5bk di rombongan belajar terpilih';
+			$output['results'][] = $record;
+		}
+		echo json_encode($output);
+	}
+	public function catatan_p5bk($anggota_rombel_id){
+		$params = [
+			'anggota_rombel_id' => $anggota_rombel_id,
+			'title' => 'Tambah/Perbaharui Catatan Kegiatan P5BK',
+			'catatan' => Catatan_budaya_kerja::where('anggota_rombel_id', $anggota_rombel_id)->first(),
+		];
+		return view('laporan.catatan_p5bk')->with($params);
+	}
+	public function simpan_catatan_p5bk(Request $request){
+		$insert = Catatan_budaya_kerja::updateOrCreate(
+			[
+				'anggota_rombel_id' => request()->anggota_rombel_id,
+			],
+			[
+				'sekolah_id' => session('sekolah_id'),
+				'catatan' => request()->catatan,
+				'last_sync' => now(),
+			]
+		);
+		if($insert){
+			$output['text'] = 'Berhasil menyimpan catatan kegiatan P5BK';
+			$output['icon'] = 'success';
+			$output['title'] = 'Berhasil';
+		} else {
+			$output['text'] = 'Tidak ada catatan kegiatan P5BK diproses';
+			$output['icon'] = 'error';
+			$output['title'] = 'Gagal';
+		}
 		return response()->json($output);
 	}
 }

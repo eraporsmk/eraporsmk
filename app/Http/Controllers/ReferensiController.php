@@ -110,7 +110,7 @@ class ReferensiController extends Controller
     }
 	public function list_metode(){
 		$user = auth()->user();
-		$query = Teknik_penilaian::whereNotNull('kompetensi_id');
+		$query = Teknik_penilaian::where('kompetensi_id', '<>', 3);
 		return Datatables::of($query)
 		->addColumn('kompetensi', function ($item) {
 			$return  = ($item->kompetensi_id == 1) ? 'Pengetahuan' : 'Keterampilan';

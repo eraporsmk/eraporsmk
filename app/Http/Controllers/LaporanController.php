@@ -34,7 +34,10 @@ use App\Kewirausahaan;
 use App\Anggota_kewirausahaan;
 use App\Exports\LaporanExport;
 use App\Imports\LaporanImport;
-use App\Rombel4_Tahun;
+use App\Rombel4_tahun;
+use App\Rencana_budaya_kerja;
+use App\Opsi_budaya_kerja;
+use App\Budaya_kerja;
 use Validator;
 class LaporanController extends Controller
 {
@@ -47,21 +50,14 @@ class LaporanController extends Controller
 		if($user->hasRole('waka')){
 			return view('laporan.waka.catatan_akademik');
 		} else {
-			$get_siswa = Anggota_rombel::whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
+				$query->with('pembelajaran');
+				$query->limit(3);
+			}])->whereHas('rombongan_belajar', function($query) use ($user){
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
-			})->with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query) use ($user){
-				$query->whereHas('pembelajaran', function($query) use ($user){
-					$query->whereHas('rombongan_belajar', function($query) use ($user){
-						$query->where('guru_id', $user->guru_id);
-						$query->where('jenis_rombel', 1);
-						$query->where('semester_id', session('semester_id'));
-					});
-				});
-				$query->with(['pembelajaran.rombongan_belajar.wali']);
-				$query->limit(3);
-			}])->order()->get();
+			})->order()->get();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 			);
@@ -479,7 +475,7 @@ class LaporanController extends Controller
 				$query->where('semester_id', session('semester_id'));
 			})->order()->get();
 			//$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
-			$rombel_4_tahun = Rombel4_Tahun::select('rombongan_belajar_id')->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
+			$rombel_4_tahun = Rombel4_tahun::select('rombongan_belajar_id')->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
@@ -608,26 +604,36 @@ class LaporanController extends Controller
 	public function review_nilai($query, $id){
 		$user = auth()->user();
 		if($query){
-			$get_siswa = Anggota_rombel::with(['siswa', 'rombongan_belajar' => function($query) use ($id){
-				$query->with(['pembelajaran' => function($query) use ($id) {
-					$callback = function($query) use ($id){
-						$query->where('anggota_rombel_id', $id);
-					};
-					//$query->with('kelompok');
-					//$query->whereHas('nilai_akhir_pengetahuan', $callback);
-					$query->with(['kelompok', 'nilai_akhir_pengetahuan' => $callback, 'nilai_akhir_keterampilan' => $callback]);
-					//$query->whereHas('nilai_akhir_keterampilan', $callback);
-					//$query->with(['nilai_akhir_keterampilan' => $callback]);
-					$query->whereNotNull('kelompok_id');
-					$query->orderBy('kelompok_id', 'asc');
-					$query->orderBy('no_urut', 'asc');
-				}]);
-				$query->with('semester');
-				$query->with('jurusan');
-				$query->with('kurikulum');
-			}])->with(['sekolah' => function($q){
-				$q->with('guru');
-			}])->find($id);
+			$get_siswa = Anggota_rombel::with([
+				'siswa', 
+				'rombongan_belajar' => function($query) use ($id){
+					$query->with(['pembelajaran' => function($query) use ($id) {
+						$callback = function($query) use ($id){
+							$query->where('anggota_rombel_id', $id);
+						};
+						//$query->with('kelompok');
+						//$query->whereHas('nilai_akhir_pengetahuan', $callback);
+						$query->with([
+							'kelompok', 
+							'nilai_akhir_pengetahuan' => $callback, 
+							'nilai_akhir_keterampilan' => $callback, 
+							'nilai_akhir_pk' => $callback,
+							'deskripsi_mata_pelajaran' => $callback,
+						]);
+						//$query->whereHas('nilai_akhir_keterampilan', $callback);
+						//$query->with(['nilai_akhir_keterampilan' => $callback]);
+						$query->whereNotNull('kelompok_id');
+						$query->orderBy('kelompok_id', 'asc');
+						$query->orderBy('no_urut', 'asc');
+					}]);
+					$query->with('semester');
+					$query->with('jurusan');
+					$query->with('kurikulum');
+				},
+				'sekolah' => function($q){
+					$q->with('guru');
+				},
+			])->find($id);
 		} else {
 			$get_siswa = Anggota_rombel::with(['siswa', 'rombongan_belajar'])->where('rombongan_belajar_id', $id)->order()->get();
 		}
@@ -932,5 +938,38 @@ class LaporanController extends Controller
 			];
 		}
 		return response()->json($output);
+	}
+	public function budaya_kerja(Request $request){
+		$user = auth()->user();
+		$get_siswa = Anggota_rombel::with('siswa')->with('nilai_budaya_kerja')->whereHas('rombongan_belajar', function($query) use ($user){
+			$query->where('guru_id', $user->guru_id);
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', session('semester_id'));
+		})->order()->get();
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+		);
+		return view('laporan.p5bk')->with($params);
+	}
+	public function review_p5bk($anggota_rombel_id){
+		$get_siswa = Anggota_rombel::with([
+			'siswa', 
+			'nilai_budaya_kerja',
+			'rombongan_belajar.sekolah',
+			'catatan_budaya_kerja',
+		])->find($anggota_rombel_id);
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function($query) use ($anggota_rombel_id){
+				$query->with([
+					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function($query) use ($anggota_rombel_id){
+						$query->where('anggota_rombel_id', $anggota_rombel_id);
+					},
+				]);
+			}])->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::orderBy('opsi_id')->get(),
+			'budaya_kerja' => Budaya_kerja::orderBy('budaya_kerja_id')->get(),
+		);
+		return view('laporan.review_p5bk')->with($params);
 	}
 }

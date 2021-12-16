@@ -86,6 +86,8 @@ class RombelController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($pembelajaran->kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($pembelajaran->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
@@ -296,10 +298,12 @@ class RombelController extends Controller
 		$guru_pengajar_id 		= $request->guru_pengajar_id;
 		$kelompok_id			= $request->kelompok_id;
 		$no_urut				= $request->nomor_urut;
+		$kelompok = Kelompok::find($kelompok_id);
 		$pembelajaran = Pembelajaran::find($pembelajaran_id);
 		$pembelajaran->guru_pengajar_id = ($guru_pengajar_id) ? $guru_pengajar_id : NULL;
 		$pembelajaran->kelompok_id = ($kelompok_id) ? $kelompok_id : NULL;
 		$pembelajaran->no_urut = ($no_urut) ? $no_urut : NULL;
+		$pembelajaran->kkm = ($kelompok) ? $kelompok->kkm : 0;
 		$pembelajaran->last_sync = date('Y-m-d H:i:s');
 		if($pembelajaran->save()){
 			if(!$kelompok_id && !$no_urut){

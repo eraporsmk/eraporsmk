@@ -28,6 +28,7 @@
         "pacuna/schemas": "dev-master",
         "pcinaglia/laraupdater": "^1.0",
         "ramsey/uuid": "^3.8",
+        "rap2hpoutre/fast-excel": "^3.1",
         "santigarcor/laratrust": "5.2.*",
         "staudenmeir/eloquent-eager-limit": "^1.0",
         "staudenmeir/eloquent-has-many-deep": "^1.7",
