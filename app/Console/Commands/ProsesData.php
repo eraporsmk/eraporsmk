@@ -194,6 +194,18 @@ class ProsesData extends Command
 		$sekolah->sinkron = 1;
 		$sekolah->save();
 	}
+	private function save_jurusan_sp($sekolah_id, $jurusan_sp){
+		$insert_jur_sp = array(
+			'sekolah_id'	=> $sekolah_id,
+			'jurusan_id'	=> $jurusan_sp->jurusan_id,
+			'nama_jurusan_sp'	=> $jurusan_sp->nama_jurusan_sp,
+			'last_sync'	=> date('Y-m-d H:i:s'),
+		);
+		Jurusan_sp::updateOrCreate(
+			['jurusan_sp_id_dapodik' => $jurusan_sp->jurusan_sp_id],
+			$insert_jur_sp
+		);
+	}
 	private function guru($response){
 		$user = auth()->user();
 		$sekolah_id = ($user) ? $user->sekolah_id : NULL;
@@ -300,6 +312,7 @@ class ProsesData extends Command
 			$rombongan_belajar_id[] = $data->rombongan_belajar_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_rombongan_belajar.json', json_encode($record));
+			$this->save_jurusan_sp($sekolah_id, $data->jurusan_sp);
 			$get_jurusan_id = Jurusan_sp::where('jurusan_sp_id_dapodik', $data->jurusan_sp->jurusan_sp_id)->first();
 			$get_wali = Guru::where('guru_id_dapodik', $data->ptk_id)->first();
 			$insert_rombel = array(
