@@ -46,4 +46,14 @@ class User extends Authenticatable
 		//$semester = HelperServiceProvider::get_ta();
 		return $this->hasOne('App\Siswa', 'peserta_didik_id', 'peserta_didik_id');
     }
+    public function anggota_rombel(){
+		return $this->hasOneThrough(
+            'App\Anggota_rombel',
+            'App\Siswa',
+            'peserta_didik_id', // Foreign key on Sekolah_sasaran table...
+            'peserta_didik_id', // Foreign key on Sekolah table...
+            'peserta_didik_id', // Local key on Rapor_mutu table...
+            'peserta_didik_id' // Local key on Sekolah_sasaran table...
+        );
+    }
 }

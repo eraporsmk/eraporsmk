@@ -160,7 +160,6 @@ Selamat Datang {{ $user->name }}
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282113057512&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Iman [082113057512]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282174508706&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Ikhsan [082174508706]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6282134924288&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Toni [082134924288]</a>
-							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=628174144627&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Hendri [08174144627]</a>
 							<a class="btn btn-sm btn-block btn-social btn-success" target="_blank" href="https://api.whatsapp.com/send?phone=6285624669298&amp;text=NPSN:{{$sekolah->npsn}}"><i class="fa fa-whatsapp"></i> Deetha [085624669298]</a>
 						</td>
 					</tr>
@@ -386,7 +385,7 @@ Selamat Datang {{ $user->name }}
 	@endrole
 	@role('siswa')
 	@if($pengguna)
-		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{$pengguna->siswa->anggota_rombel->rombongan_belajar->nama}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang)}}</span></h4>
+		<h4 class="box-title">Anda sedang berada di Rombongan Belajar <span class="btn btn-xs btn-success">{{($pengguna->siswa->anggota_rombel->rombongan_belajar) ? $pengguna->siswa->anggota_rombel->rombongan_belajar->nama : '-'}}</span> Wali Kelas <span class="btn btn-xs btn-success">{{($user->siswa->anggota_rombel->rombongan_belajar) ? CustomHelper::nama_guru($user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_depan, $user->siswa->anggota_rombel->rombongan_belajar->wali->nama, $user->siswa->anggota_rombel->rombongan_belajar->wali->gelar_belakang) : '-'}}</span></h4>
 		<h4 class="page-header">Daftar Mata Pelajaran</h4>
 		<div class="row">
 			<div class="col-lg-12 col-xs-12" style="margin-bottom:20px;">
@@ -408,6 +407,7 @@ Selamat Datang {{ $user->name }}
 						</tr>
 					</thead>
 					<tbody>
+						@if($user->siswa->anggota_rombel->rombongan_belajar)
 						@foreach($user->siswa->anggota_rombel->rombongan_belajar->pembelajaran as $pembelajaran)
 						<?php
 						//dd($pembelajaran);
@@ -433,6 +433,11 @@ Selamat Datang {{ $user->name }}
 							</td>
 						</tr>
 						@endforeach
+						@else
+						<tr>
+							<td colspan="8" class="text-center">Anda tidak memiliki Rombongan Belajar di semester ini.</td>
+						</tr>
+						@endif
 					</tbody>
 				</table>
 			</div>

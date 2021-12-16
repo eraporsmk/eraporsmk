@@ -103,6 +103,8 @@ class PenilaianController extends Controller
 		$user = auth()->user();
 		$guru = Guru::find($user->guru_id);
 		$callback = function($query) use ($user){
+			$query->whereHas('siswa');
+			$query->whereHas('rombongan_belajar');
 			$query->with('rombongan_belajar');
 			$query->with('siswa');
 			$query->where('sekolah_id', '=', $user->sekolah_id);

@@ -14,7 +14,7 @@ class CreateAgamaTable extends Migration
     public function up()
     {
         Schema::create('ref.agama', function (Blueprint $table) {
-			$table->increments('id');
+			$table->increments('agama_id');
 			$table->string('nama');
 			$table->timestamps();
 			$table->softDeletes();

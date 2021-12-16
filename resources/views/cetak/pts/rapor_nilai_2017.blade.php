@@ -75,7 +75,7 @@ body{font-size:11px !important;}
 <br>
 <table width="100%">
   <tr>
-    <td style="width:40%; text-align:center;">
+    <td style="width:40%;">
 		<p>Mengetahui,<br>Kepala Sekolah</p>
 	<br>
 <br>
@@ -86,7 +86,7 @@ NIP. {{$sekolah->guru->nip}}
 </p>
 	</td>
 	<td style="width:20%"></td>
-    <td style="width:40%; text-align:center;"><p>{{$sekolah->kabupaten}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
+    <td style="width:40%;"><p>{{$sekolah->kabupaten}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
 <br>
 <br>
 <br>

@@ -186,6 +186,14 @@ class UsersController extends Controller
 					$query->whereIn('user_id',function($q) {
 						$q->select('user_id')->from('role_user')->where('role_id', '=', request('filter_akses'));
 					});
+					if(request('filter_akses') == 5){
+						$query->wherehas('siswa.anggota_rombel', function($query){
+							$query->whereHas('rombongan_belajar', function($query){
+								$query->where('jenis_rombel', 1);
+								$query->where('semester_id', session('semester_id'));
+							});
+						});
+					}
 				}
 			}, true)
 			->addColumn('jenis_pengguna', function ($item) {
@@ -671,9 +679,10 @@ class UsersController extends Controller
 					}
 				}
 			}*/
-			Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
+			Artisan::call('generate:user', ['query' => 'pd', 'user' => $user, 'sekolah' => $sekolah]);
+			/*Siswa::whereNotIn('peserta_didik_id', function($query) use ($user) {
 				$query->select('peserta_didik_id')->from('users')->whereNotNull('peserta_didik_id')->where('sekolah_id', '=', $user->sekolah_id);
-			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(200, function ($find_siswa) {
+			})->where('sekolah_id', '=', $user->sekolah_id)->chunk(100, function ($find_siswa) use ($user, $sekolah){
 				foreach($find_siswa as $siswa){
 					$random = Str::random(8);
 					$find_user = User::where('email', $siswa->email)->first();
@@ -708,7 +717,7 @@ class UsersController extends Controller
 					}
 				}
 			});
-			User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->chunk(200, function ($all_pengguna) {
+			User::where('sekolah_id', $sekolah->sekolah_id)->whereRoleIs('siswa')->chunk(100, function ($all_pengguna) {
 				foreach($all_pengguna as $pengguna){
 					if(Hash::check(12345678, $pengguna->password) || !$pengguna->default_password){
 						$new_password = strtolower(Str::random(8));
@@ -717,7 +726,7 @@ class UsersController extends Controller
 						$pengguna->save();
 					}
 				}
-			});
+			});*/
 			$response = [
 				'title' => 'Berhasil',
 				'text' => 'Pengguna Peserta Didik berhasil diperbaharui',

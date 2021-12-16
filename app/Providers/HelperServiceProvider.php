@@ -334,29 +334,25 @@ class HelperServiceProvider extends ServiceProvider
 			if(!$n){
 				$predikat 	= '';
 			} elseif($n >= 91){
-				$predikat 	= 'Istimewa';
-			} elseif($n >= 81){
 				$predikat 	= 'Sangat Kompeten';
-			} elseif($n >= 71){
+			} elseif($n >= 80 && $n <= 90){
 				$predikat 	= 'Kompeten';
-			} elseif($n >= 61){
-				$predikat 	= 'Mulai Kompeten';
-			} elseif($n < 61){
-				$predikat 	= 'Tidak Kompeten';
+			} elseif($n >= 70 && $n <= 79){
+				$predikat 	= 'Cukup Kompeten';
+			} elseif($n < 70){
+				$predikat 	= 'Belum Kompeten';
 			}
 		} else {
 			if(!$n){
 				$predikat 	= '';
 			} elseif($n >= 91){
-				$predikat 	= 'Special';
-			} elseif($n >= 81){
-				$predikat 	= 'Very Competent';
-			} elseif($n >= 71){
+				$predikat 	= 'Highly Competent';
+			} elseif($n >= 80 && $n <= 90){
 				$predikat 	= 'Competent';
-			} elseif($n >= 61){
-				$predikat 	= 'Start Competent';
-			} elseif($n < 61){
-				$predikat 	= 'Not Competent';
+			} elseif($n >= 70 && $n <= 79){
+				$predikat 	= 'Partly Competent';
+			} elseif($n < 70){
+				$predikat 	= 'Not Yet Competent';
 			}
 		}
 		return $predikat;

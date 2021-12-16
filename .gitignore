@@ -1,7 +1,5 @@
 alur/
 vendor/
-!public/vendor/
-!public/vendor/blueimp/jquery-file-upload/js/vendor
 node_modules/
 npm-debug.log
 
@@ -9,6 +7,7 @@ npm-debug.log
 bootstrap/compiled.php
 app/storage/
 config/database.php
+config/database_os.php
 # Laravel 5 & Lumen specific
 public/storage
 public/hot

@@ -250,7 +250,7 @@
 <div class="strong">B.&nbsp;&nbsp;Catatan Akademik</div>
 <table width="100%" border="1">
   <tr>
-    <td style="padding:10px;">{{($get_siswa->catatan_wali) ? $get_siswa->catatan_wali->uraian_deskripsi : ''}}</td>
+    <td style="padding:10px;">{!! ($get_siswa->catatan_wali) ? $get_siswa->catatan_wali->uraian_deskripsi : '' !!}</td>
   </tr>
 </table>
 @endif
