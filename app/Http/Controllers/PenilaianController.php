@@ -61,7 +61,7 @@ class PenilaianController extends Controller
 		} else {
 			if($kompetensi_id == 'pengetahuan'){
 				$set_kompetensi_id = 1;
-			} elseif($kompetensi_id == 2){
+			} elseif($kompetensi_id == 'keterampilan'){
 				$set_kompetensi_id = 2;
 			} else {
 				$set_kompetensi_id = 3;
