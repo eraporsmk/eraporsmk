@@ -268,6 +268,8 @@ class RefCP extends Command
                     'kompetensi_id' => $d['kompetensi_id'],
                     'nama' => $d['nama'],
                     'bobot' => $d['bobot'],
+                ],
+                [
                     'last_sync' => now(),
                 ]
             );
