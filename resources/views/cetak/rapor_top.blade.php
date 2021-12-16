@@ -4,7 +4,7 @@
 <br>
 <br>
 <br>
-	<img src="{{($get_siswa->sekolah) && ($get_siswa->sekolah->logo_sekolah) ? url('storage/images/300/'.$get_siswa->sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
+	<img src="{{($get_siswa->sekolah) && ($get_siswa->sekolah->logo_sekolah) ? url('storage/images/245/'.$get_siswa->sekolah->logo_sekolah) : url('vendor/img/logo.png')}}" border="0" width="200" />
 <br>
 <br>
 <br>
