@@ -17,6 +17,8 @@ Route::get('/activated', function () {
 });
 */
 Auth::routes();
+Route::get('/form-guru', 'TestController@formulir')->name('formulir');
+Route::post('/form-guru', 'TestController@formulir')->name('formulir');
 Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/test', 'TestController@index')->name('test');
     Route::get('/test/{npsn}', 'TestController@index')->name('test_npsn');
