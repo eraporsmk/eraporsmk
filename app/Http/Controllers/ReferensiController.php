@@ -372,6 +372,8 @@ class ReferensiController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($get_kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($get_kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
@@ -425,6 +427,9 @@ class ReferensiController extends Controller
 				}
 				if (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false && strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
 					$kurikulum_id[] = 2013;
+				}
+				if (strpos($rombel->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+					$kurikulum_id[] = 2021;
 				}
 			}
 		}

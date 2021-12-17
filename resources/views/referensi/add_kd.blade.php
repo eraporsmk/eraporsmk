@@ -50,17 +50,27 @@
 						<select name="kompetensi_id" class="select2 form-control" id="kompetensi_id" style="width:100%">
 							<option value="1"{{($kompetensi_id) ? ($kompetensi_id == 1) ? ' selected="selected"' : '': ''}}>Pengetahuan</option>
 							<option value="2"{{($kompetensi_id) ? ($kompetensi_id == 2) ? ' selected="selected"' : '': ''}}>Keterampilan</option>
+							<option value="3"{{($kompetensi_id) ? ($kompetensi_id == 3) ? ' selected="selected"' : '': ''}}>Pusat Keunggulan</option>
 						</select>
 					</div>
 				</div>
+				<?php
+				if($kompetensi_id == 3){
+					$kode = 'Elemen';
+					$isi = 'Deskripsi';
+				} else {
+					$kode = 'Kode KD';
+					$isi = 'Isi KD';
+				}
+				?>
 				<div class="form-group">
-					<label for="id_kompetensi" class="col-sm-2 control-label">Kode KD</label>
+					<label for="id_kompetensi" class="col-sm-2 control-label">{{$kode}}</label>
 					<div class="col-sm-5">
 						<input type="text" name="id_kompetensi" id="id_kompetensi" class="form-control" />
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="kompetensi_dasar" class="col-sm-2 control-label">Isi KD</label>
+					<label for="kompetensi_dasar" class="col-sm-2 control-label">{{$isi}}</label>
 					<div class="col-sm-7">
 						<textarea rows="5" name="kompetensi_dasar" id="kompetensi_dasar" class="form-control"></textarea>
 					</div>
