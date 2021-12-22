@@ -220,7 +220,7 @@ $agama = App\Agama::get();
 @section('adminlte_js')
     <script>
         $(function () {
-			$('.select2').select2();
+			//$('.select2').select2();
             $('#datepicker').datepicker({
                 autoclose: true,
                 format: "yyyy-mm-dd"
