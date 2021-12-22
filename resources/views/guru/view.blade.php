@@ -101,7 +101,7 @@ if($guru->gelar_belakang){
 		<tr>
 			<td width="30%">Tanggal Lahir</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" name="tanggal_lahir" class="form-control datepicker" value="{{date('d-m-Y', strtotime($guru->tanggal_lahir))}}" {{$disabled}} /></td>
+			<td width="70%"><input type="text" name="tanggal_lahir" class="form-control datepicker" value="{{date('m/d/Y', strtotime($guru->tanggal_lahir))}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Agama</td>
