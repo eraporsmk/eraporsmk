@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use App\Traits\Uuid;
 class Guru extends Model
 {
@@ -15,7 +16,11 @@ class Guru extends Model
         'guru_id', 'guru_id_dapodik', 'sekolah_id', 'nama', 'nuptk', 'nip', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'nik', 'jenis_ptk_id', 'agama_id', 'alamat', 'rt', 'rw', 'desa_kelurahan', 'kecamatan', 'kode_pos', 'no_hp', 'email', 'photo', 'last_sync'
     ];*/
 	public function agama(){
-		return $this->hasOne('App\Agama', 'id', 'agama_id');
+		if (Schema::hasColumn('ref.agama', 'id')) {
+			return $this->hasOne('App\Agama', 'id', 'agama_id');
+		} else {
+			return $this->hasOne('App\Agama', 'agama_id', 'agama_id');
+		}
 	}
 	public function jenis_ptk(){
 		return $this->hasOne('App\Jenis_ptk', 'jenis_ptk_id', 'jenis_ptk_id');
