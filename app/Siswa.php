@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Ramsey\Uuid\Uuid;
 use App\Providers\HelperServiceProvider;
@@ -34,7 +35,11 @@ class Siswa extends Model
 		return $this->hasMany('App\Anggota_rombel', 'peserta_didik_id', 'peserta_didik_id');
     }
 	public function agama(){
-		return $this->hasOne('App\Agama', 'id', 'agama_id');
+		if (Schema::hasColumn('ref.agama', 'id')) {
+			return $this->hasOne('App\Agama', 'id', 'agama_id');
+		} else {
+			return $this->hasOne('App\Agama', 'agama_id', 'agama_id');
+		}
 	}
 	public function pekerjaan_ayah(){
 		return $this->hasOne('App\Pekerjaan', 'pekerjaan_id', 'kerja_ayah');
