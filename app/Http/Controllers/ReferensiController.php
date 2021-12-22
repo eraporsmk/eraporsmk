@@ -767,4 +767,7 @@ class ReferensiController extends Controller
 		);
 		return view('referensi.edit_paket_ukk')->with($params);
 	}
+	public function export_kd($tingkat_pendidikan_id, $rombongan_belajar_id, $mata_pelajaran_id, $kompetensi_id){
+
+	}
 }

@@ -160,6 +160,9 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/referensi/duplikat/{id}', 'ReferensiController@duplikat_kd')->name('duplikat_kd');
         Route::get('/referensi/edit-kd/{id}', 'ReferensiController@edit_kd')->name('edit_kd');
         Route::post('/referensi/update-kd', array('as' => 'referensi.update_kd', 'uses' => 'ReferensiController@update_kd'));
+        Route::prefix('referensi')->group(function () {
+            Route::get('/kd-ex/{tingkat_pendidikan_id}/{rombongan_belajar_id}/{mata_pelajaran_id}/{kompetensi_id}', 'ReferensiController@export_kd')->name('referensi.export_kd');
+        });
     });
     Route::group(['middleware' => ['role:waka|kaprog']], function () {
         Route::get('/referensi/ukk', 'ReferensiController@ukk')->name('ref_ukk');

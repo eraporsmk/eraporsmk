@@ -45,7 +45,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="teknik_penilaian" class="col-sm-2 control-label">Aspek Penilaian</label>
+					<label for="kompetensi_id" class="col-sm-2 control-label">Aspek Penilaian</label>
 					<div class="col-sm-5">
 						<select name="kompetensi_id" class="select2 form-control" id="kompetensi_id" style="width:100%">
 							<option value="1"{{($kompetensi_id) ? ($kompetensi_id == 1) ? ' selected="selected"' : '': ''}}>Pengetahuan</option>
@@ -64,13 +64,13 @@
 				}
 				?>
 				<div class="form-group">
-					<label for="id_kompetensi" class="col-sm-2 control-label">{{$kode}}</label>
+					<label for="id_kompetensi" class="col-sm-2 control-label label-kode">{{$kode}}</label>
 					<div class="col-sm-5">
 						<input type="text" name="id_kompetensi" id="id_kompetensi" class="form-control" />
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="kompetensi_dasar" class="col-sm-2 control-label">{{$isi}}</label>
+					<label for="kompetensi_dasar" class="col-sm-2 control-label label-isi">{{$isi}}</label>
 					<div class="col-sm-7">
 						<textarea rows="5" name="kompetensi_dasar" id="kompetensi_dasar" class="form-control"></textarea>
 					</div>
@@ -81,6 +81,14 @@
 					</div>
 				</div>
 	</form>
+	<div class="row" style="display: none;" id="export_import_hidden">
+		<div class="col-md-6">
+			<a class="btn btn-success btn-lg btn-block" href="#" id="kd_excel">Unduh Format Excel</a>
+		</div>
+		<div class="col-md-6">
+			<p class="text-center"><span class="btn btn-danger btn-file btn-lg btn-block"> Unggah Format Excel <input type="file" id="fileupload" name="file" /></span></p>
+		</div>
+	</div>
 @stop
 
 @section('js')
@@ -104,11 +112,16 @@ var checkJSON = function(m) {
 	return true;
 };
 $('.select2').select2();
+var kelas = $('#kelas').val()
+var rombel = $('#rombel').val()
+var mapel = $('#mapel').val()
+var kompetensi_id = $('#kompetensi_id').val()
 $('#kelas').change(function(){
+	$('#export_import').hide()
 	$("#rombel").val('');
 	$("#rombel").trigger('change.select2');
-	var ini = $(this).val();
-	if(ini == ''){
+	kelas = $(this).val();
+	if(kelas == ''){
 		return false;
 	}
 	$.ajax({
@@ -137,10 +150,12 @@ $('#kelas').change(function(){
 			}
 		}
 	});
+	ganti_url(kelas, rombel, mapel, kompetensi_id)
 });
 $('#rombel').change(function(){
-	var ini = $(this).val();
-	if(ini == ''){
+	$('#export_import').hide()
+	rombel = $(this).val();
+	if(rombel == ''){
 		return false;
 	}
 	$.ajax({
@@ -166,64 +181,41 @@ $('#rombel').change(function(){
 			}
 		}
 	});
+	ganti_url(kelas, rombel, mapel, kompetensi_id)
 });
 $('#mapel').change(function(){
-	var ini = $(this).val();
-	var selected = $(this).find('option:selected');
-	var pembelajaran_id = selected.data('pembelajaran_id');
-	$('#pembelajaran_id').val(pembelajaran_id);
-	if(ini == ''){
+	mapel = $(this).val();
+	if(mapel == ''){
+		$('#export_import').hide()
 		return false;
 	}
-	$.ajax({
-		url: '{{url('ajax/get-teknik')}}',
-		type: 'post',
-		data: $("form#form").serialize(),
-		success: function(response){
-			$('#teknik_penilaian_show').show();
-			$('#teknik_penilaian').html('<option value="">== Pilih Teknik Penilaian ==</option>');
-			result = checkJSON(response);
-			if(result == true){
-				var data = $.parseJSON(response);
-				if(!$.isEmptyObject(data.result)){
-					$.each(data.result, function (i, item) {
-						$('#teknik_penilaian').append($('<option>', { 
-							value: item.value,
-							text : item.text,
-						}));
-					});
-				}
-			} else {		
-				$('#result').html(response);
-			}
-		}
-	});
-});
-$('#teknik_penilaian').change(function(){
-	var ini = $(this).val();
-	if(ini == ''){
+	$('#export_import').show()
+	ganti_url(kelas, rombel, mapel, kompetensi_id)
+})
+function set_elemen(kompetensi_id){
+	var kode;
+	var isi;
+	if(kompetensi_id == 3){
+		kode = 'Elemen';
+		isi = 'Deskripsi';
+	} else {
+		kode = 'Kode KD';
+		isi = 'Isi KD';
+	}
+	$('.label-kode').text(kode)
+	$('.label-isi').text(isi)
+}
+set_elemen(kompetensi_id)
+$('#kompetensi_id').change(function(){
+	kompetensi_id = $(this).val();
+	if(kompetensi_id == ''){
 		return false;
 	}
-	var selected = $('#mapel').find('option:selected');
-	var pembelajaran_id = selected.data('pembelajaran_id');
-	$('#bobot_show').show();
-	$.ajax({
-		url: '{{url('/ajax/get-kd')}}',
-		type: 'post',
-		data: $("form#form").serialize(),
-		success: function(response){
-			$('#result').html(response);
-			$.get("{{url('/ajax/get-bobot')}}/"+pembelajaran_id+"/"+ini, function( data ) {
-				if(data){
-					$('#bobot').val(data);
-					$('#bobot_value').val(data);
-					$("input#bobot").prop('disabled', true);
-				} else {
-					$("input#bobot").prop('disabled', false);
-				}
-			});
-		}
-	});
+	set_elemen(kompetensi_id)
+	ganti_url(kelas, rombel, mapel, kompetensi_id)
 });
+function ganti_url(kelas, rombel, mapel, kompetensi_id){
+	$('#kd_excel').attr('href', '<?php echo url('referensi/kd-ex'); ?>/'+kelas+'/'+rombel+'/'+mapel+'/'+kompetensi_id)
+}
 </script>
 @stop

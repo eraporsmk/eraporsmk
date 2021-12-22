@@ -18,6 +18,7 @@ class TestController extends Controller
     }
 	public function formulir(Request $request){
 		if ($request->isMethod('post')) {
+			//dd($request->all());
 			$messages = [
 				'nama.required' => 'Nama Lengkap tidak boleh kosong',
 				'email.email' => 'Email tidak valid',
