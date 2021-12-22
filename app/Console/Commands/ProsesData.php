@@ -859,21 +859,23 @@ class ProsesData extends Command
 					);
 					if($akt_pd->anggota_akt_pd){
 						foreach($akt_pd->anggota_akt_pd as $anggota_akt_pd){
-							$find_siswa = Siswa::where('peserta_didik_id_dapodik', $anggota_akt_pd->registrasi_peserta_didik->peserta_didik_id)->first();
-							if($find_siswa){
-								$insert_anggota_akt_pd = array(
-									'sekolah_id'		=> $sekolah_id,
-									'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
-									'peserta_didik_id'	=> $find_siswa->peserta_didik_id,
-									'nm_pd'				=> $anggota_akt_pd->nm_pd,
-									'nipd'				=> $anggota_akt_pd->nipd,
-									'jns_peran_pd'		=> $anggota_akt_pd->jns_peran_pd,
-									'last_sync'			=> date('Y-m-d H:i:s'),
-								);
-								$create_anggota_akt_pd = Anggota_akt_pd::updateOrCreate(
-									['id_ang_akt_pd' => $anggota_akt_pd->id_ang_akt_pd],
-									$insert_anggota_akt_pd
-								);
+							if($anggota_akt_pd->registrasi_peserta_didik){
+								$find_siswa = Siswa::where('peserta_didik_id_dapodik', $anggota_akt_pd->registrasi_peserta_didik->peserta_didik_id)->first();
+								if($find_siswa){
+									$insert_anggota_akt_pd = array(
+										'sekolah_id'		=> $sekolah_id,
+										'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
+										'peserta_didik_id'	=> $find_siswa->peserta_didik_id,
+										'nm_pd'				=> $anggota_akt_pd->nm_pd,
+										'nipd'				=> $anggota_akt_pd->nipd,
+										'jns_peran_pd'		=> $anggota_akt_pd->jns_peran_pd,
+										'last_sync'			=> date('Y-m-d H:i:s'),
+									);
+									$create_anggota_akt_pd = Anggota_akt_pd::updateOrCreate(
+										['id_ang_akt_pd' => $anggota_akt_pd->id_ang_akt_pd],
+										$insert_anggota_akt_pd
+									);
+								}
 							}
 						}
 					}
