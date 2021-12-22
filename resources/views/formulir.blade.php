@@ -123,7 +123,7 @@ $agama = App\Agama::get();
                         <div class="col-sm-10">
                             <select class="select2 form-control" name="agama_id" style="width: 100%;">
                                 @foreach ($agama as $item)
-                                <option value="{{$item->id}}">{{$item->nama}}</option>
+                                <option value="{{$item->id ?: $item->agama_id}}">{{$item->nama}}</option>
                                 @endforeach
                             </select>
                             @if ($errors->has('agama_id'))
@@ -220,7 +220,7 @@ $agama = App\Agama::get();
 @section('adminlte_js')
     <script>
         $(function () {
-			//$('.select2').select2();
+			$('.select2').select2();
             $('#datepicker').datepicker({
                 autoclose: true,
                 format: "yyyy-mm-dd"
