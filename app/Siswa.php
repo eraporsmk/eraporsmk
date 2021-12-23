@@ -35,10 +35,10 @@ class Siswa extends Model
 		return $this->hasMany('App\Anggota_rombel', 'peserta_didik_id', 'peserta_didik_id');
     }
 	public function agama(){
-		if (Schema::hasColumn('ref.agama', 'id')) {
-			return $this->hasOne('App\Agama', 'id', 'agama_id');
-		} else {
+		if (Schema::hasColumn('ref.agama', 'agama_id')) {
 			return $this->hasOne('App\Agama', 'agama_id', 'agama_id');
+		} else {
+			return $this->hasOne('App\Agama', 'id', 'agama_id');
 		}
 	}
 	public function pekerjaan_ayah(){
