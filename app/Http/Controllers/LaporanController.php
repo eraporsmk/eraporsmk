@@ -334,7 +334,7 @@ class LaporanController extends Controller
 					'lokasi_prakerin'		=> $lokasi_prakerin[$key],
 					'lama_prakerin'		=> $lama_prakerin[$key],
 					'skala'		=> $skala[$key],
-					'bidang_usaha'		=> $bidang_usaha[$key],
+					//'bidang_usaha'		=> $bidang_usaha[$key],
 					'keterangan_prakerin'		=> $keterangan_prakerin[$key],
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
