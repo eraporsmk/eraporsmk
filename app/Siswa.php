@@ -35,7 +35,9 @@ class Siswa extends Model
 		return $this->hasMany('App\Anggota_rombel', 'peserta_didik_id', 'peserta_didik_id');
     }
 	public function agama(){
-		if (Schema::hasColumn('ref.agama', 'agama_id')) {
+		$hasColumn = DB::select("SELECT true as exists FROM information_schema.columns 
+		WHERE table_schema='ref' AND table_name='agama' AND column_name='agama_id';");
+		if (isset($hasColumn) && $hasColumn && $hasColumn[0]->exists) {
 			return $this->hasOne('App\Agama', 'agama_id', 'agama_id');
 		} else {
 			return $this->hasOne('App\Agama', 'id', 'agama_id');
