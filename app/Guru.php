@@ -16,10 +16,12 @@ class Guru extends Model
         'guru_id', 'guru_id_dapodik', 'sekolah_id', 'nama', 'nuptk', 'nip', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'nik', 'jenis_ptk_id', 'agama_id', 'alamat', 'rt', 'rw', 'desa_kelurahan', 'kecamatan', 'kode_pos', 'no_hp', 'email', 'photo', 'last_sync'
     ];*/
 	public function agama(){
-		if (Schema::hasColumn('ref.agama', 'id')) {
-			return $this->hasOne('App\Agama', 'id', 'agama_id');
-		} else {
+		$hasColumn = DB::select("SELECT true as exists FROM information_schema.columns 
+		WHERE table_schema='ref' AND table_name='agama' AND column_name='agama_id';");
+		if (isset($hasColumn) && $hasColumn && $hasColumn[0]->exists) {
 			return $this->hasOne('App\Agama', 'agama_id', 'agama_id');
+		} else {
+			return $this->hasOne('App\Agama', 'id', 'agama_id');
 		}
 	}
 	public function jenis_ptk(){
