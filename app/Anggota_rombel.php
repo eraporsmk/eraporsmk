@@ -61,6 +61,12 @@ class Anggota_rombel extends Model
 	public function nilai_kd_pk(){
 		return $this->hasMany('App\NilaiPkPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar');
 	}
+	public function nilai_kd_pk_tertinggi(){
+		return $this->hasOne('App\NilaiPkPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar')->orderBy('jml_nilai', 'desc');
+	}
+	public function nilai_kd_pk_terendah(){
+		return $this->hasOne('App\NilaiPkPerKd', 'anggota_rombel_id', 'anggota_rombel_id')->where('kompetensi_id', '=', 3)->with('kd_nilai.kompetensi_dasar')->orderBy('jml_nilai', 'asc');
+	}
 	public function nilai_remedial(){
 		return $this->hasOne('App\Remedial', 'anggota_rombel_id', 'anggota_rombel_id');
 	}
