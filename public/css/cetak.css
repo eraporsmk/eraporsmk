@@ -2,7 +2,7 @@ body{background:#FFFFFF !important; background-color:#FFFFFF;font-family:Times; 
 h3{font-size:14px;}
 table tr td,table tr th{padding:5px;}
 .table th{background-color:#FFFFCC !important}
-.strong {font-weight:bold;}
+.strong, b {font-weight:bold;}
 .cetakan{
 	font-size:14px;
 	line-height:2em;
