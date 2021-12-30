@@ -1,5 +1,5 @@
 alur
-vendor/
+/vendor
 node_modules/
 npm-debug.log
 

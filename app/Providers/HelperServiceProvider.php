@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Auth;
@@ -471,5 +472,8 @@ class HelperServiceProvider extends ServiceProvider
 			$predikat 	= '<span class="badge bg-yellow">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		}
 		return $predikat;
+	}
+	public static function limit_text($text){
+		return Str::words(trim(nl2br($text)), 10, '...');
 	}
 }
