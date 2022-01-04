@@ -373,7 +373,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_count;
+			$return  = $item->rencana_pengetahuan_count ?: $item->rencana_pk_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_k', function ($item) {
@@ -381,7 +381,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_dinilai_count;
+			$return  = $item->rencana_pengetahuan_dinilai_count ?: $item->rencana_pk_dinilai_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_k', function ($item) {
