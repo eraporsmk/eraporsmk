@@ -1058,6 +1058,12 @@ class AjaxController extends Controller
 				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
+				'nilai_kd_pk_tertinggi' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk_terendah' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
 				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
