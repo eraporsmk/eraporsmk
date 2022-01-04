@@ -94,6 +94,23 @@ class PenilaianController extends Controller
 		}
 		return response()->json($output);
 	}
+	public function reset_capaian_kompetensi(Request $request){
+		$delete = Deskripsi_mata_pelajaran::where('pembelajaran_id', $request->pembelajaran_id)->delete();
+		if($delete){
+			$output = [
+				'title'	=> 'Berhasil',
+				'icon'	=> 'success',
+				'text'	=> 'Capaian Kompetensi berhasil di reset',
+			];
+		} else {
+			$output = [
+				'title'	=> 'Gagal',
+				'icon'	=> 'error',
+				'text'	=> 'Capaian Kompetensi gagal di reset',
+			];
+		}
+		return response()->json($output);
+	}
 	public function list_sikap (){
 		$params = array(
 			'title'	=> 'Data Penilaian Sikap',

@@ -474,6 +474,6 @@ class HelperServiceProvider extends ServiceProvider
 		return $predikat;
 	}
 	public static function limit_text($text){
-		return Str::words(trim(nl2br($text)), 10, '...');
+		return Str::words(trim(nl2br($text)), 20, '...');
 	}
 }

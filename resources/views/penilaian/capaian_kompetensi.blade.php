@@ -36,7 +36,7 @@ if($rombongan_belajar->kunci_nilai){
 			<td class="text-center">Nilai CP Tertinggi:<br>{{($siswa->nilai_kd_pk_tertinggi) ? $siswa->nilai_kd_pk_tertinggi->nilai_kd : 0}}</td>
 			<td>
 			<?php
-			$deskripsi_tertinggi = ($siswa->nilai_kd_pk_tertinggi) ? $siswa->deskripsi_mata_pelajaran()->where('kompetensi_dasar_id', $siswa->nilai_kd_pk_tertinggi->kd_nilai->kompetensi_dasar->kompetensi_dasar_id)->first() : '';
+			$deskripsi_tertinggi = ($siswa->nilai_kd_pk_tertinggi) ? $siswa->deskripsi_mata_pelajaran()->where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_dasar_id', $siswa->nilai_kd_pk_tertinggi->kd_nilai->kompetensi_dasar->kompetensi_dasar_id)->first() : '';
 			$kompetensi_dasar_id_tertinggi = ($siswa->nilai_kd_pk_tertinggi) ? $siswa->nilai_kd_pk_tertinggi->kd_nilai->kompetensi_dasar->kompetensi_dasar_id : '';
 			$kompetensi_dasar_tertinggi = ($siswa->nilai_kd_pk_tertinggi) ? CustomHelper::limit_text($siswa->nilai_kd_pk_tertinggi->kd_nilai->kompetensi_dasar->kompetensi_dasar) : '';
 			?>
@@ -47,7 +47,7 @@ if($rombongan_belajar->kunci_nilai){
 			<td class="text-center">Nilai CP Terendah:<br>{{($siswa->nilai_kd_pk_terendah) ? $siswa->nilai_kd_pk_terendah->nilai_kd : 0}}</td>
 			<td>
 			<?php
-			$deskripsi_terendah = ($siswa->nilai_kd_pk_terendah) ? $siswa->deskripsi_mata_pelajaran()->where('kompetensi_dasar_id', $siswa->nilai_kd_pk_terendah->kd_nilai->kompetensi_dasar->kompetensi_dasar_id)->first() : '';
+			$deskripsi_terendah = ($siswa->nilai_kd_pk_terendah) ? $siswa->deskripsi_mata_pelajaran()->where('pembelajaran_id', $pembelajaran_id)->where('kompetensi_dasar_id', $siswa->nilai_kd_pk_terendah->kd_nilai->kompetensi_dasar->kompetensi_dasar_id)->first() : '';
 			$kompetensi_dasar_id_terendah = ($siswa->nilai_kd_pk_terendah) ? $siswa->nilai_kd_pk_terendah->kd_nilai->kompetensi_dasar->kompetensi_dasar_id : '';
 			$kompetensi_dasar_terendah = ($siswa->nilai_kd_pk_terendah) ? CustomHelper::limit_text($siswa->nilai_kd_pk_terendah->kd_nilai->kompetensi_dasar->kompetensi_dasar) : '';
 			?>

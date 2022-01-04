@@ -58,6 +58,12 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group" id="reset_capaian_kompetensi" style="display:none;">
+					<label for="mapel" class="col-sm-3 control-label">Reset Capaian Kompetensi</label>
+					<div class="col-sm-9">
+						<a href="javascript:void(0);" class="btn btn-warning">Reset Capaian Kompetensi</a>
+					</div>
+				</div>
 				<div class="form-group" id="rencana_show" style="display:none;">
 					<label for="rencana" class="col-sm-3 control-label">Rencana Penilaian</label>
 					<div class="col-sm-9">
@@ -110,6 +116,7 @@
 var query = $('#query').val();
 var url_rombel;
 var url_mapel;
+$('#reset_capaian_kompetensi').hide();
 if(query == 'pengetahuan' || query == 'keterampilan'){
 	url_rombel = '{{url('ajax/get-mapel')}}';
 	url_mapel = '{{url('ajax/get-rencana')}}';
@@ -263,6 +270,9 @@ $('#mapel').change(function(){
 		success: function(response){
 			$('#rencana').html('<option value="">== Pilih Rencana Penilaian ==</option>');
 			$('#aspek_penilaian').html('<option value="">== Pilih Aspek Penilaian ==</option>');
+			if(query == 'capaian-kompetensi'){
+				$('#reset_capaian_kompetensi').show();
+			}
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
@@ -353,6 +363,31 @@ $( "#form" ).submit(function(e) {
 			swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
 				if(data.redirect){
 					window.location.replace('{{url('penilaian')}}'+data.redirect);
+				}
+			});
+		}
+	});
+});
+$('#reset_capaian_kompetensi').click(function(){
+	swal({
+		title: "Anda Yakin?",
+		text: "Semua isian capaian kompetensi akan dihapus!",
+		icon: "warning",
+		buttons: true,
+		dangerMode: true,
+		closeOnClickOutside: false,
+	}).then((willDelete) => {
+		if (willDelete) {
+			$.ajax({
+				url:'{{route('penilaian.reset_capaian_kompetensi')}}',
+				type:'post',
+				data: $('#form').serialize(),
+				success: function(data){
+					//var data = $.parseJSON(response);
+					//console.log(response);
+					swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
+						window.location.replace('{{route('penilaian.form_penilaian', ['kompetensi_id' => $query])}}');
+					});
 				}
 			});
 		}

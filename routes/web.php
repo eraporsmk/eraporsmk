@@ -222,6 +222,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::post('/import_excel', 'PenilaianController@import_excel');
             Route::get('/delete-remedial/{remedial_id}', array('as' => 'penilaian.delete_remedial', 'uses' => 'PenilaianController@delete_remedial'));
             Route::post('/reset-remedial', array('as' => 'penilaian.reset_remedial', 'uses' => 'PenilaianController@reset_remedial'));
+            Route::post('/reset-capaian-kompetensi', array('as' => 'penilaian.reset_capaian_kompetensi', 'uses' => 'PenilaianController@reset_capaian_kompetensi'));
         });
         //Penilaian End//
         //Monitoring Start//
