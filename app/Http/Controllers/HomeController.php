@@ -399,6 +399,8 @@ class HomeController extends Controller
 			}
 			if($item->rencana_pengetahuan_dinilai_count){
 				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
+			} elseif($item->rencana_pk_dinilai_count){
+				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/3').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
 			} else {
 				$return  = '-';
 			}
