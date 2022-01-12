@@ -71,7 +71,7 @@ class HomeController extends Controller
 			})->count();
 		}
 		if($user->hasRole('guru')){
-			$pembelajaran = Pembelajaran::with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
+			$pembelajaran = Pembelajaran::whereHas('rombongan_belajar')->with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
 				$query->withCount('anggota_rombel')->with(['wali' => function($query){
 					$query->with('gelar_depan');
 					$query->with('gelar_belakang');
