@@ -34,26 +34,28 @@ use App\Kewirausahaan;
 use App\Anggota_kewirausahaan;
 use App\Exports\LaporanExport;
 use App\Imports\LaporanImport;
-use App\Rombel4_tahun;
+use App\Rombel4_Tahun;
 use App\Rencana_budaya_kerja;
 use App\Opsi_budaya_kerja;
 use App\Budaya_kerja;
 use Validator;
+
 class LaporanController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-	public function index(){
+	public function __construct()
+	{
+		$this->middleware('auth');
+	}
+	public function index()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.catatan_akademik');
 		} else {
-			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
+			$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function ($query) {
 				$query->with('pembelajaran');
 				$query->limit(3);
-			}])->whereHas('rombongan_belajar', function($query) use ($user){
+			}])->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -64,13 +66,14 @@ class LaporanController extends Controller
 			return view('laporan.catatan_akademik')->with($params);
 		}
 	}
-	public function simpan_catatan_akademik(Request $request){
+	public function simpan_catatan_akademik(Request $request)
+	{
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$uraian_deskripsi = $request['uraian_deskripsi'];
 		$uraian_deskripsi = array_filter($uraian_deskripsi);
-		$insert=0;
-		foreach($uraian_deskripsi as $key => $value){
+		$insert = 0;
+		foreach ($uraian_deskripsi as $key => $value) {
 			$new = Catatan_wali::UpdateOrCreate(
 				['anggota_rombel_id' => $anggota_rombel_id[$key]],
 				[
@@ -79,25 +82,27 @@ class LaporanController extends Controller
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
-			if($new){
+			if ($new) {
 				$insert++;
 			}
 		}
-		if($insert){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($insert) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/catatan-akademik');
 	}
-	public function nilai_karakter(){
+	public function nilai_karakter()
+	{
 		$user = auth()->user();
 		$params = array(
-			'content_header_right'	=> ($user->hasRole('wali')) ? '<a href="'.url('laporan/tambah-nilai-karakter').'" class="btn btn-success pull-right">Tambah Data</a>' : '',
+			'content_header_right'	=> ($user->hasRole('wali')) ? '<a href="' . url('laporan/tambah-nilai-karakter') . '" class="btn btn-success pull-right">Tambah Data</a>' : '',
 		);
 		return view('laporan.nilai_karakter_list')->with($params);
 	}
-	public function simpan_nilai_karakter(Request $request){
+	public function simpan_nilai_karakter(Request $request)
+	{
 		$insert_catatan_ppk = array(
 			'sekolah_id' => $request['sekolah_id'],
 			'capaian' => $request['capaian'],
@@ -108,7 +113,7 @@ class LaporanController extends Controller
 			$insert_catatan_ppk
 		);
 		$all_deskripsi = $request['deskripsi'];
-		foreach($all_deskripsi as $key => $deskripsi){
+		foreach ($all_deskripsi as $key => $deskripsi) {
 			$insert_nilai_karakter = array(
 				'sekolah_id' => $request['sekolah_id'],
 				'deskripsi' => $deskripsi,
@@ -119,22 +124,23 @@ class LaporanController extends Controller
 				$insert_nilai_karakter
 			);
 		}
-		if($catatan_ppk){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($catatan_ppk) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/nilai-karakter');
 	}
-	public function list_nilai_karakter(){
+	public function list_nilai_karakter()
+	{
 		$user = auth()->user();
-		$callback = function($q) use ($user){
-			if($user->hasRole('waka')){
+		$callback = function ($q) use ($user) {
+			if ($user->hasRole('waka')) {
 				$q->where('sekolah_id', session('sekolah_id'));
 				$q->where('semester_id', session('semester_id'));
 			} else {
 				//$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', session('semester_id'))->first();
-				$q->whereHas('rombongan_belajar', function($query) use ($user){
+				$q->whereHas('rombongan_belajar', function ($query) use ($user) {
 					$query->where('guru_id', $user->guru_id);
 					$query->where('jenis_rombel', 1);
 					$query->where('semester_id', session('semester_id'));
@@ -147,7 +153,7 @@ class LaporanController extends Controller
 				$return  = strtoupper($item->anggota_rombel->siswa->nama);
 				return $return;
 			})
-			->addColumn('actions', function ($item) use ($user){
+			->addColumn('actions', function ($item) use ($user) {
 				$links = '<div class="text-center">';
 				$links .= '<div class="btn-group">';
 				$links .= '<button type="button" class="btn btn-default btn-sm">Aksi</button>';
@@ -156,22 +162,22 @@ class LaporanController extends Controller
 				$links .= '<span class="sr-only">Toggle Dropdown</span>';
 				$links .= '</button>';
 				$links .= '<ul class="dropdown-menu pull-right text-left" role="menu">';
-				$links .= '<li><a class="toggle-modal" href="'.url('laporan/detil-nilai-karakter/'.$item->catatan_ppk_id).'"><i class="fa fa-eye"></i> Detil</a></li>';
-				if(!$user->hasRole('waka')){
-					$links .= '<li><a href="'.url('laporan/hapus-nilai-karakter/'.$item->catatan_ppk_id).'" class="confirm"><i class="fa fa-trash"></i> Hapus</a></li>';
+				$links .= '<li><a class="toggle-modal" href="' . url('laporan/detil-nilai-karakter/' . $item->catatan_ppk_id) . '"><i class="fa fa-eye"></i> Detil</a></li>';
+				if (!$user->hasRole('waka')) {
+					$links .= '<li><a href="' . url('laporan/hapus-nilai-karakter/' . $item->catatan_ppk_id) . '" class="confirm"><i class="fa fa-trash"></i> Hapus</a></li>';
 				}
 				$links .= '</ul>';
 				$links .= '</div>';
 				$links .= '</div>';
-                return $links;
-
-            })
-            ->rawColumns(['actions', 'set_nama', 'set_tempat_lahir'])
-            ->make(true);  
+				return $links;
+			})
+			->rawColumns(['actions', 'set_nama', 'set_tempat_lahir'])
+			->make(true);
 	}
-	public function tambah_nilai_karakter(){
+	public function tambah_nilai_karakter()
+	{
 		$user = auth()->user();
-		$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function($query) use ($user){
+		$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function ($query) use ($user) {
 			$query->where('guru_id', $user->guru_id);
 			$query->where('jenis_rombel', 1);
 			$query->where('semester_id', session('semester_id'));
@@ -184,19 +190,21 @@ class LaporanController extends Controller
 		);
 		return view('laporan.nilai_karakter_tambah')->with($params);
 	}
-	public function detil_karakter($id){
+	public function detil_karakter($id)
+	{
 		$params['data'] = Catatan_ppk::with(['siswa', 'nilai_karakter', 'nilai_karakter.sikap'])->find($id);
 		return view('laporan.nilai_karakter_detil')->with($params);
 	}
-	public function delete_karakter($id){
+	public function delete_karakter($id)
+	{
 		$delete_nilai_karakter = Nilai_karakter::where('catatan_ppk_id', $id)->delete();
-		if($delete_nilai_karakter){
+		if ($delete_nilai_karakter) {
 			Catatan_ppk::destroy($id);
-			Session::flash('success',"Data berhasil disimpan");
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
-		if($delete_nilai_karakter){
+		if ($delete_nilai_karakter) {
 			Catatan_ppk::destroy($id);
 			$output['title'] = 'Sukses';
 			$output['text'] = 'Berhasil menghapus nilai karakter';
@@ -210,13 +218,14 @@ class LaporanController extends Controller
 		}
 		echo json_encode($output);
 	}
-	public function ketidakhadiran(){
+	public function ketidakhadiran()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.kehadiran');
 		} else {
 			$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('jenis_rombel', 1)->where('semester_id', session('semester_id'))->first();
-			$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -228,62 +237,65 @@ class LaporanController extends Controller
 			return view('laporan.kehadiran')->with($params);
 		}
 	}
-	public function simpan_ketidakhadiran(Request $request){
+	public function simpan_ketidakhadiran(Request $request)
+	{
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$sakit = $request['sakit'];
 		$izin = $request['izin'];
 		$alpa = $request['alpa'];
-		$insert=0;
-		foreach($anggota_rombel_id as $key => $value){
+		$insert = 0;
+		foreach ($anggota_rombel_id as $key => $value) {
 			$new = Absensi::UpdateOrCreate(
 				['anggota_rombel_id' => $value],
 				[
-					'sekolah_id'=> $sekolah_id,
+					'sekolah_id' => $sekolah_id,
 					'sakit' 	=> ($sakit[$key]) ? $sakit[$key] : 0,
 					'izin'		=> ($izin[$key]) ? $izin[$key] : 0,
 					'alpa'		=> ($alpa[$key]) ? $alpa[$key] : 0,
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
-			if($new){
+			if ($new) {
 				$insert++;
 			}
 		}
-		if($insert){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($insert) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		//return redirect('/laporan/kehadiran');
 		return redirect()->route('laporan.ketidakhadiran');
 	}
-	public function unduh_kehadiran($id){
+	public function unduh_kehadiran($id)
+	{
 		$rombongan_belajar = Rombongan_belajar::find($id);
-		$nama_file = 'Rekap Absensi '.$rombongan_belajar->nama;
+		$nama_file = 'Rekap Absensi ' . $rombongan_belajar->nama;
 		$nama_file = CustomHelper::clean($nama_file);
-		$nama_file = $nama_file.'.xlsx';
+		$nama_file = $nama_file . '.xlsx';
 		return (new AbsensiExport)->query($id)->download($nama_file);
 	}
-	public function nilai_ekskul(){
+	public function nilai_ekskul()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.nilai_ekskul');
 		} else {
-			$callback = function($query){
+			$callback = function ($query) {
 				$query->where('semester_id', session('semester_id'));
-				$query->whereIn('rombongan_belajar_id', function($q){
+				$query->whereIn('rombongan_belajar_id', function ($q) {
 					$q->select('rombongan_belajar_id')->from('rombongan_belajar')->where('jenis_rombel', 51);
 				});
-				$query->with(['kelas_ekskul' => function($q){
-					$q->with(['wali'  => function($sq){
+				$query->with(['kelas_ekskul' => function ($q) {
+					$q->with(['wali'  => function ($sq) {
 						$sq->with('gelar_depan');
 						$sq->with('gelar_belakang');
 					}]);
 				}]);
 				$query->with('nilai_ekskul');
 			};
-			$get_siswa = Anggota_rombel::with('siswa')->whereHas('anggota_ekskul', $callback)->with(['anggota_ekskul' => $callback])->whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::with('siswa')->whereHas('anggota_ekskul', $callback)->with(['anggota_ekskul' => $callback])->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -294,15 +306,16 @@ class LaporanController extends Controller
 			return view('laporan.nilai_ekskul')->with($params);
 		}
 	}
-	public function pkl(){
+	public function pkl()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.pkl');
 		} else {
-			$all_dudi = Dudi::with(['kecamatan' => function($query){
+			$all_dudi = Dudi::with(['kecamatan' => function ($query) {
 				$query->with('get_kabupaten');
 			}])->where('sekolah_id', session('sekolah_id'))->orderBy('nama', 'asc')->get();
-			$get_siswa = Anggota_rombel::with(['siswa', 'prakerin'])->whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::with(['siswa', 'prakerin'])->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -314,7 +327,8 @@ class LaporanController extends Controller
 			return view('laporan.pkl')->with($params);
 		}
 	}
-	public function simpan_pkl(Request $request){
+	public function simpan_pkl(Request $request)
+	{
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$mitra_prakerin = $request['mitra_prakerin'];
@@ -324,12 +338,12 @@ class LaporanController extends Controller
 		$skala = $request['skala'];
 		$bidang_usaha = $request['bidang_usaha'];
 		$keterangan_prakerin = $request['keterangan_prakerin'];
-		$insert=0;
-		foreach($anggota_rombel_id as $key => $value){
+		$insert = 0;
+		foreach ($anggota_rombel_id as $key => $value) {
 			$new = Prakerin::UpdateOrCreate(
 				['anggota_rombel_id' => $value],
 				[
-					'sekolah_id'=> $sekolah_id,
+					'sekolah_id' => $sekolah_id,
 					'mitra_prakerin' 	=> $mitra_prakerin[$key],
 					'lokasi_prakerin'		=> $lokasi_prakerin[$key],
 					'lama_prakerin'		=> $lama_prakerin[$key],
@@ -339,36 +353,39 @@ class LaporanController extends Controller
 					'last_sync'	=> date('Y-m-d H:i:s'),
 				]
 			);
-			if($new){
+			if ($new) {
 				$insert++;
 			}
 		}
-		if($insert){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($insert) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/pkl');
 	}
-	public function prestasi(){
+	public function prestasi()
+	{
 		return view('laporan.prestasi_list');
 	}
-	public function tambah_prestasi(){
+	public function tambah_prestasi()
+	{
 		$user = auth()->user();
-		$get_siswa = Anggota_rombel::with(['siswa', 'prestasi'])->whereHas('rombongan_belajar', function($query) use ($user){
-				$query->where('guru_id', $user->guru_id);
-				$query->where('jenis_rombel', 1);
-				$query->where('semester_id', session('semester_id'));
-			})->order()->get();
+		$get_siswa = Anggota_rombel::with(['siswa', 'prestasi'])->whereHas('rombongan_belajar', function ($query) use ($user) {
+			$query->where('guru_id', $user->guru_id);
+			$query->where('jenis_rombel', 1);
+			$query->where('semester_id', session('semester_id'));
+		})->order()->get();
 		$params = array(
 			'get_siswa'	=> $get_siswa,
 		);
 		return view('laporan.prestasi')->with($params);
 	}
-	public function list_prestasi(){
+	public function list_prestasi()
+	{
 		$user = auth()->user();
-		$callback = function($query) use ($user){
-			if($user->hasRole('wali') && !$user->hasRole('waka')){
+		$callback = function ($query) use ($user) {
+			if ($user->hasRole('wali') && !$user->hasRole('waka')) {
 				$query->where('guru_id', $user->guru_id);
 			}
 			$query->where('jenis_rombel', 1);
@@ -376,39 +393,41 @@ class LaporanController extends Controller
 		};
 		$get_siswa = Anggota_rombel::with('siswa')->whereHas('rombongan_belajar', $callback)->with(['rombongan_belajar' => $callback])->whereHas('prestasi')->with('prestasi')->where('sekolah_id', session('sekolah_id'))->order()->get();
 		return DataTables::of($get_siswa)
-		->addColumn('set_nama', function ($item) {
-			$return  = strtoupper($item->siswa->nama);
-			return $return;
-		})
-		->addColumn('set_kelas', function ($item) {
-			$return  = $item->rombongan_belajar->nama;
-			return $return;
-		})
-		->addColumn('jenis_prestasi', function ($item) {
-			$links = '';
-			foreach($item->prestasi as $prestasi){
-				$links .= $prestasi->jenis_prestasi.'<br />';
-			}
-			return $links;
-		})
-		->addColumn('keterangan', function ($item) {
-			$links = '';
-			foreach($item->prestasi as $prestasi){
-				$links .= $prestasi->keterangan_prestasi.'<br />';
-			}
-			return $links;
-		})
-		->rawColumns(['set_nama', 'set_kelas', 'jenis_prestasi', 'keterangan'])
-		->make(true);  
+			->addColumn('set_nama', function ($item) {
+				$return  = strtoupper($item->siswa->nama);
+				return $return;
+			})
+			->addColumn('set_kelas', function ($item) {
+				$return  = $item->rombongan_belajar->nama;
+				return $return;
+			})
+			->addColumn('jenis_prestasi', function ($item) {
+				$links = '';
+				foreach ($item->prestasi as $prestasi) {
+					$links .= $prestasi->jenis_prestasi . '<br />';
+				}
+				return $links;
+			})
+			->addColumn('keterangan', function ($item) {
+				$links = '';
+				foreach ($item->prestasi as $prestasi) {
+					$links .= $prestasi->keterangan_prestasi . '<br />';
+				}
+				return $links;
+			})
+			->rawColumns(['set_nama', 'set_kelas', 'jenis_prestasi', 'keterangan'])
+			->make(true);
 	}
-	public function edit_prestasi($id){
+	public function edit_prestasi($id)
+	{
 		$data['prestasi'] = Prestasi::find($id);
 		return view('laporan.prestasi_edit')->with($data);
 	}
-	public function delete_prestasi($id){
+	public function delete_prestasi($id)
+	{
 		$find = Prestasi::findOrFail($id);
-		if($find){
-			if($find->delete()){
+		if ($find) {
+			if ($find->delete()) {
 				$status['icon'] = 'success';
 				$status['text'] = 'Berhasil menghapus nilai prestasi';
 				$status['title'] = 'Sukses';
@@ -424,7 +443,8 @@ class LaporanController extends Controller
 		}
 		echo json_encode($status);
 	}
-	public function simpan_prestasi(Request $request){
+	public function simpan_prestasi(Request $request)
+	{
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$jenis_prestasi = $request['jenis_prestasi'];
@@ -438,19 +458,20 @@ class LaporanController extends Controller
 				'last_sync'	=> date('Y-m-d H:i:s'),
 			]
 		);
-		if($new){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($new) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/prestasi');
 	}
-	public function update_prestasi(Request $request){
+	public function update_prestasi(Request $request)
+	{
 		$update = Prestasi::find($request['prestasi_id']);
 		$update->jenis_prestasi = $request['jenis_prestasi'];
 		$update->keterangan_prestasi = $request['keterangan_prestasi'];
 		$update->last_sync	= date('Y-m-d H:i:s');
-		if($update->save()){
+		if ($update->save()) {
 			$output['title'] = 'Sukses';
 			$output['text'] = 'Berhasil memperbaharui nilai prestasi';
 			$output['icon'] = 'success';
@@ -463,13 +484,14 @@ class LaporanController extends Controller
 		}
 		echo json_encode($output);
 	}
-	public function kenaikan(){
+	public function kenaikan()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.kenaikan');
 		} else {
 			$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->where('tingkat', 13)->first();
-			$get_siswa = Anggota_rombel::with(['siswa', 'kenaikan', 'rombongan_belajar'])->whereHas('rombongan_belajar', function($query) use ($user){
+			$get_siswa = Anggota_rombel::with(['siswa', 'kenaikan', 'rombongan_belajar'])->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -484,19 +506,20 @@ class LaporanController extends Controller
 			return view('laporan.kenaikan')->with($params);
 		}
 	}
-	public function simpan_kenaikan(Request $request){
+	public function simpan_kenaikan(Request $request)
+	{
 		$sekolah_id = $request['sekolah_id'];
 		$anggota_rombel_id = $request['anggota_rombel_id'];
 		$status = $request['status'];
 		$rombongan_belajar = $request['rombongan_belajar'];
-		$insert=0;
-		foreach($anggota_rombel_id as $key => $value){
-			if($status[$key]){
+		$insert = 0;
+		foreach ($anggota_rombel_id as $key => $value) {
+			if ($status[$key]) {
 				/*
 				*/
 				//$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
 				//$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
-				if($status[$key] == 3 || $status[$key] == 4){
+				if ($status[$key] == 3 || $status[$key] == 4) {
 					$get_rombel = Anggota_rombel::with('rombongan_belajar')->find($value);
 					$rombongan_belajar_id = $get_rombel->rombongan_belajar->rombongan_belajar_id;
 				} else {
@@ -505,37 +528,38 @@ class LaporanController extends Controller
 				$new = Kenaikan_kelas::UpdateOrCreate(
 					['anggota_rombel_id' => $value],
 					[
-						'sekolah_id'=> $sekolah_id,
+						'sekolah_id' => $sekolah_id,
 						'status' 	=> $status[$key],
 						'rombongan_belajar_id'		=> $rombongan_belajar_id,
 						'nama_kelas' => $request->nama_kelas[$key],
 						'last_sync'	=> date('Y-m-d H:i:s'),
 					]
 				);
-				if($new){
+				if ($new) {
 					$insert++;
 				}
 			}
 		}
-		if($insert){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($insert) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('success',"Tidak ada data disimpan");
+			Session::flash('success', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/kenaikan');
 	}
-	public function rapor_uts(){
+	public function rapor_uts()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.rapor_pts');
 		} else {
 			//$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', session('semester_id'))->first();
-			$data_pembelajaran = Pembelajaran::with(['guru' => function($query){
+			$data_pembelajaran = Pembelajaran::with(['guru' => function ($query) {
 				$query->with('gelar_depan');
 				$query->with('gelar_belakang');
-			}])->with(['rencana_penilaian' => function($query){
+			}])->with(['rencana_penilaian' => function ($query) {
 				$query->where('kompetensi_id', 1);
-			}])->with('rapor_pts')->whereNotNull('kelompok_id')->whereNotNull('no_urut')->whereHas('rombongan_belajar', function($query) use ($user){
+			}])->with('rapor_pts')->whereNotNull('kelompok_id')->whereNotNull('no_urut')->whereHas('rombongan_belajar', function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -546,13 +570,14 @@ class LaporanController extends Controller
 			return view('laporan.rapor_pts')->with($params);
 		}
 	}
-	public function cetak_uts(Request $request){
+	public function cetak_uts(Request $request)
+	{
 		$rencana_penilaian = $request->rencana_penilaian;
-		$insert=0;
-		if($rencana_penilaian){
-			foreach($rencana_penilaian as $pembelajaran_id => $rencana_penilaian_id){
+		$insert = 0;
+		if ($rencana_penilaian) {
+			foreach ($rencana_penilaian as $pembelajaran_id => $rencana_penilaian_id) {
 				$pembelajaran_id_array[] = $pembelajaran_id;
-				foreach($rencana_penilaian_id as $ren_id){
+				foreach ($rencana_penilaian_id as $ren_id) {
 					$rencana_penilaian_id_array[] = $ren_id;
 					$insert_rapor_pts = array(
 						'sekolah_id' => $request->sekolah_id,
@@ -566,30 +591,31 @@ class LaporanController extends Controller
 						],
 						$insert_rapor_pts
 					);
-					if($insert_data){
+					if ($insert_data) {
 						$insert++;
 					}
 				}
 			}
-			Rapor_pts::where(function($query) use ($request, $pembelajaran_id_array, $rencana_penilaian_id_array){
+			Rapor_pts::where(function ($query) use ($request, $pembelajaran_id_array, $rencana_penilaian_id_array) {
 				$query->where('rombongan_belajar_id', $request->rombongan_belajar_id);
 				$query->whereIn('pembelajaran_id', $pembelajaran_id_array);
 				$query->whereNotIn('rencana_penilaian_id', $rencana_penilaian_id_array);
 			})->delete();
 		}
-		if($insert){
-			Session::flash('success',"Data berhasil disimpan");
+		if ($insert) {
+			Session::flash('success', "Data berhasil disimpan");
 		} else {
-			Session::flash('error',"Tidak ada data disimpan");
+			Session::flash('error', "Tidak ada data disimpan");
 		}
 		return redirect('/laporan/rapor-uts');
 	}
-	public function rapor_semester(){
+	public function rapor_semester()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			return view('laporan.waka.rapor_semester');
 		} else {
-			$callback = function($query) use ($user){
+			$callback = function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('jenis_rombel', 1);
 				$query->where('semester_id', session('semester_id'));
@@ -601,22 +627,23 @@ class LaporanController extends Controller
 			return view('laporan.rapor_semester')->with($params);
 		}
 	}
-	public function review_nilai($query, $id){
+	public function review_nilai($query, $id)
+	{
 		$user = auth()->user();
-		if($query){
+		if ($query) {
 			$get_siswa = Anggota_rombel::with([
-				'siswa', 
-				'rombongan_belajar' => function($query) use ($id){
-					$query->with(['pembelajaran' => function($query) use ($id) {
-						$callback = function($query) use ($id){
+				'siswa',
+				'rombongan_belajar' => function ($query) use ($id) {
+					$query->with(['pembelajaran' => function ($query) use ($id) {
+						$callback = function ($query) use ($id) {
 							$query->where('anggota_rombel_id', $id);
 						};
 						//$query->with('kelompok');
 						//$query->whereHas('nilai_akhir_pengetahuan', $callback);
 						$query->with([
-							'kelompok', 
-							'nilai_akhir_pengetahuan' => $callback, 
-							'nilai_akhir_keterampilan' => $callback, 
+							'kelompok',
+							'nilai_akhir_pengetahuan' => $callback,
+							'nilai_akhir_keterampilan' => $callback,
 							'nilai_akhir_pk' => $callback,
 							'deskripsi_mata_pelajaran' => $callback,
 						]);
@@ -630,7 +657,7 @@ class LaporanController extends Controller
 					$query->with('jurusan');
 					$query->with('kurikulum');
 				},
-				'sekolah' => function($q){
+				'sekolah' => function ($q) {
 					$q->with('guru');
 				},
 			])->find($id);
@@ -642,15 +669,16 @@ class LaporanController extends Controller
 		);
 		return view('laporan.review_nilai')->with($params);
 	}
-	public function legger(){
+	public function legger()
+	{
 		$user = auth()->user();
-		if($user->hasRole('waka')){
+		if ($user->hasRole('waka')) {
 			$params = array(
 				'all_data' => Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get(),
 			);
 			return view('laporan.waka.legger')->with($params);
 		} else {
-			$rombongan_belajar = Rombongan_belajar::where(function($query) use ($user){
+			$rombongan_belajar = Rombongan_belajar::where(function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('semester_id', session('semester_id'));
 				$query->where('jenis_rombel', 1);
@@ -661,28 +689,32 @@ class LaporanController extends Controller
 			return view('laporan.legger')->with($params);
 		}
 	}
-	public function unduh_legger_kd($id){
+	public function unduh_legger_kd($id)
+	{
 		$rombongan_belajar = Rombongan_belajar::find($id);
-		$nama_file = 'Leger Otentik Kelas '.$rombongan_belajar->nama;
+		$nama_file = 'Leger Otentik Kelas ' . $rombongan_belajar->nama;
 		$nama_file = CustomHelper::clean($nama_file);
-		$nama_file = $nama_file.'.xlsx';
+		$nama_file = $nama_file . '.xlsx';
 		return (new LeggerKDExport)->query($id)->download($nama_file);
 	}
-	public function unduh_legger_nilai_akhir($id){
+	public function unduh_legger_nilai_akhir($id)
+	{
 		$rombongan_belajar = Rombongan_belajar::find($id);
-		$nama_file = 'Leger Nilai Akhir Kelas '.$rombongan_belajar->nama;
+		$nama_file = 'Leger Nilai Akhir Kelas ' . $rombongan_belajar->nama;
 		$nama_file = CustomHelper::clean($nama_file);
-		$nama_file = $nama_file.'.xlsx';
+		$nama_file = $nama_file . '.xlsx';
 		return (new LeggerNilaiAkhirExport)->query($id)->download($nama_file);
 	}
-	public function unduh_legger_nilai_rapor($id){
+	public function unduh_legger_nilai_rapor($id)
+	{
 		$rombongan_belajar = Rombongan_belajar::find($id);
-		$nama_file = 'Leger Nilai Rapor Kelas '.$rombongan_belajar->nama;
+		$nama_file = 'Leger Nilai Rapor Kelas ' . $rombongan_belajar->nama;
 		$nama_file = CustomHelper::clean($nama_file);
-		$nama_file = $nama_file.'.xlsx';
+		$nama_file = $nama_file . '.xlsx';
 		return (new LeggerNilaiRaporExport)->query($id)->download($nama_file);
 	}
-	public function nilai_us(Request $request){
+	public function nilai_us(Request $request)
+	{
 		if ($request->isMethod('post')) {
 			$messages = [
 				'nilai.*.required' => 'Nilai tidak boleh kosong',
@@ -690,12 +722,14 @@ class LaporanController extends Controller
 				'nilai.*.min' => 'Minimal nilai 0 (nol)',
 				'nilai.*.max' => 'Maksimal nilai 100 (seratus)',
 			];
-			$validator = Validator::make(request()->all(), [
-				'nilai.*' => 'required|integer|min:0|max:100',
-			],
-			$messages
+			$validator = Validator::make(
+				request()->all(),
+				[
+					'nilai.*' => 'required|integer|min:0|max:100',
+				],
+				$messages
 			)->validate();
-			foreach($request->nilai as $anggota_rombel_id => $nilai){
+			foreach ($request->nilai as $anggota_rombel_id => $nilai) {
 				Nilai_us::updateOrCreate(
 					[
 						'sekolah_id' => $request->sekolah_id,
@@ -711,14 +745,14 @@ class LaporanController extends Controller
 			return redirect()->back()->with(['success' => 'Nilai US/USBN berhasil disimpan']);
 		}
 		$user = auth()->user();
-		if($user->hasRole('waka')){
-			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
+		if ($user->hasRole('waka')) {
+			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function ($query) {
 				$query->where('sekolah_id', session('sekolah_id'));
 				$query->where('semester_id', session('semester_id'));
 				$query->where('tingkat', 13);
 			})->get();
-			if(!$jurusan_sp->count()){
-				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
+			if (!$jurusan_sp->count()) {
+				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function ($query) {
 					$query->where('sekolah_id', session('sekolah_id'));
 					$query->where('semester_id', session('semester_id'));
 					$query->where('tingkat', 12);
@@ -726,10 +760,10 @@ class LaporanController extends Controller
 			}
 			return view('laporan.waka.nilai_us', compact('jurusan_sp'));
 		} else {
-			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
+			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function ($query) {
 				$query->whereNotNull('kelompok_id');
 				$query->whereNotNull('no_urut');
-			}])->where(function($query) use ($user){
+			}])->where(function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('semester_id', session('semester_id'));
 				$query->where('jenis_rombel', 1);
@@ -742,7 +776,8 @@ class LaporanController extends Controller
 			return view('laporan.nilai_us', compact('rombongan_belajar'));
 		}
 	}
-	public function nilai_un(Request $request){
+	public function nilai_un(Request $request)
+	{
 		if ($request->isMethod('post')) {
 			$messages = [
 				'nilai.*.required' => 'Nilai tidak boleh kosong',
@@ -750,12 +785,14 @@ class LaporanController extends Controller
 				'nilai.*.min' => 'Minimal nilai 0 (nol)',
 				'nilai.*.max' => 'Maksimal nilai 100 (seratus)',
 			];
-			$validator = Validator::make(request()->all(), [
-				'nilai.*' => 'required|integer|min:0|max:100',
-			],
-			$messages
+			$validator = Validator::make(
+				request()->all(),
+				[
+					'nilai.*' => 'required|integer|min:0|max:100',
+				],
+				$messages
 			)->validate();
-			foreach($request->nilai as $anggota_rombel_id => $nilai){
+			foreach ($request->nilai as $anggota_rombel_id => $nilai) {
 				Nilai_un::updateOrCreate(
 					[
 						'sekolah_id' => $request->sekolah_id,
@@ -771,14 +808,14 @@ class LaporanController extends Controller
 			return redirect()->back()->with(['success' => 'Nilai UN berhasil disimpan']);
 		}
 		$user = auth()->user();
-		if($user->hasRole('waka')){
-			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
+		if ($user->hasRole('waka')) {
+			$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function ($query) {
 				$query->where('sekolah_id', session('sekolah_id'));
 				$query->where('semester_id', session('semester_id'));
 				$query->where('tingkat', 13);
 			})->get();
-			if(!$jurusan_sp->count()){
-				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function($query){
+			if (!$jurusan_sp->count()) {
+				$jurusan_sp = Jurusan_sp::whereHas('rombongan_belajar', function ($query) {
 					$query->where('sekolah_id', session('sekolah_id'));
 					$query->where('semester_id', session('semester_id'));
 					$query->where('tingkat', 12);
@@ -786,13 +823,13 @@ class LaporanController extends Controller
 			}
 			return view('laporan.waka.nilai_un', compact('jurusan_sp'));
 		} else {
-			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function($query){
+			$rombongan_belajar = Rombongan_belajar::with(['pembelajaran' => function ($query) {
 				$query->whereNotNull('kelompok_id');
 				$query->whereNotNull('no_urut');
 				$query->whereIn('mata_pelajaran_id', ['300110000', '401000000', '300210000']);
 				$query->orWhere('kelompok_id', 10);
 				$query->whereNotNull('no_urut');
-			}])->where(function($query) use ($user){
+			}])->where(function ($query) use ($user) {
 				$query->where('guru_id', $user->guru_id);
 				$query->where('semester_id', session('semester_id'));
 				$query->where('jenis_rombel', 1);
@@ -805,21 +842,23 @@ class LaporanController extends Controller
 			return view('laporan.nilai_un', compact('rombongan_belajar'));
 		}
 	}
-	public function unduh_template(Request $request){
+	public function unduh_template(Request $request)
+	{
 		$query = $request->route('query');
-		if($query == 'nilai_us'){
+		if ($query == 'nilai_us') {
 			$kompetensi = 'US/USBN';
 		} else {
 			$kompetensi = 'UN';
 		}
 		$pembelajaran = Pembelajaran::find($request->route('id'));
 		$nama_mapel = CustomHelper::clean($pembelajaran->nama_mata_pelajaran);
-		$nama_file = 'Format Nilai '.$kompetensi.' eRaporSMK '.$nama_mapel.' '.$pembelajaran->rombongan_belajar->nama;
+		$nama_file = 'Format Nilai ' . $kompetensi . ' eRaporSMK ' . $nama_mapel . ' ' . $pembelajaran->rombongan_belajar->nama;
 		$nama_file = CustomHelper::clean($nama_file);
-		$nama_file = $nama_file.'.xlsx';
+		$nama_file = $nama_file . '.xlsx';
 		return (new LaporanExport)->query($query, $pembelajaran->rombongan_belajar_id, $request->route('id'))->download($nama_file);
 	}
-	public function import_excel(Request $request){
+	public function import_excel(Request $request)
+	{
 		$validator = Validator::make($request->all(), [
 			'file' => 'required|mimes:csv,xls,xlsx'
 		]);
@@ -830,13 +869,14 @@ class LaporanController extends Controller
 			$Import = new LaporanImport();
 			$rows = Excel::import($Import, $file);
 			//if(File::exists(public_path('/excel/'.$nama_file))) {
-				//File::delete(public_path('/excel/'.$nama_file));
+			//File::delete(public_path('/excel/'.$nama_file));
 			//}
 			return response()->json($Import);
 		}
-		return response()->json(['error'=>$validator->errors()->all()]);
+		return response()->json(['error' => $validator->errors()->all()]);
 	}
-	public function tambah_kewirausahaan(Request $request){
+	public function tambah_kewirausahaan(Request $request)
+	{
 		if ($request->isMethod('post')) {
 			$messages = [
 				'anggota_rombel_id.required' => 'Peserta didik tidak boleh kosong',
@@ -844,13 +884,15 @@ class LaporanController extends Controller
 				'jenis.required' => 'Jenis Kewirausahaan tidak boleh kosong',
 				'nama_produk.required' => 'Nama produk tidak boleh kosong',
 			];
-			$validator = Validator::make(request()->all(), [
-				'anggota_rombel_id' => 'required',
-				'pola' => 'required',
-				'jenis' => 'required',
-				'nama_produk' => 'required',
-			],
-			$messages
+			$validator = Validator::make(
+				request()->all(),
+				[
+					'anggota_rombel_id' => 'required',
+					'pola' => 'required',
+					'jenis' => 'required',
+					'nama_produk' => 'required',
+				],
+				$messages
 			)->validate();
 			$insert = Kewirausahaan::create([
 				'sekolah_id' => $request->sekolah_id,
@@ -860,41 +902,43 @@ class LaporanController extends Controller
 				'nama_produk' => $request->nama_produk,
 				'last_sync' => date('Y-m-d H:i:s'),
 			]);
-			if($request->anggota_wirausaha){
-				foreach($request->anggota_wirausaha as $anggota_wirausaha){
+			if ($request->anggota_wirausaha) {
+				foreach ($request->anggota_wirausaha as $anggota_wirausaha) {
 					Anggota_kewirausahaan::create([
-							'kewirausahaan_id' => $insert->kewirausahaan_id,
-							'anggota_rombel_id' => $anggota_wirausaha,
-							'last_sync' => date('Y-m-d H:i:s'),
+						'kewirausahaan_id' => $insert->kewirausahaan_id,
+						'anggota_rombel_id' => $anggota_wirausaha,
+						'last_sync' => date('Y-m-d H:i:s'),
 					]);
 				}
 			}
 			return redirect()->route('laporan.kewirausahaan')->with(['success' => 'Data Kewirausahaan berhasil disimpan']);
 		}
 		$user = auth()->user();
-		$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function($query){
+		$get_siswa = Anggota_rombel::with('siswa')->with('catatan_wali')->with(['nilai_rapor' => function ($query) {
 			$query->with('pembelajaran');
 			$query->limit(3);
-		}])->whereHas('rombongan_belajar', function($query) use ($user){
+		}])->whereHas('rombongan_belajar', function ($query) use ($user) {
 			$query->where('guru_id', $user->guru_id);
 			$query->where('jenis_rombel', 1);
 			$query->where('semester_id', session('semester_id'));
 		})->order()->get();
 		return view('laporan.kewirausahaan.tambah', compact('user', 'get_siswa'));
 	}
-	public function kewirausahaan(Request $request){
+	public function kewirausahaan(Request $request)
+	{
 		$user = auth()->user();
 		return view('laporan.kewirausahaan.index', compact('user'));
 	}
-	public function list_kewirausahaan(){
+	public function list_kewirausahaan()
+	{
 		$user = auth()->user();
-		$callback = function($q) use ($user){
-			if($user->hasRole('waka')){
+		$callback = function ($q) use ($user) {
+			if ($user->hasRole('waka')) {
 				$q->where('kewirausahaan.sekolah_id', session('sekolah_id'));
 				$q->where('semester_id', session('semester_id'));
 			} else {
 				//$rombongan_belajar = Rombongan_belajar::where('guru_id', $user->guru_id)->where('semester_id', session('semester_id'))->first();
-				$q->whereHas('rombongan_belajar', function($query) use ($user){
+				$q->whereHas('rombongan_belajar', function ($query) use ($user) {
 					$query->where('guru_id', $user->guru_id);
 					$query->where('jenis_rombel', 1);
 					$query->where('semester_id', session('semester_id'));
@@ -908,23 +952,23 @@ class LaporanController extends Controller
 				$return  = ($item->anggota->count()) ? $item->nama_anggota() : strtoupper($item->anggota_rombel->siswa->nama);
 				return $return;
 			})
-			->addColumn('actions', function ($item) use ($user){
+			->addColumn('actions', function ($item) use ($user) {
 				$links = '<div class="text-center">';
-				if(!$user->hasRole('waka')){
-					$links .= '<a href="'.url('laporan/hapus-kewirausahaan/'.$item->kewirausahaan_id).'" class="btn btn-danger btn-sm confirm"><i class="fa fa-trash"></i> Hapus</a>';
+				if (!$user->hasRole('waka')) {
+					$links .= '<a href="' . url('laporan/hapus-kewirausahaan/' . $item->kewirausahaan_id) . '" class="btn btn-danger btn-sm confirm"><i class="fa fa-trash"></i> Hapus</a>';
 				} else {
 					$links .= '-';
 				}
 				$links .= '</div>';
-                return $links;
-
-            })
-            ->rawColumns(['nama_siswa', 'actions'])
-            ->make(true);  
+				return $links;
+			})
+			->rawColumns(['nama_siswa', 'actions'])
+			->make(true);
 	}
-	public function hapus_kewirausahaan($id){
+	public function hapus_kewirausahaan($id)
+	{
 		$delete = Kewirausahaan::find($id);
-		if($delete->delete()){
+		if ($delete->delete()) {
 			$output = [
 				'title' => 'Berhasil',
 				'text' => 'Data Kewirausahaan berhasil dihapus',
@@ -939,9 +983,10 @@ class LaporanController extends Controller
 		}
 		return response()->json($output);
 	}
-	public function budaya_kerja(Request $request){
+	public function budaya_kerja(Request $request)
+	{
 		$user = auth()->user();
-		$get_siswa = Anggota_rombel::with('siswa')->with('nilai_budaya_kerja')->whereHas('rombongan_belajar', function($query) use ($user){
+		$get_siswa = Anggota_rombel::with('siswa')->with('nilai_budaya_kerja')->whereHas('rombongan_belajar', function ($query) use ($user) {
 			$query->where('guru_id', $user->guru_id);
 			$query->where('jenis_rombel', 1);
 			$query->where('semester_id', session('semester_id'));
@@ -951,18 +996,19 @@ class LaporanController extends Controller
 		);
 		return view('laporan.p5bk')->with($params);
 	}
-	public function review_p5bk($anggota_rombel_id){
+	public function review_p5bk($anggota_rombel_id)
+	{
 		$get_siswa = Anggota_rombel::with([
-			'siswa', 
+			'siswa',
 			'nilai_budaya_kerja',
 			'rombongan_belajar.sekolah',
 			'catatan_budaya_kerja',
 		])->find($anggota_rombel_id);
 		$params = array(
 			'get_siswa'	=> $get_siswa,
-			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function($query) use ($anggota_rombel_id){
+			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function ($query) use ($anggota_rombel_id) {
 				$query->with([
-					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function($query) use ($anggota_rombel_id){
+					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function ($query) use ($anggota_rombel_id) {
 						$query->where('anggota_rombel_id', $anggota_rombel_id);
 					},
 				]);
