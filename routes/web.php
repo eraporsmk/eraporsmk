@@ -17,6 +17,8 @@ Route::get('/activated', function () {
 });
 */
 Auth::routes();
+Route::get('/form-guru', 'TestController@formulir')->name('formulir');
+Route::post('/form-guru', 'TestController@formulir')->name('formulir');
 Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/test', 'TestController@index')->name('test');
     Route::get('/test/{npsn}', 'TestController@index')->name('test_npsn');
@@ -158,6 +160,9 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/referensi/duplikat/{id}', 'ReferensiController@duplikat_kd')->name('duplikat_kd');
         Route::get('/referensi/edit-kd/{id}', 'ReferensiController@edit_kd')->name('edit_kd');
         Route::post('/referensi/update-kd', array('as' => 'referensi.update_kd', 'uses' => 'ReferensiController@update_kd'));
+        Route::prefix('referensi')->group(function () {
+            Route::get('/kd-ex/{tingkat_pendidikan_id}/{rombongan_belajar_id}/{mata_pelajaran_id}/{kompetensi_id}', 'ReferensiController@export_kd')->name('referensi.export_kd');
+        });
     });
     Route::group(['middleware' => ['role:waka|kaprog']], function () {
         Route::get('/referensi/ukk', 'ReferensiController@ukk')->name('ref_ukk');
@@ -217,6 +222,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::post('/import_excel', 'PenilaianController@import_excel');
             Route::get('/delete-remedial/{remedial_id}', array('as' => 'penilaian.delete_remedial', 'uses' => 'PenilaianController@delete_remedial'));
             Route::post('/reset-remedial', array('as' => 'penilaian.reset_remedial', 'uses' => 'PenilaianController@reset_remedial'));
+            Route::post('/reset-capaian-kompetensi', array('as' => 'penilaian.reset_capaian_kompetensi', 'uses' => 'PenilaianController@reset_capaian_kompetensi'));
         });
         //Penilaian End//
         //Monitoring Start//

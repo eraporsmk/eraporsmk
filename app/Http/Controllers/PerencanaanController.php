@@ -246,7 +246,9 @@ class PerencanaanController extends Controller
 				} else {
 					$text_edit = 'Detil';
 				}
-				$admin_akses .= '<li><a href="'.url('perencanaan/edit/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'"><i class="fa fa-pencil"></i> '.$text_edit.'</a></li>';
+				if($kompetensi_id != 3){
+					$admin_akses .= '<li><a href="'.url('perencanaan/edit/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'"><i class="fa fa-pencil"></i> '.$text_edit.'</a></li>';
+				}
 				
 				$admin_akses .= '<li><a href="'.url('perencanaan/delete/'.$kompetensi_id.'/'.$item->rencana_penilaian_id).'" class="confirm"><i class="fa fa-power-off"></i> Hapus</a></li>';
 			}
@@ -406,6 +408,8 @@ class PerencanaanController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($get_kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($get_kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
@@ -416,8 +420,10 @@ class PerencanaanController extends Controller
 		);
 		if($kompetensi_id == 1){
 			return view('perencanaan.edit_pengetahuan')->with($param);
-		} else {
+		} elseif($kompetensi_id == 2){
 			return view('perencanaan.edit_keterampilan')->with($param);
+		} else {
+			return view('perencanaan.edit_pk')->with($param);
 		}
 	}
 	public function delete($kompetensi_id, $rencana_id){

@@ -298,7 +298,7 @@ Selamat Datang {{ $user->name }}
 									<td>{{(($pembelajaran->pengajar) ? 
 									CustomHelper::nama_guru($pembelajaran->pengajar->gelar_depan, $pembelajaran->pengajar->nama, $pembelajaran->pengajar->gelar_belakang) : (($pembelajaran->guru) ? CustomHelper::nama_guru($pembelajaran->guru->gelar_depan, $pembelajaran->guru->nama, $pembelajaran->guru->gelar_belakang) : '-'))}}</td>
 									<td class="text-center">{{CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm)}}</td>
-									<td class="text-center">{{$pembelajaran->rencana_pengetahuan_count}}</td>
+									<td class="text-center">{{$pembelajaran->rencana_pengetahuan_count ?: $pembelajaran->rencana_pk_count}}</td>
 									<td class="text-center">{{$pembelajaran->rencana_keterampilan_count}}</td>
 									<!--td><div class="text-center"><?php echo ($pembelajaran->rencana_pengetahuan_dinilai_count) ? '<a href="'.url('/generate-nilai/'.$pembelajaran->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class_p.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text_p.'</a>' : '-'; ?></div></td-->
 									<td><div class="text-center">

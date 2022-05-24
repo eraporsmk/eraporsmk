@@ -24,6 +24,7 @@ use App\Siswa;
 use App\Rencana_budaya_kerja;
 use App\Opsi_budaya_kerja;
 use App\Budaya_kerja;
+use App\Rombel_empat_tahun;
 class CetakController extends Controller
 {
 	public function __construct()
@@ -316,10 +317,12 @@ class CetakController extends Controller
 			])->with('catatan_wali')->find($id);
 			$tanggal_rapor = CustomHelper::get_setting('tanggal_rapor');
 			$tanggal_rapor = date('Y-m-d', strtotime($tanggal_rapor));
+			$rombel_4_tahun = Rombel_empat_tahun::select('rombongan_belajar_id')->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'tanggal_rapor'	=> $tanggal_rapor,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
+				'rombel_4_tahun' => $rombel_4_tahun,
 			);
 			//return view('cetak.rapor_nilai', $params);
 			//return view('cetak.rapor_catatan', $params);

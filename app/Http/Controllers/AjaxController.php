@@ -1031,11 +1031,18 @@ class AjaxController extends Controller
 			$callback = function($query) use ($get_mapel_agama) {
 				$query->where('agama_id', $get_mapel_agama);
 			};
-			$all_siswa = Anggota_rombel::whereHas('siswa', $callback)->with(['siswa' => $callback])->with([
+			$all_siswa = Anggota_rombel::whereHas('siswa', $callback)->with([
+				'siswa' => $callback,
 				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
 				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk_tertinggi' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk_terendah' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
 				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){
@@ -1043,11 +1050,18 @@ class AjaxController extends Controller
 				},
 			])->where('rombongan_belajar_id', $rombongan_belajar_id)->order()->get();
 		} else {
-			$all_siswa = Anggota_rombel::with('siswa')->with([
+			$all_siswa = Anggota_rombel::with([
+				'siswa',
 				'nilai_rapor_pk' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
 				'nilai_kd_pk' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk_tertinggi' => function($q) use ($pembelajaran_id){
+					$q->where('pembelajaran_id', $pembelajaran_id);
+				},
+				'nilai_kd_pk_terendah' => function($q) use ($pembelajaran_id){
 					$q->where('pembelajaran_id', $pembelajaran_id);
 				},
 				'deskripsi_mata_pelajaran' => function($q) use ($pembelajaran_id){

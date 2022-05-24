@@ -194,6 +194,18 @@ class ProsesData extends Command
 		$sekolah->sinkron = 1;
 		$sekolah->save();
 	}
+	private function save_jurusan_sp($sekolah_id, $jurusan_sp){
+		$insert_jur_sp = array(
+			'sekolah_id'	=> $sekolah_id,
+			'jurusan_id'	=> $jurusan_sp->jurusan_id,
+			'nama_jurusan_sp'	=> $jurusan_sp->nama_jurusan_sp,
+			'last_sync'	=> date('Y-m-d H:i:s'),
+		);
+		Jurusan_sp::updateOrCreate(
+			['jurusan_sp_id_dapodik' => $jurusan_sp->jurusan_sp_id],
+			$insert_jur_sp
+		);
+	}
 	private function guru($response){
 		$user = auth()->user();
 		$sekolah_id = ($user) ? $user->sekolah_id : NULL;
@@ -300,6 +312,7 @@ class ProsesData extends Command
 			$rombongan_belajar_id[] = $data->rombongan_belajar_id;
 			$record['inserted'] = $i;
 			Storage::disk('public')->put('proses_rombongan_belajar.json', json_encode($record));
+			$this->save_jurusan_sp($sekolah_id, $data->jurusan_sp);
 			$get_jurusan_id = Jurusan_sp::where('jurusan_sp_id_dapodik', $data->jurusan_sp->jurusan_sp_id)->first();
 			$get_wali = Guru::where('guru_id_dapodik', $data->ptk_id)->first();
 			$insert_rombel = array(
@@ -846,21 +859,23 @@ class ProsesData extends Command
 					);
 					if($akt_pd->anggota_akt_pd){
 						foreach($akt_pd->anggota_akt_pd as $anggota_akt_pd){
-							$find_siswa = Siswa::where('peserta_didik_id_dapodik', $anggota_akt_pd->registrasi_peserta_didik->peserta_didik_id)->first();
-							if($find_siswa){
-								$insert_anggota_akt_pd = array(
-									'sekolah_id'		=> $sekolah_id,
-									'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
-									'peserta_didik_id'	=> $find_siswa->peserta_didik_id,
-									'nm_pd'				=> $anggota_akt_pd->nm_pd,
-									'nipd'				=> $anggota_akt_pd->nipd,
-									'jns_peran_pd'		=> $anggota_akt_pd->jns_peran_pd,
-									'last_sync'			=> date('Y-m-d H:i:s'),
-								);
-								$create_anggota_akt_pd = Anggota_akt_pd::updateOrCreate(
-									['id_ang_akt_pd' => $anggota_akt_pd->id_ang_akt_pd],
-									$insert_anggota_akt_pd
-								);
+							if($anggota_akt_pd->registrasi_peserta_didik){
+								$find_siswa = Siswa::where('peserta_didik_id_dapodik', $anggota_akt_pd->registrasi_peserta_didik->peserta_didik_id)->first();
+								if($find_siswa){
+									$insert_anggota_akt_pd = array(
+										'sekolah_id'		=> $sekolah_id,
+										'akt_pd_id'			=> $create_akt_pd->akt_pd_id,
+										'peserta_didik_id'	=> $find_siswa->peserta_didik_id,
+										'nm_pd'				=> $anggota_akt_pd->nm_pd,
+										'nipd'				=> $anggota_akt_pd->nipd,
+										'jns_peran_pd'		=> $anggota_akt_pd->jns_peran_pd,
+										'last_sync'			=> date('Y-m-d H:i:s'),
+									);
+									$create_anggota_akt_pd = Anggota_akt_pd::updateOrCreate(
+										['id_ang_akt_pd' => $anggota_akt_pd->id_ang_akt_pd],
+										$insert_anggota_akt_pd
+									);
+								}
 							}
 						}
 					}

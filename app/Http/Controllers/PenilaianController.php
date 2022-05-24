@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Semester;
 use CustomHelper;
 use App\Nilai;
@@ -61,7 +62,7 @@ class PenilaianController extends Controller
 		} else {
 			if($kompetensi_id == 'pengetahuan'){
 				$set_kompetensi_id = 1;
-			} elseif($kompetensi_id == 2){
+			} elseif($kompetensi_id == 'keterampilan'){
 				$set_kompetensi_id = 2;
 			} else {
 				$set_kompetensi_id = 3;
@@ -89,6 +90,23 @@ class PenilaianController extends Controller
 				'title'	=> 'Gagal',
 				'icon'	=> 'error',
 				'text'	=> 'Remedial gagal di reset',
+			];
+		}
+		return response()->json($output);
+	}
+	public function reset_capaian_kompetensi(Request $request){
+		$delete = Deskripsi_mata_pelajaran::where('pembelajaran_id', $request->pembelajaran_id)->delete();
+		if($delete){
+			$output = [
+				'title'	=> 'Berhasil',
+				'icon'	=> 'success',
+				'text'	=> 'Capaian Kompetensi berhasil di reset',
+			];
+		} else {
+			$output = [
+				'title'	=> 'Gagal',
+				'icon'	=> 'error',
+				'text'	=> 'Capaian Kompetensi gagal di reset',
 			];
 		}
 		return response()->json($output);
@@ -246,9 +264,10 @@ class PenilaianController extends Controller
 		} elseif($query == 'capaian-kompetensi'){
 			$insert = 0;
 			foreach(request()->siswa_id as $anggota_rombel_id){
-				if(request()->nilai_kd[$anggota_rombel_id]){
+				if(request()->nilai_akhir[$anggota_rombel_id]){
+					DB::table('deskripsi_mata_pelajaran')->where('anggota_rombel_id', $anggota_rombel_id)->where('pembelajaran_id', request()->pembelajaran_id)->delete();
 					$insert++;
-					foreach(request()->kompetensi_dasar_id as $kompetensi_dasar_id){
+					foreach(request()->deskripsi_pengetahuan[$anggota_rombel_id] as $kompetensi_dasar_id => $deskripsi_pengetahuan){
 						Deskripsi_mata_pelajaran::updateOrCreate(
 							[
 								'sekolah_id' => session('sekolah_id'),
@@ -257,7 +276,7 @@ class PenilaianController extends Controller
 								'kompetensi_dasar_id' => $kompetensi_dasar_id,
 							],
 							[
-								'deskripsi_pengetahuan' => request()->deskripsi_pengetahuan[$anggota_rombel_id][$kompetensi_dasar_id],
+								'deskripsi_pengetahuan' => $deskripsi_pengetahuan,
 								'last_sync' => now(),
 							]
 						);
@@ -265,6 +284,7 @@ class PenilaianController extends Controller
 				}
 			}
 			$redirect = '/capaian-kompetensi';
+			$text = 'Tidak ada Capaian Kompetensi disimpan. Pastikan nilai akhir telah di Generate!!!';
 		} elseif($query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
 			$insert = 0;
 			foreach($request->nilai as $anggota_rombel_id => $value){

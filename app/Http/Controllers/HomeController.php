@@ -71,7 +71,7 @@ class HomeController extends Controller
 			})->count();
 		}
 		if($user->hasRole('guru')){
-			$pembelajaran = Pembelajaran::with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
+			$pembelajaran = Pembelajaran::whereHas('rombongan_belajar')->with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
 				$query->withCount('anggota_rombel')->with(['wali' => function($query){
 					$query->with('gelar_depan');
 					$query->with('gelar_belakang');
@@ -332,10 +332,13 @@ class HomeController extends Controller
 		->with(['pengajar' => $callback],'rombongan_belajar')
 		->withCount('rencana_pengetahuan')
 		->withCount('rencana_keterampilan')
+		->withCount('rencana_pk')
 		->withCount('nilai_akhir_pengetahuan')
 		->withCount('nilai_akhir_keterampilan')
+		->withCount('nilai_akhir_pk')
 		->withCount('rencana_pengetahuan_dinilai')
 		->withCount('rencana_keterampilan_dinilai')
+		->withCount('rencana_pk_dinilai')
 		->whereNotNull('kelompok_id')
 		->whereNotNull('no_urut')
 		->where('pembelajaran.sekolah_id', $user->sekolah_id)
@@ -373,7 +376,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_count;
+			$return  = $item->rencana_pengetahuan_count ?: $item->rencana_pk_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_k', function ($item) {
@@ -381,7 +384,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_dinilai_count;
+			$return  = $item->rencana_pengetahuan_dinilai_count ?: $item->rencana_pk_dinilai_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_k', function ($item) {
@@ -399,6 +402,8 @@ class HomeController extends Controller
 			}
 			if($item->rencana_pengetahuan_dinilai_count){
 				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
+			} elseif($item->rencana_pk_dinilai_count){
+				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/3').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
 			} else {
 				$return  = '-';
 			}

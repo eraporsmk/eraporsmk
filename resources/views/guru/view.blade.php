@@ -101,7 +101,7 @@ if($guru->gelar_belakang){
 		<tr>
 			<td width="30%">Tanggal Lahir</td>
 			<td width="1">:</td>
-			<td width="70%"><input type="text" name="tanggal_lahir" class="form-control datepicker" value="{{date('d/m/Y', strtotime($guru->tanggal_lahir))}}" {{$disabled}} /></td>
+			<td width="70%"><input type="text" name="tanggal_lahir" class="form-control datepicker" value="{{date('m/d/Y', strtotime($guru->tanggal_lahir))}}" {{$disabled}} /></td>
 		</tr>
 		<tr>
 			<td width="30%">Agama</td>
@@ -109,7 +109,11 @@ if($guru->gelar_belakang){
 			<td width="70%">
 				<select name="agama_id" class="form-control select2" style="width:100%" {{$disabled}}>
 					@foreach($ref_agama as $agama)
+					@if($agama->id)
 					<option value="{{$agama->id}}"{{($guru->agama_id == $agama->id) ? ' selected="selected"' : ''}}>{{$agama->nama}}</option>
+					@else
+					<option value="{{$agama->agama_id}}"{{($guru->agama_id == $agama->agama_id) ? ' selected="selected"' : ''}}>{{$agama->nama}}</option>
+					@endif
 					@endforeach
 				</select>
 			</td>

@@ -60,7 +60,7 @@
 					//$sekolah = config('site.sekolah');
 					//$semester = config('site.semester');
 					?>
-					<a href="{{ url(config('adminlte.dashboard_url', 'home')) }}" class="logo" style="width:100%">{{($sekolah) ? $sekolah->nama : ''}}, Tahun Pelajaran {{($semester) ? $semester->nama : ''}}</a>
+					<a href="{{ url(config('adminlte.dashboard_url', 'home')) }}" class="logo" style="width:100%">{{($sekolah) ? $sekolah->nama : ''}} | {{($semester) ? $semester->nama : ''}}</a>
 				</div>
             @endif
 				
@@ -132,7 +132,7 @@
             <!-- /.sidebar -->
         </aside>
         @endif
-
+		<div class="clearfix"></div>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             @if(config('adminlte.layout') == 'top-nav')
@@ -146,7 +146,6 @@
 				{{--@endif--}}
                 @yield('content_header')
             </section>
-
             <!-- Main content -->
             <section class="content">
 				<div class="box box-success">

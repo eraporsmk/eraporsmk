@@ -196,6 +196,9 @@ class UsersController extends Controller
 					}
 				}
 			}, true)
+			->addColumn('name', function ($item) {
+				return strtoupper($item->name);
+			})
 			->addColumn('jenis_pengguna', function ($item) {
 				//dd($item->roles);
 				//$find_role_user = DB::table('role_user')->join('roles', 'role_user.role_id', '=', 'roles.id')->where('user_id', $item->user_id)->get();

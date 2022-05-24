@@ -372,6 +372,8 @@ class ReferensiController extends Controller
 			$kurikulum = 2017;
 		} elseif (strpos($get_kurikulum->nama_kurikulum, 'KTSP') !== false) {
 			$kurikulum = 2006;
+		} elseif (strpos($get_kurikulum->nama_kurikulum, 'Pusat') !== false) {
+			$kurikulum = 2021;
 		} else {
 			$kurikulum = 2013;
 		}
@@ -425,6 +427,9 @@ class ReferensiController extends Controller
 				}
 				if (strpos($rombel->kurikulum->nama_kurikulum, 'KTSP') !== false && strpos($rombel->kurikulum->nama_kurikulum, 'REV') !== false) {
 					$kurikulum_id[] = 2013;
+				}
+				if (strpos($rombel->kurikulum->nama_kurikulum, 'Pusat') !== false) {
+					$kurikulum_id[] = 2021;
 				}
 			}
 		}
@@ -761,5 +766,8 @@ class ReferensiController extends Controller
 			'paket_ukk' => Paket_ukk::with('jurusan')->with('kurikulum')->with('unit_ukk')->find($id),
 		);
 		return view('referensi.edit_paket_ukk')->with($params);
+	}
+	public function export_kd($tingkat_pendidikan_id, $rombongan_belajar_id, $mata_pelajaran_id, $kompetensi_id){
+
 	}
 }

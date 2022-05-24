@@ -32,7 +32,9 @@ class ConfigController extends Controller
 		$jenis_gtk = CustomHelper::jenis_gtk('guru');
 		$jenis_gtk = array_merge($jenis_gtk,[97]);
 		$data['all_guru']= Guru::with(['gelar_depan', 'gelar_belakang'])->where('sekolah_id', '=', $user->sekolah_id)->whereIn('jenis_ptk_id', $jenis_gtk)->get();
-		$data['all_data'] = Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'asc')->get();
+		$data['all_data'] = Tahun_ajaran::with(['semester' => function($query){
+			$query->orderBy('semester_id');
+		}])->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get();
 		$data['sekolah_id'] = $user->sekolah_id;
 		$data['all_rombel'] = Rombongan_belajar::where(function($query){
 			$query->where('jenis_rombel', 1);
