@@ -23,6 +23,6 @@ class CreateNilaiAkhirPengetahuanView extends Migration
      */
     public function down()
     {
-		DB::statement("DROP VIEW view_nilai_akhir_pengetahuan CASCADE");
+		  DB::statement("DROP VIEW view_nilai_akhir_pengetahuan CASCADE");
     }
 }

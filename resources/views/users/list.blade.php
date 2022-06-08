@@ -72,6 +72,30 @@ function turn_on_icheck(){
 	});
 }
 $(document).ready( function () {
+	var oTable = $('#datatable').DataTable( {
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+			"url": "{{ url('users/list_user') }}",
+			"data": function (d) {
+				var filter_akses = $('#filter_akses').val();
+				if(filter_akses){
+					d.filter_akses = filter_akses;
+				}
+			}
+		},
+		"columns": [
+			{ "data": "name", "name": 'users.name' },
+            { "data": "email", "name": 'users.email' },
+			{ "data": "jenis_pengguna" },
+			{ "data": "last_login", "orderable": false, "searchable": false },
+            { "data": "hashedPassword", "orderable": false, "searchable": false },
+            { "data": "actions", "orderable": false, "searchable": false},
+        ],
+		"fnDrawCallback": function(oSettings){
+			turn_on_icheck();
+		}
+    } );
 	$('.atur_pengguna').click(function(e){
 		e.preventDefault();
 		swal({
@@ -101,35 +125,12 @@ $(document).ready( function () {
 				swal(response.title, response.text, response.icon).then(function(){
 					swal.stopLoading();
 					swal.close();
+					oTable.draw();
 				});
 			}
 		});
 	})
 	$('.select2').select2();
-	var oTable = $('#datatable').DataTable( {
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-			"url": "{{ url('users/list_user') }}",
-			"data": function (d) {
-				var filter_akses = $('#filter_akses').val();
-				if(filter_akses){
-					d.filter_akses = filter_akses;
-				}
-			}
-		},
-		"columns": [
-			{ "data": "name", "name": 'users.name' },
-            { "data": "email", "name": 'users.email' },
-			{ "data": "jenis_pengguna" },
-			{ "data": "last_login", "orderable": false, "searchable": false },
-            { "data": "hashedPassword", "orderable": false, "searchable": false },
-            { "data": "actions", "orderable": false, "searchable": false},
-        ],
-		"fnDrawCallback": function(oSettings){
-			turn_on_icheck();
-		}
-    } );
 	$('#filter_akses').change(function(e){
         oTable.draw();
         e.preventDefault();

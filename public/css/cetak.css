@@ -2,7 +2,7 @@ body{background:#FFFFFF !important; background-color:#FFFFFF;font-family:Times; 
 h3{font-size:14px;}
 table tr td,table tr th{padding:5px;}
 .table th{background-color:#FFFFCC !important}
-.strong {font-weight:bold;}
+.strong, b {font-weight:bold;}
 .cetakan{
 	font-size:14px;
 	line-height:2em;
@@ -11,4 +11,24 @@ table tr td,table tr th{padding:5px;}
 .center {
   margin: auto;
   width: 50%;
+}
+div.text-center{text-align: center !important;}
+.badge {
+  border:1px solid #777;
+    background-color: #777;
+    border-radius: 4em !important;
+    background-clip: border-box;
+    padding: 1em;
+}
+.bg-blue {
+  background-color: #0073b7 !important;
+}
+.bg-yellow{
+  background-color: #f39c12 !important;
+}
+.bg-red{
+  background-color: #dd4b39 !important;
+}
+.bg-green{
+  background-color: #00a65a !important;
 }

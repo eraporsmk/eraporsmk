@@ -46,7 +46,9 @@ class LoginController extends Controller
 		//if (!Schema::hasColumn('users', 'periode_aktif')) {
 			//Artisan::call('migrate');
 		//}
-		$data['all_data'] = Tahun_ajaran::with('semester')->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get();
+		$data['all_data'] = Tahun_ajaran::with(['semester' => function($query){
+			$query->orderBy('semester_id');
+		}])->where('periode_aktif', '=', 1)->orderBy('tahun_ajaran_id', 'desc')->get();
         return view('auth.login', $data);
     }
     /**

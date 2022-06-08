@@ -1,4 +1,21 @@
 <div id="form">
+<legend><h3>Versi 5.1.6</h3></legend>
+<ol>
+<li><b style="color:blue">[Pembaharuan]</b> Kelompok Mata Pelajaran Kurikulum SMK Pusat Keunggulan</li>
+<li><b style="color:blue">[Pembaharuan]</b> Cetak Rapor Semester Kurikulum SMK Pusat Keunggulan</li>
+<!--li><b style="color:blue">[Pembaharuan]</b> Cetak Rapor Proyek Penguatan Profil Pelajar Pancasila dan Budaya Kerja (P5BK) Kurikulum SMK Pusat Keunggulan</li-->
+<li><b style="color:blue">[Pembaharuan]</b> Referensi Elemen dan Capaian Kompetensi Kurikulum SMK Pusat Keunggulan</li>
+<li><b style="color:blue">[Pembaharuan]</b> Perencanaan dan Penilaian Kurikulum SMK Pusat Keunggulan</li>
+<li><b style="color:green">[Perbaikan]</b> Pilihan Semester di laman login</li>
+</ol>
+<legend><h3>Versi 5.1.5</h3></legend>
+<ol>
+<li><b style="color:blue">[Pembaharuan]</b> Rilis Tahun Ajaran 2021/2022 Semester Ganjil</li>
+</ol>
+<legend><h3>Versi 5.1.4</h3></legend>
+<ol>
+<li><b style="color:green">[Perbaikan]</b> Perbaikan status kenaikan kelas</li>
+</ol>
 <legend><h3>Versi 5.1.3</h3></legend>
 <ol>
 <li><b style="color:blue">[Pembaharuan]</b> Pembaharuan rentan nilai UKK sesuai juknis terbaru</li>

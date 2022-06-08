@@ -21,6 +21,10 @@ use App\Rombongan_belajar;
 use App\Rencana_penilaian;
 use App\Rapor_pts;
 use App\Siswa;
+use App\Rencana_budaya_kerja;
+use App\Opsi_budaya_kerja;
+use App\Budaya_kerja;
+use App\Rombel_empat_tahun;
 class CetakController extends Controller
 {
 	public function __construct()
@@ -48,9 +52,7 @@ class CetakController extends Controller
 		$data['sekolah_id'] = $user->sekolah_id;
 		$data['rencana_ukk'] = $rencana_ukk;
 		$data['count_penilaian_ukk'] = $count_penilaian_ukk;
-		$data['paket'] = Paket_ukk::with(['jurusan', 'unit_ukk' => function ($query){
-			$query->orderBy('kode_unit');
-		}])->find($rencana_ukk->paket_ukk_id);
+		$data['paket'] = Paket_ukk::with('jurusan')->with('unit_ukk')->find($rencana_ukk->paket_ukk_id);
 		$data['asesor'] = Guru::with('dudi')->find($rencana_ukk->eksternal);
 		$data['sekolah'] = Sekolah::with('guru')->find($user->sekolah_id);
 		$pdf = PDF::loadView('cetak.sertifikat1', $data);
@@ -223,53 +225,104 @@ class CetakController extends Controller
 			'tanggal_rapor'	=> $tanggal_rapor,
 		);
 	}
+	public function rapor_p5bk($anggota_rombel_id){
+		$get_siswa = Anggota_rombel::with([
+			'siswa', 
+			'nilai_budaya_kerja',
+			'rombongan_belajar.sekolah',
+			'catatan_budaya_kerja',
+		])->find($anggota_rombel_id);
+		$params = array(
+			'get_siswa'	=> $get_siswa,
+			'rencana_budaya_kerja' => Rencana_budaya_kerja::where('rombongan_belajar_id', $get_siswa->rombongan_belajar_id)->with(['aspek_budaya_kerja' => function($query) use ($anggota_rombel_id){
+				$query->with([
+					'budaya_kerja.elemen_budaya_kerja.nilai_budaya_kerja' => function($query) use ($anggota_rombel_id){
+						$query->where('anggota_rombel_id', $anggota_rombel_id);
+					},
+				]);
+			}])->get(),
+			'opsi_budaya_kerja' => Opsi_budaya_kerja::orderBy('opsi_id')->get(),
+			'budaya_kerja' => Budaya_kerja::orderBy('budaya_kerja_id')->get(),
+		);
+		$pdf = PDF::loadView('cetak.blank', $params, [], [
+			'format' => 'A4',
+			'margin_left' => 15,
+			'margin_right' => 15,
+			'margin_top' => 15,
+			'margin_bottom' => 15,
+			'margin_header' => 5,
+			'margin_footer' => 5,
+		]);
+		$pdf->getMpdf()->defaultfooterfontsize=7;
+		$pdf->getMpdf()->defaultfooterline=0;
+		$general_title = strtoupper($get_siswa->siswa->nama).' - '.$get_siswa->rombongan_belajar->nama;
+		$pdf->getMpdf()->SetFooter($general_title.'|{PAGENO}|Dicetak dari '.config('site.app_name').' v.'.CustomHelper::get_setting('app_version'));
+		$rapor_p5bk = view('cetak.rapor_p5bk', $params);
+		$pdf->getMpdf()->WriteHTML($rapor_p5bk);
+		return $pdf->stream($general_title.'-IDENTITAS.pdf');
+	}
 	public function rapor_nilai($query, $id){
 		if($query){
 			$user = auth()->user();
 			$cari_tingkat_akhir = Rombongan_belajar::where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->where('tingkat', 13)->first();
-			$get_siswa = Anggota_rombel::with(['siswa' => function($query){
-				$query->with('agama')->with(['get_kecamatan' => function($query){
-					$query->with('get_kabupaten');
-				}]);
-				$query->with('pekerjaan_ayah');
-				$query->with('pekerjaan_ibu');
-				$query->with('pekerjaan_wali');
-			}])->with(['rombongan_belajar' => function($query) use ($id){
-				$query->where('jenis_rombel', 1);
-				$query->with(['pembelajaran' => function($query) use ($id){
-					$callback = function($query) use ($id){
-						$query->where('anggota_rombel_id', $id);
-					};
-					$query->with('kelompok');
-					$query->with(['nilai_akhir_pengetahuan' => $callback]);
-					$query->with(['nilai_akhir_keterampilan' => $callback]);
-					$query->whereNotNull('kelompok_id');
-					$query->orderBy('kelompok_id', 'asc');
-					$query->orderBy('no_urut', 'asc');
-				}]);
-				$query->with('semester');
-				$query->with('jurusan');
-				$query->with('kurikulum');
-				$query->with('wali');
-			}])->with(['sekolah' => function($q){
-				$q->with('guru');
-			}])->with(['catatan_ppk' => function($query){
-				$query->with(['nilai_karakter' => function($query){
-					$query->with('sikap');
-				}]);
-			}])->with(['kenaikan', 'all_nilai_ekskul' => function($query){
-				$query->whereHas('ekstrakurikuler', function($query){
-					$query->where('semester_id', session('semester_id'));
-				});
-				$query->with('ekstrakurikuler');
-				$query->with('rombongan_belajar');
-			}])->with('kehadiran')->with('all_prakerin')->with('catatan_wali')->find($id);
+			$get_siswa = Anggota_rombel::with([
+				'siswa' => function($query){
+					$query->with('agama')->with(['get_kecamatan' => function($query){
+						$query->with('get_kabupaten');
+					}]);
+					$query->with('pekerjaan_ayah');
+					$query->with('pekerjaan_ibu');
+					$query->with('pekerjaan_wali');
+				},
+				'rombongan_belajar' => function($query) use ($id){
+					$query->where('jenis_rombel', 1);
+					$query->with(['pembelajaran' => function($query) use ($id){
+						$callback = function($query) use ($id){
+							$query->where('anggota_rombel_id', $id);
+						};
+						$query->with([
+							'kelompok',
+							'nilai_akhir_pengetahuan' => $callback,
+							'nilai_akhir_keterampilan' => $callback,
+							'nilai_akhir_pk' => $callback,
+							'deskripsi_mata_pelajaran' => $callback,
+						]);
+						$query->whereNotNull('kelompok_id');
+						$query->orderBy('kelompok_id', 'asc');
+						$query->orderBy('no_urut', 'asc');
+					}]);
+					$query->with('semester');
+					$query->with('jurusan');
+					$query->with('kurikulum');
+					$query->with('wali');
+				},
+				'sekolah' => function($q){
+					$q->with('guru');
+				},
+				'catatan_ppk' => function($query){
+					$query->with(['nilai_karakter' => function($query){
+						$query->with('sikap');
+					}]);
+				},
+				'kenaikan', 
+				'all_nilai_ekskul' => function($query){
+					$query->whereHas('ekstrakurikuler', function($query){
+						$query->where('semester_id', session('semester_id'));
+					});
+					$query->with('ekstrakurikuler');
+					$query->with('rombongan_belajar');
+				},
+				'kehadiran',
+				'all_prakerin',
+			])->with('catatan_wali')->find($id);
 			$tanggal_rapor = CustomHelper::get_setting('tanggal_rapor');
 			$tanggal_rapor = date('Y-m-d', strtotime($tanggal_rapor));
+			$rombel_4_tahun = Rombel_empat_tahun::select('rombongan_belajar_id')->where('sekolah_id', $user->sekolah_id)->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'tanggal_rapor'	=> $tanggal_rapor,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
+				'rombel_4_tahun' => $rombel_4_tahun,
 			);
 			//return view('cetak.rapor_nilai', $params);
 			//return view('cetak.rapor_catatan', $params);
@@ -289,12 +342,14 @@ class CetakController extends Controller
 			$rapor_nilai = view('cetak.rapor_nilai', $params);
 			//dd($params);
 			$pdf->getMpdf()->WriteHTML($rapor_nilai);
-			$pdf->getMpdf()->WriteHTML('<pagebreak />');
-			$rapor_catatan = view('cetak.rapor_catatan', $params);
-			$pdf->getMpdf()->WriteHTML($rapor_catatan);
-			$rapor_karakter = view('cetak.rapor_karakter', $params);
-			$pdf->getMpdf()->WriteHTML('<pagebreak />');
-			$pdf->getMpdf()->WriteHTML($rapor_karakter);
+			if (strpos($get_siswa->rombongan_belajar->kurikulum->nama_kurikulum, 'Pusat') == false){
+				$pdf->getMpdf()->WriteHTML('<pagebreak />');
+				$rapor_catatan = view('cetak.rapor_catatan', $params);
+				$pdf->getMpdf()->WriteHTML($rapor_catatan);
+				$rapor_karakter = view('cetak.rapor_karakter', $params);
+				$pdf->getMpdf()->WriteHTML('<pagebreak />');
+				$pdf->getMpdf()->WriteHTML($rapor_karakter);
+			}
 			return $pdf->stream($general_title.'-NILAI.pdf');
 		} else {
 			//$id = rombongan_belajar_id

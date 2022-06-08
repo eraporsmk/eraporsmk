@@ -13,6 +13,7 @@ use App\Rombongan_belajar;
 use Alert;
 use App\NilaiAkhirKeterampilan;
 use App\NilaiAkhirPengetahuan;
+use App\NilaiAkhirPk;
 use App\Nilai_akhir;
 use App\Semester;
 use App\Anggota_rombel;
@@ -25,8 +26,8 @@ use App\Jurusan_sp;
 use App\Remedial;
 use Session;
 use App\Setting;
+use App\NilaiPkByKd;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 class HomeController extends Controller
 {
     /**
@@ -70,7 +71,7 @@ class HomeController extends Controller
 			})->count();
 		}
 		if($user->hasRole('guru')){
-			$pembelajaran = Pembelajaran::has('rombongan_belajar')->with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
+			$pembelajaran = Pembelajaran::whereHas('rombongan_belajar')->with('mata_pelajaran')->with(['rombongan_belajar' => function($query){
 				$query->withCount('anggota_rombel')->with(['wali' => function($query){
 					$query->with('gelar_depan');
 					$query->with('gelar_belakang');
@@ -78,10 +79,13 @@ class HomeController extends Controller
 			}])
 			->withCount('rencana_pengetahuan')
 			->withCount('rencana_keterampilan')
+			->withCount('rencana_pk')
 			->withCount('nilai_akhir_pengetahuan')
 			->withCount('nilai_akhir_keterampilan')
+			->withCount('nilai_akhir_pk')
 			->withCount('rencana_pengetahuan_dinilai')
 			->withCount('rencana_keterampilan_dinilai')
+			->withCount('rencana_pk_dinilai')
 			->where('sekolah_id', $user->sekolah_id)
 			->where('semester_id', session('semester_id'))
 			->where('guru_id', $user->guru_id)
@@ -104,10 +108,13 @@ class HomeController extends Controller
 					$query->with(['pengajar' => $callback]);
 					$query->withCount('rencana_pengetahuan');
 					$query->withCount('rencana_keterampilan');
+					$query->withCount('rencana_pk');
 					$query->withCount('nilai_akhir_pengetahuan');
 					$query->withCount('nilai_akhir_keterampilan');
+					$query->withCount('nilai_akhir_pk');
 					$query->withCount('rencana_pengetahuan_dinilai');
 					$query->withCount('rencana_keterampilan_dinilai');
+					$query->withCount('rencana_pk_dinilai');
 					$query->whereNotNull('kelompok_id');
 					$query->whereNotNull('no_urut');
 				}])->where('sekolah_id', $user->sekolah_id)
@@ -120,39 +127,18 @@ class HomeController extends Controller
 			}
 		}
 		if($user->hasRole('siswa')){
-			/*
-			$user_siswa = User::wherehas('siswa.anggota_rombel', function($query){
+			$user = User::wherehas('siswa.anggota_rombel', function($query){
 				$query->whereHas('rombongan_belajar', function($query){
 					$query->where('jenis_rombel', 1);
 					$query->where('semester_id', session('semester_id'));
 				});
-			})->with(['siswa.anggota_rombel' => function($query){
+			})->with(['siswa', 'siswa.anggota_rombel' => function($query){
 				$query->with(['rombongan_belajar' => function($query){
 					$query->where('jenis_rombel', 1);
 					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
 				}, 'rombongan_belajar.wali', 'rombongan_belajar.wali.gelar_depan', 'rombongan_belajar.wali.gelar_belakang']);
 				$query->where('semester_id', session('semester_id'));
 			}])->find($user->user_id);
-			*/
-			$user_siswa = User::wherehas('anggota_rombel', function($query){
-				$query->whereHas('rombongan_belajar', function($query){
-					$query->where('jenis_rombel', 1);
-					$query->where('semester_id', session('semester_id'));
-				});
-			})->with(['siswa.anggota_rombel' => function($query){
-				$query->whereHas('rombongan_belajar', function($query){
-					$query->where('jenis_rombel', 1);
-					$query->where('semester_id', session('semester_id'));
-				});
-				$query->with(['rombongan_belajar' => function($query){
-					$query->where('jenis_rombel', 1);
-					$query->with(['pembelajaran', 'pembelajaran.nilai_rapor', 'pembelajaran.pengajar', 'pembelajaran.pengajar.gelar_depan', 'pembelajaran.pengajar.gelar_belakang', 'pembelajaran.guru', 'pembelajaran.guru.gelar_depan', 'pembelajaran.guru.gelar_belakang']);
-				}, 'rombongan_belajar.wali', 'rombongan_belajar.wali.gelar_depan', 'rombongan_belajar.wali.gelar_belakang']);
-				$query->where('semester_id', session('semester_id'));
-			}])->find($user->user_id);
-			if($user_siswa){
-				$user = $user_siswa;
-			}
 		}
 		$status_penilaian = CustomHelper::status_penilaian(session('sekolah_id'), session('semester_id'));
 		$params = array(
@@ -224,12 +210,22 @@ class HomeController extends Controller
 	}
 	public function generate_nilai($pembelajaran_id, $kompetensi_id){
 		$user = auth()->user();
-		$rencana_penilaian = ($kompetensi_id == 1) ? 'rencana_pengetahuan' : 'rencana_keterampilan';
+		if($kompetensi_id == 1){
+			$rencana_penilaian = 'rencana_pengetahuan';
+		} elseif($kompetensi_id == 2){
+			$rencana_penilaian = 'rencana_keterampilan';
+		} else {
+			$rencana_penilaian = 'rencana_pk';
+		}
 		$pembelajaran = Pembelajaran::with([$rencana_penilaian, $rencana_penilaian.'.kd_nilai', $rencana_penilaian.'.kd_nilai.nilai'])->find($pembelajaran_id);
 		$kkm = CustomHelper::get_kkm($pembelajaran->kelompok_id, $pembelajaran->kkm);
 		$result = array();
+		$bobot = 0;
 		foreach($pembelajaran->{$rencana_penilaian} as $rencana){
+			$kd_nilai_count = 0;
+			$bobot += $rencana->bobot;
 			foreach($rencana->kd_nilai as $kd_nilai){
+				$kd_nilai_count++;
 				foreach($kd_nilai->nilai as $nilai){
 					$record = array();
 					$record['pembelajaran_id'] = $pembelajaran->pembelajaran_id;
@@ -237,6 +233,7 @@ class HomeController extends Controller
 					$record['kompetensi_id'] = $rencana->kompetensi_id;
 					$record['rasio_p'] = ($pembelajaran->rasio_p) ? $pembelajaran->rasio_p : 50;
 					$record['rasio_k'] = ($pembelajaran->rasio_k) ? $pembelajaran->rasio_k : 50;
+					$result[$nilai->anggota_rombel_id][$kd_nilai->kompetensi_dasar_id] = $record;
 					$result[$nilai->anggota_rombel_id][$kd_nilai->kompetensi_dasar_id] = $record;
 				}
 			}
@@ -256,10 +253,16 @@ class HomeController extends Controller
 			} else {
 				if($kompetensi_id == 1){
 					$query = NilaiAkhirPengetahuan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
-					} else {
+				} elseif($kompetensi_id == 2){
 					$query = NilaiAkhirKeterampilan::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
+				} else {
+					$query = NilaiAkhirPk::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
 				}
-				$nilai_akhir = $query->nilai_akhir;
+				if($kompetensi_id == 3){
+					$nilai_akhir = $query->nilai_akhir;
+				} else {
+					$nilai_akhir = $query->nilai_akhir;
+				}
 			}
 			if($nilai_akhir != NULL){
 				$find_nilai_akhir = Nilai_akhir::where('pembelajaran_id', $pembelajaran_id)->where('anggota_rombel_id', $key)->where('kompetensi_id', $kompetensi_id)->first();
@@ -299,12 +302,12 @@ class HomeController extends Controller
 					if($kompetensi_id == 1){
 						$find_nilai_rapor->nilai_p = $nilai_akhir;
 						$find_nilai_rapor->rasio_p = $rasio_p;
-						$find_nilai_rapor->total_nilai = ($nilai_akhir * $rasio_p) + ($nilai_akhir * $rasio_k);//($find_nilai_rapor->nilai_p + $nilai_akhir) - $kkm;
+						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_p + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					} else {
 						$find_nilai_rapor->nilai_k = $nilai_akhir;
 						$find_nilai_rapor->rasio_k = $rasio_k;
-						$find_nilai_rapor->total_nilai = ($nilai_akhir * $rasio_p) + ($nilai_akhir * $rasio_k);//($find_nilai_rapor->nilai_k + $nilai_akhir) - $kkm;
+						$find_nilai_rapor->total_nilai = ($find_nilai_rapor->nilai_k + $nilai_akhir) - $kkm;
 						$find_nilai_rapor->save();
 					}
 				} else {
@@ -329,10 +332,13 @@ class HomeController extends Controller
 		->with(['pengajar' => $callback],'rombongan_belajar')
 		->withCount('rencana_pengetahuan')
 		->withCount('rencana_keterampilan')
+		->withCount('rencana_pk')
 		->withCount('nilai_akhir_pengetahuan')
 		->withCount('nilai_akhir_keterampilan')
+		->withCount('nilai_akhir_pk')
 		->withCount('rencana_pengetahuan_dinilai')
 		->withCount('rencana_keterampilan_dinilai')
+		->withCount('rencana_pk_dinilai')
 		->whereNotNull('kelompok_id')
 		->whereNotNull('no_urut')
 		->where('pembelajaran.sekolah_id', $user->sekolah_id)
@@ -358,7 +364,7 @@ class HomeController extends Controller
 			}
 		}, true)
 		->addColumn('guru_mapel', function ($item) {
-			$return  = ($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : ($item->guru) ? CustomHelper::nama_guru($item->guru->gelar_depan, $item->guru->nama, $item->guru->gelar_belakang) : '-';
+			$return  = (($item->pengajar) ? CustomHelper::nama_guru($item->pengajar->gelar_depan, $item->pengajar->nama, $item->pengajar->gelar_belakang) : (($item->guru) ? CustomHelper::nama_guru($item->guru->gelar_depan, $item->guru->nama, $item->guru->gelar_belakang) : '-'));
 			return $return;
 		})
 		->addColumn('guru_pengajar', function ($item) {
@@ -370,7 +376,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_count;
+			$return  = $item->rencana_pengetahuan_count ?: $item->rencana_pk_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_rencana_k', function ($item) {
@@ -378,7 +384,7 @@ class HomeController extends Controller
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_p', function ($item) {
-			$return  = $item->rencana_pengetahuan_dinilai_count;
+			$return  = $item->rencana_pengetahuan_dinilai_count ?: $item->rencana_pk_dinilai_count;
 			return '<div class="text-center">'.$return.'</div>';
 		})
 		->addColumn('jumlah_nilai_k', function ($item) {
@@ -396,6 +402,8 @@ class HomeController extends Controller
 			}
 			if($item->rencana_pengetahuan_dinilai_count){
 				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/1').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
+			} elseif($item->rencana_pk_dinilai_count){
+				$return  = '<a href="'.url('/generate-nilai/'.$item->pembelajaran_id.'/3').'" class="generate_nilai btn btn-sm btn-'.$class.' btn_generate btn-sm"><i class="fa fa-check-square-o"></i> '.$text.'</a>';
 			} else {
 				$return  = '-';
 			}
@@ -438,44 +446,5 @@ class HomeController extends Controller
 			'pembelajaran'		=> $pembelajaran,
 		);
         return view('monitoring.detil_nilai')->with($params);
-	}
-	public function atur_password_dapodik(Request $request){
-		$user = auth()->user();
-		if ($request->isMethod('post')) {
-			$messages = [
-				'password.required' => 'Kata Sandi Lama Dapodik tidak boleh kosong',
-				'password_confirmation.required' => 'Konfirmasi Kata Sandi Lama Dapodik tidak boleh kosong',
-				'password_confirmation.same' => 'Konfirmasi Kata Sandi Lama Dapodik tidak sama dengan Kata Sandi Lama Dapodik',
-			];
-			$validator = Validator::make(request()->all(), [
-				'password'			=> 'required',
-				'password_confirmation'	=> 'required|same:password',
-			],
-			$messages
-			)->validate();
-			$user->password_dapo = $request->password;
-			if($user->save()){
-				$output = [
-					'title' => 'Berhasil',
-					'icon' => 'success',
-					'success' => 'TRUE',
-					'message' => 'Password dapodik lama berhasil diperbaharui',
-				];
-			} else {
-				$output = [
-					'title' => 'Gagal',
-					'icon' => 'error',
-					'success' => FALSE,
-					'message' => 'Password dapodik lama gagal diperbaharui',
-				];
-			}
-			return response()->json($output);
-		} else {
-			$params = array(
-				'user' 				=> $user,
-				'modal_s' => 'modal-sm',
-			);
-			return view('users.password-dapo')->with($params);
-		}
 	}
 }

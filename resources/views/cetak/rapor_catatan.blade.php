@@ -2,7 +2,7 @@
 @section('content')
 <table border="0" width="100%">
 	<tr>
-    	<td style="width: 25%;padding-top:5px; padding-bottom:5px; padding-left:0px;">Nama Peserta Didik</td>
+		<td style="width: 25%;padding-top:5px; padding-bottom:5px; padding-left:0px;">Nama Peserta Didik</td>
 		<td style="width: 1%;" class="text-center">:</td>
 		<td style="width: 74%">{{strtoupper($get_siswa->siswa->nama)}}</td>
 	</tr>
@@ -52,8 +52,8 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 		</tr>
 	</thead>
 	<tbody>
-	@if($get_siswa->all_prakerin->count())
-	@foreach($get_siswa->all_prakerin as $prakerin){
+		@if($get_siswa->all_prakerin->count())
+		@foreach($get_siswa->all_prakerin as $prakerin){
 		<tr>
 			<td align="center">{{$loop->iteration}}</td>
 			<td>{{$prakerin->mitra_prakerin}}</td>
@@ -61,12 +61,12 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 			<td align="center">{{$prakerin->lama_prakerin}}</td>
 			<td>{{$prakerin->keterangan_prakerin}}</td>
 		</tr>
-	@endforeach
-	@else
+		@endforeach
+		@else
 		<tr>
 			<td class="text-center" colspan="5">&nbsp;</td>
 		</tr>
-	@endif
+		@endif
 	</tbody>
 </table>
 <br />
@@ -81,116 +81,130 @@ if($get_siswa->rombongan_belajar->tingkat == 10){
 		</tr>
 	</thead>
 	<tbody>
-	@if($get_siswa->all_nilai_ekskul->count())
-	@foreach($get_siswa->all_nilai_ekskul as $nilai_ekskul)
+		@if($get_siswa->all_nilai_ekskul->count())
+		@foreach($get_siswa->all_nilai_ekskul as $nilai_ekskul)
 		<tr>
 			<td align="center">{{$loop->iteration}}</td>
 			<td>{{strtoupper($nilai_ekskul->rombongan_belajar->nama)}}</td>
 			<td>{{$nilai_ekskul->deskripsi_ekskul}}</td>
 		</tr>
-	@endforeach
-	@else
+		@endforeach
+		@else
 		<tr>
 			<td class="text-center" colspan="3">&nbsp;</td>
 		</tr>
-	@endif
+		@endif
 	</tbody>
 </table>
 <br />
 <div class="strong">{{$huruf_absen}}.&nbsp;&nbsp;Ketidakhadiran</div>
 <table border="1" width="500">
 	<tr>
-		<tr>
-			<td width="200">Sakit</td>
-			<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->sakit) ? $get_siswa->kehadiran->sakit.' hari' : '- hari' : '.... hari'}}</td>
-		</tr>
-		<tr>
-			<td>Izin</td>
-			<td width="300"> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->izin) ? $get_siswa->kehadiran->izin.' hari' : '- hari' : '.... hari'}}</td>
-		</tr>
-		<tr>
-			<td>Tanpa Keterangan</td>
-			<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->alpa) ? $get_siswa->kehadiran->alpa.' hari' : '- hari' : '.... hari'}}</td>
-		</tr>
+	<tr>
+		<td width="200">Sakit</td>
+		<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->sakit) ? $get_siswa->kehadiran->sakit.' hari' : '- hari'
+			: '.... hari'}}</td>
+	</tr>
+	<tr>
+		<td>Izin</td>
+		<td width="300"> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->izin) ? $get_siswa->kehadiran->izin.' hari' :
+			'- hari' : '.... hari'}}</td>
+	</tr>
+	<tr>
+		<td>Tanpa Keterangan</td>
+		<td> : {{($get_siswa->kehadiran) ? ($get_siswa->kehadiran->alpa) ? $get_siswa->kehadiran->alpa.' hari' : '- hari' :
+			'.... hari'}}</td>
+	</tr>
 	</tr>
 </table>
 <br />
 <?php
-$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
+/*if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun)){
+	$text_status = 'Status Kelulusan';
+	$not_yet = 'Belum dilakukan kelulusan';
+} else*/
+if($get_siswa->rombongan_belajar->semester->semester == 2){
+	if($get_siswa->rombongan_belajar->tingkat == 12){
+		$text_status = 'Status Kelulusan';
+		$not_yet = 'Belum dilakukan kelulusan';
+	} else {
+		$text_status = 'Kenaikan Kelas';
+		$not_yet = 'Belum dilakukan kenaikan kelas';
+	}
+} else {
+	$text_status = '';
+	$not_yet = '';
+}
 ?>
-@if($cari_tingkat_akhir && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
-<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
+@if($get_siswa->rombongan_belajar->semester->semester == 2)
+@if($get_siswa->rombongan_belajar->tingkat == 12)
+<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
 @else
-	@if($get_siswa->rombongan_belajar->semester->semester == 2)
-		@if($get_siswa->rombongan_belajar->tingkat == 12  && !in_array($get_siswa->rombongan_belajar_id, $rombel_4_tahun))
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Status Kelulusan</div>
-		@else
-		<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;Kenaikan Kelas</div>
-		@endif
-	@endif
+<div class="strong">{{$huruf_kenaikan}}.&nbsp;&nbsp;{{$text_status}}</div>
+@endif
 @endif
 @if($get_siswa->rombongan_belajar->semester->semester == 2)
 <table width="100%" border="1">
-  <tr>
-    <td style="padding:10px;">
-	@if($get_siswa->kenaikan)
-		@if($get_siswa->kenaikan->status == 3)
+	<tr>
+		<td style="padding:10px;">
+			@if($get_siswa->kenaikan)
+			@if($get_siswa->kenaikan->status == 3)
 			LULUS
-		@else
+			@else
 			{{CustomHelper::status_kenaikan($get_siswa->kenaikan->status)}} {{$get_siswa->kenaikan->nama_kelas}}
-		@endif
-	@else
-		@if($get_siswa->rombongan_belajar->tingkat == 12)
-			Belum dilakukan kelulusan
-		@else
-			Belum dilakukan kenaikan kelas
-		@endif
-	@endif
-	</td>
-  </tr>
+			@endif
+			@else
+			{{$not_yet}}
+			@endif
+		</td>
+	</tr>
 </table>
 <br>
 @endif
 <br>
 <table width="100%">
-  <tr>
-    <td style="width:40%">
-		<p>Orang Tua/Wali</p><br>
-<br>
-<br>
-<br>
-<br>
-<br>
-		<p>...................................................................</p>
-	</td>
-	<td style="width:20%"></td>
-    <td style="width:40%"><p>{{str_replace('Kab. ','',$get_siswa->sekolah->kabupaten)}}, {{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<p>
-<u>{{ CustomHelper::nama_guru($get_siswa->rombongan_belajar->wali->gelar_depan, $get_siswa->rombongan_belajar->wali->nama, $get_siswa->rombongan_belajar->wali->gelar_belakang) }}</u><br />
-NIP. {{$get_siswa->rombongan_belajar->wali->nip}}
-</td>
-  </tr>
+	<tr>
+		<td style="width:40%">
+			<p>Orang Tua/Wali</p><br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<p>...................................................................</p>
+		</td>
+		<td style="width:20%"></td>
+		<td style="width:40%">
+			<p>{{str_replace('Kab. ','',$get_siswa->sekolah->kabupaten)}},
+				{{CustomHelper::TanggalIndo($tanggal_rapor)}}<br>Wali Kelas</p><br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<p>
+				<u>{{ CustomHelper::nama_guru($get_siswa->rombongan_belajar->wali->gelar_depan,
+					$get_siswa->rombongan_belajar->wali->nama, $get_siswa->rombongan_belajar->wali->gelar_belakang) }}</u><br />
+				NIP. {{$get_siswa->rombongan_belajar->wali->nip}}
+		</td>
+	</tr>
 </table>
 <table width="100%" style="margin-top:10px;">
-  <tr>
-	<td style="width:40%;">
-	</td>
-    <td style="width:60%;">
-		<p>Mengetahui,<br>Kepala Sekolah</p>
-		<br>
-		<br>
-		<br>
-		<br>
-		<br>
-		<p><u>{{ CustomHelper::nama_guru($get_siswa->sekolah->guru->gelar_depan, $get_siswa->sekolah->guru->nama, $get_siswa->sekolah->guru->gelar_belakang) }}</u><br />
-		NIP. {{$get_siswa->sekolah->guru->nip}}
-		</p>
-	</td>
-  </tr>
+	<tr>
+		<td style="width:40%;">
+		</td>
+		<td style="width:60%;">
+			<p>Mengetahui,<br>Kepala Sekolah</p>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<p><u>{{ CustomHelper::nama_guru($get_siswa->sekolah->guru->gelar_depan, $get_siswa->sekolah->guru->nama,
+					$get_siswa->sekolah->guru->gelar_belakang) }}</u><br />
+				NIP. {{$get_siswa->sekolah->guru->nip}}
+			</p>
+		</td>
+	</tr>
 </table>
 @endsection

@@ -58,6 +58,12 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group" id="reset_capaian_kompetensi" style="display:none;">
+					<label for="mapel" class="col-sm-3 control-label">Reset Capaian Kompetensi</label>
+					<div class="col-sm-9">
+						<a href="javascript:void(0);" class="btn btn-warning">Reset Capaian Kompetensi</a>
+					</div>
+				</div>
 				<div class="form-group" id="rencana_show" style="display:none;">
 					<label for="rencana" class="col-sm-3 control-label">Rencana Penilaian</label>
 					<div class="col-sm-9">
@@ -82,6 +88,14 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group" id="rencana_p5bk" style="display:none;">
+					<label for="rencana" class="col-sm-3 control-label">Projek Penilaian</label>
+					<div class="col-sm-9">
+						<select name="rencana_budaya_kerja_id" class="select2 form-control" id="rencana_budaya_kerja_id" style="width:100%;">
+							<option value="">== Pilih Projek Penilaian ==</option>
+						</select>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div style="clear:both;"></div>
@@ -102,6 +116,7 @@
 var query = $('#query').val();
 var url_rombel;
 var url_mapel;
+$('#reset_capaian_kompetensi').hide();
 if(query == 'pengetahuan' || query == 'keterampilan'){
 	url_rombel = '{{url('ajax/get-mapel')}}';
 	url_mapel = '{{url('ajax/get-rencana')}}';
@@ -115,8 +130,24 @@ if(query == 'pengetahuan' || query == 'keterampilan'){
 	url_rombel = '{{url('ajax/get-mapel')}}';
 	url_mapel = '{{url('ajax/get-kompetensi')}}';
 	$('#mapel_show').show();
-	$('#aspek_penilaian_show').show();
+	if(query !== 'pusat-keunggulan'){
+		$('#aspek_penilaian_show').show();
+	} else {
+		url_mapel = '{{url('ajax/get-rencana')}}';
+		$('#rencana_show').show();
+	}
+	if(query == 'capaian-kompetensi'){
+		$('#aspek_penilaian_show').hide();
+		url_mapel = '{{url('ajax/get-deskripsi-pk')}}';
+	}
+	if(query == 'projek-profil-pelajar-pancasila-dan-budaya-kerja'){
+		$('#mapel_show').hide();
+		$('#rencana_p5bk').show();
+		$('#aspek_penilaian_show').hide();
+		url_rombel = '{{url('ajax/get-rencana-p5bk')}}';
+	}
 }
+console.log(query);
 console.log(url_mapel);
 var checkJSON = function(m) {
 	if (typeof m == 'object') { 
@@ -185,14 +216,26 @@ $('#rombel').change(function(){
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
+				/*if(data.kurikulum === 2021){
+					$('#kompetensi_id').val(3);
+				}*/
 				$('#mapel').html('<option value="">== Pilih Mata Pelajaran ==</option>');
 				$('#siswa').html('<option value="">== Pilih Nama Peserta Didik ==</option>');
+				$('#rencana_budaya_kerja_id').html('<option value="">== Pilih Projek Penilaian ==</option>');
 				if(!$.isEmptyObject(data.mapel)){
 					$.each(data.mapel, function (i, item) {
 						$('#mapel').append($("<option></option>")
 						.attr("value",item.value)
 						.attr("data-pembelajaran_id",item.pembelajaran_id)
 						.text(item.text)); 
+					});
+				}
+				if(!$.isEmptyObject(data.results)){
+					$.each(data.results, function (i, item) {
+						$('#rencana_budaya_kerja_id').append($('<option>', { 
+							value: item.value,
+							text : item.text,
+						}));
 					});
 				}
 				if(!$.isEmptyObject(data.siswa)){
@@ -212,6 +255,7 @@ $('#rombel').change(function(){
 });
 $('#mapel').change(function(){
 	var ini = $(this).val();
+	console.log(ini);
 	var selected = $(this).find('option:selected');
 	var pembelajaran_id = selected.data('pembelajaran_id');
 	$('#pembelajaran_id').val('');
@@ -226,6 +270,9 @@ $('#mapel').change(function(){
 		success: function(response){
 			$('#rencana').html('<option value="">== Pilih Rencana Penilaian ==</option>');
 			$('#aspek_penilaian').html('<option value="">== Pilih Aspek Penilaian ==</option>');
+			if(query == 'capaian-kompetensi'){
+				$('#reset_capaian_kompetensi').show();
+			}
 			result = checkJSON(response);
 			if(result == true){
 				var data = $.parseJSON(response);
@@ -321,6 +368,31 @@ $( "#form" ).submit(function(e) {
 		}
 	});
 });
+$('#reset_capaian_kompetensi').click(function(){
+	swal({
+		title: "Anda Yakin?",
+		text: "Semua isian capaian kompetensi akan dihapus!",
+		icon: "warning",
+		buttons: true,
+		dangerMode: true,
+		closeOnClickOutside: false,
+	}).then((willDelete) => {
+		if (willDelete) {
+			$.ajax({
+				url:'{{route('penilaian.reset_capaian_kompetensi')}}',
+				type:'post',
+				data: $('#form').serialize(),
+				success: function(data){
+					//var data = $.parseJSON(response);
+					//console.log(response);
+					swal({title: data.title, text: data.text,icon: data.icon, closeOnClickOutside: false}).then(results => {
+						window.location.replace('{{route('penilaian.form_penilaian', ['kompetensi_id' => $query])}}');
+					});
+				}
+			});
+		}
+	});
+});
 $('.reset_remedial').click(function(){
 	swal({
 		title: "Anda Yakin?",
@@ -343,6 +415,21 @@ $('.reset_remedial').click(function(){
 					});
 				}
 			});
+		}
+	});
+});
+$('#rencana_budaya_kerja_id').change(function(){
+	var ini = $(this).val();
+	if(ini == ''){
+		return false;
+	}
+	$.ajax({
+		url: '{{url('/ajax/get-form-p5bk')}}',
+		type: 'post',
+		data: $("form#form").serialize(),
+		success: function(response){
+			$('#simpan').show();
+			$('#result').html(response);
 		}
 	});
 });

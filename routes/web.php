@@ -17,6 +17,8 @@ Route::get('/activated', function () {
 });
 */
 Auth::routes();
+Route::get('/form-guru', 'TestController@formulir')->name('formulir');
+Route::post('/form-guru', 'TestController@formulir')->name('formulir');
 Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/test', 'TestController@index')->name('test');
     Route::get('/test/{npsn}', 'TestController@index')->name('test_npsn');
@@ -158,6 +160,9 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/referensi/duplikat/{id}', 'ReferensiController@duplikat_kd')->name('duplikat_kd');
         Route::get('/referensi/edit-kd/{id}', 'ReferensiController@edit_kd')->name('edit_kd');
         Route::post('/referensi/update-kd', array('as' => 'referensi.update_kd', 'uses' => 'ReferensiController@update_kd'));
+        Route::prefix('referensi')->group(function () {
+            Route::get('/kd-ex/{tingkat_pendidikan_id}/{rombongan_belajar_id}/{mata_pelajaran_id}/{kompetensi_id}', 'ReferensiController@export_kd')->name('referensi.export_kd');
+        });
     });
     Route::group(['middleware' => ['role:waka|kaprog']], function () {
         Route::get('/referensi/ukk', 'ReferensiController@ukk')->name('ref_ukk');
@@ -173,6 +178,10 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::group(['middleware' => ['role:guru|pembina_ekskul']], function () {
         //Perencanaan Start//
         Route::prefix('perencanaan')->group(function () {
+            Route::get('/pk', 'PerencanaanController@pk')->name('perencanaan_pk');
+            Route::get('/tambah-pk', 'PerencanaanController@tambah_pk');
+            Route::get('/projek-profil-pelajar-pancasila-dan-budaya-kerja', 'PerencanaanController@p5bk')->name('perencanaan.p5bk');
+            Route::get('/tambah-p5bk', 'PerencanaanController@tambah_p5bk');
             Route::get('/rasio', 'PerencanaanController@index')->name('rasio');
             Route::post('/simpan-rasio', array('as' => 'simpan_rasio', 'uses' => 'PerencanaanController@simpan_rasio'));
             Route::get('/pengetahuan', 'PerencanaanController@pengetahuan')->name('perencanaan_pengetahuan');
@@ -181,6 +190,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::get('/tambah-keterampilan', 'PerencanaanController@tambah_keterampilan');
             Route::post('/simpan-perencanaan', array('as' => 'simpan_perencanaan', 'uses' => 'PerencanaanController@simpan_perencanaan'));
             Route::get('/list-rencana/{kompetensi_id}', array('as' => 'perencanaan.list_rencana', 'uses' => 'PerencanaanController@list_rencana'));
+            Route::get('/list-rencana-p5bk', array('as' => 'perencanaan.list_p5bk', 'uses' => 'PerencanaanController@list_rencana_p5bk'));
             Route::get('/edit/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.edit_rencana', 'uses' => 'PerencanaanController@edit_rencana'));
             Route::get('/delete/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.delete', 'uses' => 'PerencanaanController@delete'));
             Route::get('/copy-rencana/{kompetensi_id}/{rencana_id}', array('as' => 'perencanaan.copy_rencana', 'uses' => 'PerencanaanController@copy_rencana'));
@@ -195,6 +205,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::get('/edit-ukk/{ukk_id}', array('as' => 'perencanaan.edit_ukk', 'uses' => 'PerencanaanController@edit_ukk'));
             Route::post('/update-ukk', array('as' => 'perencanaan.update_ukk', 'uses' => 'PerencanaanController@update_ukk'));
             Route::get('/delete-ukk/{ukk_id}', array('as' => 'perencanaan.delete_ukk', 'uses' => 'PerencanaanController@delete_ukk'));
+            Route::post('/simpan-rencana-budaya-kerja', array('as' => 'perencanaan.simpan_p5bk', 'uses' => 'PerencanaanController@simpan_p5bk'));
         });
         //Perencanaan End//
         //Penilaian Start//
@@ -211,6 +222,7 @@ Route::group(['middleware' => ['get.menu']], function () {
             Route::post('/import_excel', 'PenilaianController@import_excel');
             Route::get('/delete-remedial/{remedial_id}', array('as' => 'penilaian.delete_remedial', 'uses' => 'PenilaianController@delete_remedial'));
             Route::post('/reset-remedial', array('as' => 'penilaian.reset_remedial', 'uses' => 'PenilaianController@reset_remedial'));
+            Route::post('/reset-capaian-kompetensi', array('as' => 'penilaian.reset_capaian_kompetensi', 'uses' => 'PenilaianController@reset_capaian_kompetensi'));
         });
         //Penilaian End//
         //Monitoring Start//
@@ -271,6 +283,12 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::post('/ajax/get-nilai-un', array('as' => 'ajax.get_nilai_un', 'uses' => 'AjaxController@get_nilai_un'));
     Route::post('/ajax/get-wirausaha', array('as' => 'ajax.get_wirausaha', 'uses' => 'AjaxController@get_wirausaha'));
     Route::post('/ajax/get-anggota-wirausaha', array('as' => 'ajax.get_anggota_wirausaha', 'uses' => 'AjaxController@get_anggota_wirausaha'));
+    Route::post('/ajax/get-deskripsi-pk', array('as' => 'ajax.get_deskripsi_pk', 'uses' => 'AjaxController@get_deskripsi_pk'));
+    Route::post('/ajax/get-rencana-budaya-kerja', array('as' => 'ajax.get_rencana_budaya_kerja', 'uses' => 'AjaxController@get_rencana_budaya_kerja'));
+    Route::post('/ajax/get-rencana-p5bk', array('as' => 'ajax.get_rencana_p5bk', 'uses' => 'AjaxController@get_rencana_p5bk'));
+    Route::post('/ajax/get-form-p5bk', array('as' => 'ajax.get_form_p5bk', 'uses' => 'AjaxController@get_form_p5bk'));
+    Route::get('/ajax/catatan-p5bk/{anggota_rombel_id}', array('as' => 'ajax.catatan_p5bk', 'uses' => 'AjaxController@catatan_p5bk'));
+    Route::post('/ajax/simpan-catatan-p5bk', array('as' => 'ajax.simpan_catatan_p5bk', 'uses' => 'AjaxController@simpan_catatan_p5bk'));
     //Query Ajax End//
     Route::get('/penilaian/exportToExcel/{rencana_penilaian_id}', 'PenilaianController@exportToExcel');
     Route::get('/foo', function () {
@@ -326,6 +344,8 @@ Route::group(['middleware' => ['get.menu']], function () {
         Route::get('/laporan/unduh-leger-kd/{id}', 'LaporanController@unduh_legger_kd');
         Route::get('/laporan/unduh-leger-nilai-akhir/{id}', 'LaporanController@unduh_legger_nilai_akhir');
         Route::get('/laporan/unduh-leger-nilai-rapor/{id}', 'LaporanController@unduh_legger_nilai_rapor');
+        Route::get('/laporan/projek-profil-pelajar-pancasila-dan-budaya-kerja', 'LaporanController@budaya_kerja')->name('laporan.budaya_kerja');
+        Route::get('/laporan/review-p5bk/{id}', 'LaporanController@review_p5bk');
     });
     //Laporan End//
     //Cetak Start//
@@ -336,6 +356,7 @@ Route::group(['middleware' => ['get.menu']], function () {
     Route::get('/cetak/rapor-nilai/{query}/{id}', 'CetakController@rapor_nilai');
     Route::get('/cetak/rapor-pendukung/{query}/{id}', 'CetakController@rapor_pendukung');
     Route::get('/cetak/rapor/{user_id}', 'CetakController@rapor_user')->name('cetak.rapor_user');
+    Route::get('/cetak/rapor-p5bk/{anggota_rombel_id}', 'CetakController@rapor_p5bk')->name('cetak.rapor_p5bk');
     //Route::post('/cetak/rapor-uts', array('as' => 'cetak.rapor_uts', 'uses' => 'CetakController@rapor_uts'));
     //Cetang End//
     Route::get('/excel-pembelajaran', 'ExcelController@pembelajaran');

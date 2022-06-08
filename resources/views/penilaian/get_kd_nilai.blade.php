@@ -42,7 +42,17 @@ $('#simpan').remove();
 		<?php
 		//dd($all_kd_nilai->kd_nilai);
 		foreach($all_kd_nilai->kd_nilai as $kd_nilai){
-			$kompetensi_dasar = ($kd_nilai->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai->kompetensi_dasar->kompetensi_dasar;
+			$kompetensi_dasar = '-';
+			if($kd_nilai){
+				if($kd_nilai->kompetensi_dasar){
+					if($kd_nilai->kompetensi_dasar->kompetensi_dasar_alias){
+						$kompetensi_dasar = $kd_nilai->kompetensi_dasar->kompetensi_dasar_alias;
+					} else {
+						$kompetensi_dasar = $kd_nilai->kompetensi_dasar->kompetensi_dasar;
+					}
+				}
+			}
+			//$kompetensi_dasar = ($kd_nilai) ? ($kd_nilai->kompetensi_dasar->kompetensi_dasar_alias) ? $kd_nilai->kompetensi_dasar->kompetensi_dasar_alias : $kd_nilai->kompetensi_dasar->kompetensi_dasar : '-';
 		?>
 				<th class="text-center"><a href="javacript:void(0)" class="tooltip-left" title="<?php echo $kompetensi_dasar; ?>"><?php echo $kd_nilai->id_kompetensi; ?></a></th>
 		<?php } ?>

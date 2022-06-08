@@ -66,7 +66,7 @@
                     <select class="select2 form-control" name="semester_id" style="width: 100%;">
 					@foreach ($all_data as $tahun)
 						@foreach ($tahun->semester as $data)
-						<option value="{{ $data->semester_id }}" {{ (old('semester_id')) ? old('semester_id') == $data->semester_id : $data->periode_aktif == 1 ? "selected":"" }}>{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
+						<option value="{{ $data->semester_id }}" {{ ((old('semester_id')) ? old('semester_id') == $data->semester_id : ($data->periode_aktif == 1 ? "selected":"")) }}>{{ $data->nama }} - Semester {{ ($data->semester == 1) ? 'Ganjil' : 'Genap' }}</option>
 						@endforeach
 					@endforeach
 					</select>

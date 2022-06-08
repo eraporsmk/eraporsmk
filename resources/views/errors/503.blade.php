@@ -51,7 +51,9 @@
     <body>
         <div class="flex-center position-ref full-height">
             <div class="code">503</div>
-			<div class="message" style="padding: 10px;">Saat ini website sedang dalam perbaikan.</div>
+			<div class="message" style="padding: 10px;">
+                {{ ($exception->getMessage()) ? $exception->getMessage() : 'Saat ini website sedang dalam perbaikan.' }}
+            </div>
 		</div>
     </body>
 </html>
