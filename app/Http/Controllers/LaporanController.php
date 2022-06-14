@@ -34,7 +34,7 @@ use App\Kewirausahaan;
 use App\Anggota_kewirausahaan;
 use App\Exports\LaporanExport;
 use App\Imports\LaporanImport;
-use App\Rombel4_Tahun;
+use App\Rombel_empat_tahun;
 use App\Rencana_budaya_kerja;
 use App\Opsi_budaya_kerja;
 use App\Budaya_kerja;
@@ -497,7 +497,7 @@ class LaporanController extends Controller
 				$query->where('semester_id', session('semester_id'));
 			})->order()->get();
 			//$rombel_4_tahun = (config('global.rombel_4_tahun')) ? unserialize(config('global.rombel_4_tahun')) : [];
-			$rombel_4_tahun = Rombel4_tahun::select('rombongan_belajar_id')->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
+			$rombel_4_tahun = Rombel_empat_tahun::select('rombongan_belajar_id')->where('sekolah_id', session('sekolah_id'))->where('semester_id', session('semester_id'))->get()->keyBy('rombongan_belajar_id')->keys()->toArray();
 			$params = array(
 				'get_siswa'	=> $get_siswa,
 				'cari_tingkat_akhir'	=> $cari_tingkat_akhir,
