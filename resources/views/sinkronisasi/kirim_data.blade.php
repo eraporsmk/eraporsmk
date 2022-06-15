@@ -138,7 +138,8 @@ $table_sync = config('erapor.table_sync');
 							}
 							if (!in_array($sync, $no_semester)) {
 							//if($sync != 'sekolah'){
-								$query->where('semester_id', '=', $semester->semester_id);
+							//$query->where('semester_id', '=', $semester->semester_id);
+								$query->where('semester_id', '=', $semester);
 							}
 							if (Schema::hasColumn($sync, 'last_sync')) {
 								$query->where('last_sync', '>=', $last_sync);	
