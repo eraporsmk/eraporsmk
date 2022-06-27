@@ -361,11 +361,11 @@ class HelperServiceProvider extends ServiceProvider
 		if ($lang == 'ID') {
 			if (!$n) {
 				$predikat 	= '';
-			} elseif ($n >= 91) {
+			} elseif ($n >= 90) {
 				$predikat 	= 'Sangat Kompeten';
-			} elseif ($n >= 80 && $n <= 90) {
+			} elseif ($n >= 75 && $n <= 89) {
 				$predikat 	= 'Kompeten';
-			} elseif ($n >= 70 && $n <= 79) {
+			} elseif ($n >= 70 && $n <= 74) {
 				$predikat 	= 'Cukup Kompeten';
 			} elseif ($n < 70) {
 				$predikat 	= 'Belum Kompeten';
@@ -373,11 +373,11 @@ class HelperServiceProvider extends ServiceProvider
 		} else {
 			if (!$n) {
 				$predikat 	= '';
-			} elseif ($n >= 91) {
+			} elseif ($n >= 90) {
 				$predikat 	= 'Highly Competent';
-			} elseif ($n >= 80 && $n <= 90) {
+			} elseif ($n >= 75 && $n <= 89) {
 				$predikat 	= 'Competent';
-			} elseif ($n >= 70 && $n <= 79) {
+			} elseif ($n >= 70 && $n <= 74) {
 				$predikat 	= 'Partly Competent';
 			} elseif ($n < 70) {
 				$predikat 	= 'Not Yet Competent';
