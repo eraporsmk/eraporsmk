@@ -33,6 +33,11 @@ class InstrukturImport implements ToModel, WithStartRow
 				$tanggal_lahir = date('Y-m-d', strtotime($excel_date));
 			}
 			$agama = Agama::where('nama', $row[8])->first();
+			if($agama){
+				$agama_id = ($agama->id) ? $agama->id : $agama->agama_id;
+			} else {
+				$agama_id = 1;
+			}
 			$user = auth()->user();
 			$random = Str::random(6);
 			$email = (strtolower($row[16])) ? strtolower($row[16]) : strtolower($random).'@erapor-smk.net';
@@ -50,7 +55,7 @@ class InstrukturImport implements ToModel, WithStartRow
 					'tempat_lahir'			=> $row[6],
 					'tanggal_lahir'			=> $tanggal_lahir,
 					'jenis_ptk_id'			=> 97,
-					'agama_id'				=> ($agama) ? $agama->id : 1,
+					'agama_id'				=> $agama_id,
 					'status_kepegawaian_id'	=> 99,
 					'alamat'				=> $row[9],
 					'rt'					=> $row[10],
