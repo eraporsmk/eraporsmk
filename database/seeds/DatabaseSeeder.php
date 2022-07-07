@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SettingSeeder::class);
 		$this->call(AgamaSeeder::class);
 		$this->call(GelarSeeder::class);
+		$this->call(JenisPtkSeeder::class);
 		$this->call(JurusanSeeder::class);
 		$this->call(KelompokSeeder::class);
 		$this->call(KurikulumSeeder::class);
@@ -24,7 +25,6 @@ class DatabaseSeeder extends Seeder
 		$this->call(SemesterSeeder::class);
 		$this->call(SikapSeeder::class);
 		$this->call(RoleSeeder::class);
-		$this->call(JenisPtkSeeder::class);
 		$this->call(StatusKepegawaianSeeder::class);
 		$this->call(TeknikSeeder::class);
 		$this->call(KDSeeder::class);
