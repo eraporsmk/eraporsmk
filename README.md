@@ -1,4 +1,6 @@
-<p align="center"><img src="http://portal.erapor-smk.net/logo3.png" width="600"></p>
+<h1>PENGEMBANGAN DIHENTIKAN DAN AKAN DILANJUTKAN KE VERSI BARU</h1>
+
+<p align="center"><img src="http://erapor-smk.net/logo.png" width="600"></p>
 
 ## Cara Install
 
